@@ -255,6 +255,22 @@ export default [
           },
         ],
       },
+
+      // 商品目录
+      {
+        name: 'catalog',
+        icon: 'table',
+        path: '/catalog',
+        routes: [
+          {
+            path: '/catalog/category',
+            name: 'list',
+            component: './Catalog/Category',
+          },
+        ],
+      },
+
+      // 所有页面配置要放到404之前，否则会报404
       {
         component: '404',
       },

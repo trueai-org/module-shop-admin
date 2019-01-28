@@ -3,6 +3,7 @@ import { notification } from 'antd';
 import router from 'umi/router';
 import hash from 'hash.js';
 import { isAntdPro } from './utils';
+import token from './token';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -36,6 +37,11 @@ const checkStatus = response => {
   error.response = response;
   throw error;
 };
+
+function buildAuthorization() {
+  const tokenVal = token.get();
+  return token !== '' ? `Bearer ${tokenVal}` : '';
+}
 
 const cachedSave = (response, hashcode) => {
   /**
@@ -102,6 +108,11 @@ export default function request(url, option) {
       };
     }
   }
+
+  newOptions.headers = {
+    Authorization: buildAuthorization(),
+    ...newOptions.headers,
+  };
 
   const expirys = options.expirys && 60;
   // options.expirys !== false, return the cache,

@@ -44,7 +44,8 @@ class LoginPage extends Component {
     if (!err) {
       const { dispatch } = this.props;
       dispatch({
-        type: 'login/login',
+        type: 'login/loginAdmin',
+        // type: 'login/login',
         payload: {
           ...values,
           type,
