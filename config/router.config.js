@@ -263,15 +263,25 @@ export default [
         path: '/catalog',
         routes: [
           {
-            path: '/catalog/category',
+            path: '/catalog/category/list',
             name: 'category',
-            component: './Catalog/Category',
+            component: './Catalog/Category/List',
+          },
+          {
+            path: '/catalog/category/add',
+            name: 'category-add',
+            component: './Catalog/Category/Add',
+          },
+          {
+            path: '/catalog/category/edit',
+            name: 'category-edit',
+            component: './Catalog/Category/Edit',
           },
         ],
       },
 
-       // 商品目录
-       {
+      // 商品目录
+      {
         name: 'category',
         icon: 'table',
         path: '/category',

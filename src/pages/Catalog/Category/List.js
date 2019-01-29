@@ -16,7 +16,7 @@ const FormItem = Form.Item;
   category,
 }))
 @Form.create()
-class Category extends PureComponent {
+class CategoryList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -69,7 +69,7 @@ class Category extends PureComponent {
       sorter: true,
     },
     {
-      title: '序号',
+      title: '显示顺序',
       dataIndex: 'displayOrder',
       sorter: true,
     },
@@ -325,4 +325,4 @@ class Category extends PureComponent {
   }
 }
 
-export default Category;
+export default CategoryList;

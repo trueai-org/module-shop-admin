@@ -140,6 +140,10 @@ export async function currentAccount() {
   return request('/api/account');
 }
 
+export async function allCategories() {
+  return request('/api/categories');
+}
+
 export async function queryCategories(params) {
   return request('/api/categories/grid', {
     method: 'POST',
@@ -159,5 +163,10 @@ export async function delCategory(params) {
   });
 }
 
-
+export async function addCategory(params) {
+  return request(`/api/categories`, {
+    method: 'POST',
+    body: params,
+  });
+}
 
