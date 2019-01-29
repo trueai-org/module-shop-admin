@@ -264,8 +264,22 @@ export default [
         routes: [
           {
             path: '/catalog/category',
-            name: 'list',
+            name: 'category',
             component: './Catalog/Category',
+          },
+        ],
+      },
+
+       // 商品目录
+       {
+        name: 'category',
+        icon: 'table',
+        path: '/category',
+        routes: [
+          {
+            path: '/category/list',
+            name: 'category',
+            component: './Category/List',
           },
         ],
       },

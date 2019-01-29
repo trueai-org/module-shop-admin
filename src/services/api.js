@@ -125,6 +125,10 @@ export async function getFakeCaptcha(mobile) {
   return request(`/api/captcha?mobile=${mobile}`);
 }
 
+/**
+ * add
+ * 
+ */
 export async function loginAdmin(params) {
   return request('/api/token/create', {
     method: 'POST',
@@ -135,3 +139,25 @@ export async function loginAdmin(params) {
 export async function currentAccount() {
   return request('/api/account');
 }
+
+export async function queryCategories(params) {
+  return request('/api/categories/grid', {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function switchInMenu(params) {
+  return request(`/api/categories/switch/${params.id}`, {
+    method: 'PUT'
+  });
+}
+
+export async function delCategory(params) {
+  return request(`/api/categories/${params.id}`, {
+    method: 'DELETE'
+  });
+}
+
+
+
