@@ -1,37 +1,34 @@
 import {
-    queryCategories, switchInMenu, delCategory, allCategories, addCategory,
-    firstCategory, updateCategory,
-    uploadImage
+    queryCategory, categoryInMenuSwitch, deleteCategory, categories, addCategory,
+    firstCategory, editCategory, uploadImage
 } from '@/services/api';
 
 export default {
     namespace: 'category',
-    state: {
-
-    },
+    state: {},
 
     effects: {
         *queryCategory({ payload }, { call, put }) {
             const { resolve, params } = payload;
-            const response = yield call(queryCategories, params);
+            const response = yield call(queryCategory, params);
             !!resolve && resolve(response);
         },
 
-        *allCategories({ payload }, { call, put }) {
+        *categories({ payload }, { call, put }) {
             const { resolve } = payload;
-            const response = yield call(allCategories);
+            const response = yield call(categories);
             !!resolve && resolve(response);
         },
 
         *switchCategory({ payload }, { call, put }) {
             const { resolve, params } = payload;
-            const response = yield call(switchInMenu, params);
+            const response = yield call(categoryInMenuSwitch, params);
             !!resolve && resolve(response);
         },
 
-        *delCategory({ payload }, { call, put }) {
+        *deleteCategory({ payload }, { call, put }) {
             const { resolve, params } = payload;
-            const response = yield call(delCategory, params);
+            const response = yield call(deleteCategory, params);
             !!resolve && resolve(response);
         },
 
@@ -41,9 +38,9 @@ export default {
             !!resolve && resolve(response);
         },
 
-        *updateCategory({ payload }, { call, put }) {
+        *editCategory({ payload }, { call, put }) {
             const { resolve, params } = payload;
-            const response = yield call(updateCategory, params);
+            const response = yield call(editCategory, params);
             !!resolve && resolve(response);
         },
 

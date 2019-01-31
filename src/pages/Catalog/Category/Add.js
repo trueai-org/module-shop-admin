@@ -116,7 +116,7 @@ class CategoryAdd extends PureComponent {
         const { dispatch } = this.props;
         new Promise(resolve => {
             dispatch({
-                type: 'category/allCategories',
+                type: 'category/categories',
                 payload: {
                     resolve,
                 },

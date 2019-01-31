@@ -117,7 +117,7 @@ class CategoryEdit extends PureComponent {
         });
         new Promise(resolve => {
             dispatch({
-                type: 'category/allCategories',
+                type: 'category/categories',
                 payload: {
                     resolve,
                 },

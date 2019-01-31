@@ -24,7 +24,7 @@ class CategoryList extends PureComponent {
       loading: false,
       keyword: '',
       pageNum: 1,
-      pageSize: 10,
+      pageSize: 5,
       predicate: 'id',
       reverse: true,
 
@@ -41,8 +41,8 @@ class CategoryList extends PureComponent {
       title: '操作',
       key: 'operation',
       fixed: 'left',
-      // align: 'center',
-      // width: 120,
+      align: 'center',
+      width: 120,
       render: (text, record) => (
         <Fragment>
           <a onClick={() => this.handleEditCategory(text, record)}>修改</a>
@@ -54,55 +54,55 @@ class CategoryList extends PureComponent {
       )
     },
     {
-      title: '包括在菜单中',
-      dataIndex: 'includeInMenu',
-      fixed: 'left',
-      // align: 'center',
-      // width: 120,
-      render: (val, record) => <Switch defaultChecked={val} onChange={checked => this.onSwitch(checked, record)} />
-    },
-    {
       title: 'ID',
       dataIndex: 'id',
+      fixed: 'left',
       sorter: true,
       defaultSortOrder: 'descend',
-      // width: 120,
+      width: 120,
     },
+
     {
       title: '名称',
       dataIndex: 'name',
       sorter: true,
-      // width: 150,
-      // render: (text) => <span className={styles.colname}>{text}</span>,
     },
     {
       title: '显示顺序',
       dataIndex: 'displayOrder',
       sorter: true,
-      // width: 120,
+      width: 120,
+    },
+    {
+      title: '菜单中显示',
+      dataIndex: 'includeInMenu',
+      sorter: true,
+      width: 120,
+      render: (val) => <Switch checked={val} disabled />,
+      // render: (val, record) => <Switch defaultChecked={val} onChange={checked => this.onSwitch(checked, record)} />
     },
     {
       title: '是否发布',
       dataIndex: 'isPublished',
       sorter: true,
-      // width: 120,
+      width: 120,
       render: (val) => <Switch checked={val} disabled />
     },
-    {
-      title: '创建时间',
-      dataIndex: 'createdOn',
-      sorter: true,
-      width: 120,
-      render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
-    },
-    {
-      title: '更新时间',
-      dataIndex: 'updatedOn',
-      sorter: true,
-      width: 120,
-      render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
-    },
-
+   
+    // {
+    //   title: '创建时间',
+    //   dataIndex: 'createdOn',
+    //   sorter: true,
+    //   width: 120,
+    //   render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
+    // },
+    // {
+    //   title: '更新时间',
+    //   dataIndex: 'updatedOn',
+    //   sorter: true,
+    //   width: 120,
+    //   render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
+    // }
   ];
 
 
@@ -348,7 +348,7 @@ class CategoryList extends PureComponent {
               columns={this.columns}
               bordered
               onChange={this.handleStandardTableChange}
-              scroll={{ x: 1000 }}
+              scroll={{ x: 800 }}
             />
           </div>
         </Card>

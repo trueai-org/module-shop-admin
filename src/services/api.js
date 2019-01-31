@@ -144,24 +144,24 @@ export async function currentAccount() {
 
 // 分类
 
-export async function allCategories() {
+export async function categories() {
   return request('/api/categories');
 }
 
-export async function queryCategories(params) {
+export async function queryCategory(params) {
   return request('/api/categories/grid', {
     method: 'POST',
     body: params,
   });
 }
 
-export async function switchInMenu(params) {
+export async function categoryInMenuSwitch(params) {
   return request(`/api/categories/switch/${params.id}`, {
     method: 'PUT'
   });
 }
 
-export async function delCategory(params) {
+export async function deleteCategory(params) {
   return request(`/api/categories/${params.id}`, {
     method: 'DELETE'
   });
@@ -178,16 +178,9 @@ export async function addCategory(params) {
   });
 }
 
-export async function updateCategory(params) {
+export async function editCategory(params) {
   return request(`/api/categories/${params.id}`, {
     method: 'PUT',
-    body: params
-  });
-}
-
-export async function uploadImage(params) {
-  return requestUpload(`/api/upload`, {
-    method: 'POST',
     body: params
   });
 }
@@ -221,6 +214,15 @@ export async function addBrand(params) {
 export async function editBrand(params) {
   return request(`/api/brands/${params.id}`, {
     method: 'PUT',
+    body: params
+  });
+}
+
+// 上传
+
+export async function uploadImage(params) {
+  return requestUpload(`/api/upload`, {
+    method: 'POST',
     body: params
   });
 }

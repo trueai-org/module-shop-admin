@@ -31,9 +31,10 @@ class TableList extends PureComponent {
       },
 
       submitting: false,
-      // add or update model
       brand: {}
     };
+
+    this.handleChangeKeyword = this.handleChangeKeyword.bind(this);
   }
 
   columns = [
@@ -56,6 +57,7 @@ class TableList extends PureComponent {
     {
       title: 'ID',
       dataIndex: 'id',
+      fixed: 'left',
       sorter: true,
       defaultSortOrder: 'descend',
       width: 120,
@@ -69,23 +71,23 @@ class TableList extends PureComponent {
       title: '是否发布',
       dataIndex: 'isPublished',
       sorter: true,
-      width: 120,
+      // width: 120,
       render: (val) => <Switch checked={val} disabled />
     },
-    {
-      title: '创建时间',
-      dataIndex: 'createdOn',
-      sorter: true,
-      width: 120,
-      render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
-    },
-    {
-      title: '更新时间',
-      dataIndex: 'updatedOn',
-      sorter: true,
-      width: 120,
-      render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
-    },
+    // {
+    //   title: '创建时间',
+    //   dataIndex: 'createdOn',
+    //   sorter: true,
+    //   width: 120,
+    //   render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
+    // },
+    // {
+    //   title: '更新时间',
+    //   dataIndex: 'updatedOn',
+    //   sorter: true,
+    //   width: 120,
+    //   render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
+    // },
   ];
 
   handleUpdateModalVisible = (text, record) => {
@@ -130,11 +132,11 @@ class TableList extends PureComponent {
         bt = 'brand/editBrand';
       }
 
-      if (this.state.submitting)
+      if (this.state.submitting === true)
         return;
 
       // console.log(params);
-      
+
       this.setState({ submitting: true });
       new Promise(resolve => {
         dispatch({
@@ -145,9 +147,10 @@ class TableList extends PureComponent {
           },
         });
       }).then(res => {
+        this.setState({ submitting: false });
         if (res.success === true) {
           form.resetFields();
-          this.setState({ visible: false, submitting: false });
+          this.setState({ visible: false });
           this.handleSearchFirst();
         } else {
           notification.error({
