@@ -41,7 +41,7 @@ class TableList extends PureComponent {
     {
       title: '操作',
       key: 'operation',
-      fixed: 'left',
+      // fixed: 'left',
       align: 'center',
       width: 120,
       render: (text, record) => (
@@ -57,7 +57,7 @@ class TableList extends PureComponent {
     {
       title: 'ID',
       dataIndex: 'id',
-      fixed: 'left',
+      // fixed: 'left',
       sorter: true,
       defaultSortOrder: 'descend',
       width: 120,
@@ -212,14 +212,11 @@ class TableList extends PureComponent {
       this.setState({
         loading: false,
       });
-      // console.log(res);
-      // 字符串无法识别，再次转换一下，原因未知？？
-      var result = JSON.parse(res);
-      if (result.success === true) {
+      if (res.success === true) {
         this.handleSearch();
       } else {
         notification.error({
-          message: result.message,
+          message: res.message,
         });
       }
     });
@@ -343,7 +340,7 @@ class TableList extends PureComponent {
               columns={this.columns}
               bordered
               onChange={this.handleStandardTableChange}
-              scroll={{ x: 800 }}
+              // scroll={{ x: 800 }}
             />
           </div>
         </Card>

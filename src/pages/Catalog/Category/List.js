@@ -246,14 +246,11 @@ class CategoryList extends PureComponent {
       this.setState({
         loading: false,
       });
-      // console.log(res);
-      // 字符串无法识别，再次转换一下，原因未知？？
-      var result = JSON.parse(res);
-      if (result.success === true) {
+      if (res.success === true) {
         this.handleSearch();
       } else {
         notification.error({
-          message: result.message,
+          message: res.message,
         });
       }
     });
