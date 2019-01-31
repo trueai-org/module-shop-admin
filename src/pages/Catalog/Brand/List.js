@@ -6,34 +6,34 @@ import {
   Popconfirm, Switch, Tag, Select, Divider
 } from 'antd';
 
-import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-import { routerRedux } from 'dva/router';
-import router from 'umi/router';
-import Link from 'umi/link';
+import StandardTable from '@/components/StandardTable';
+import BrandComponent from './BrandComponent';
 
 const FormItem = Form.Item;
 
 @connect()
 @Form.create()
-class CategoryList extends PureComponent {
+class TableList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      selectedRows: [],
+      visible: false,
       loading: false,
       keyword: '',
       pageNum: 1,
-      pageSize: 10,
+      pageSize: 5,
       predicate: 'id',
       reverse: true,
-
       data: {
         list: [],
         pagination: {}
-      }
+      },
+
+      submitting: false,
+      // add or update model
+      brand: {}
     };
-    this.handleChangeKeyword = this.handleChangeKeyword.bind(this);
   }
 
   columns = [
@@ -41,11 +41,11 @@ class CategoryList extends PureComponent {
       title: '操作',
       key: 'operation',
       fixed: 'left',
-      // align: 'center',
-      // width: 120,
+      align: 'center',
+      width: 120,
       render: (text, record) => (
         <Fragment>
-          <a onClick={() => this.handleEditCategory(text, record)}>修改</a>
+          <a onClick={() => this.handleUpdateModalVisible(text, record)}>修改</a>
           <Divider type="vertical" />
           <Popconfirm title="确定要删除吗？" onConfirm={() => this.handleDelete(text, record)}>
             <a href="javascript:;">删除</a>
@@ -54,38 +54,22 @@ class CategoryList extends PureComponent {
       )
     },
     {
-      title: '包括在菜单中',
-      dataIndex: 'includeInMenu',
-      fixed: 'left',
-      // align: 'center',
-      // width: 120,
-      render: (val, record) => <Switch defaultChecked={val} onChange={checked => this.onSwitch(checked, record)} />
-    },
-    {
       title: 'ID',
       dataIndex: 'id',
       sorter: true,
       defaultSortOrder: 'descend',
-      // width: 120,
+      width: 120,
     },
     {
       title: '名称',
       dataIndex: 'name',
       sorter: true,
-      // width: 150,
-      // render: (text) => <span className={styles.colname}>{text}</span>,
-    },
-    {
-      title: '显示顺序',
-      dataIndex: 'displayOrder',
-      sorter: true,
-      // width: 120,
     },
     {
       title: '是否发布',
       dataIndex: 'isPublished',
       sorter: true,
-      // width: 120,
+      width: 120,
       render: (val) => <Switch checked={val} disabled />
     },
     {
@@ -102,45 +86,15 @@ class CategoryList extends PureComponent {
       width: 120,
       render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
     },
-
   ];
 
-
-  onSwitch = (checked, record) => {
-    this.setState({
-      loading: true,
-    });
-    const { dispatch } = this.props;
-    const params = {
-      id: record.id,
-    };
-
-    // 提交之前修改
-    record.includeInMenu = !record.includeInMenu;
-
-    new Promise(resolve => {
-      dispatch({
-        type: 'category/switchCategory',
-        payload: {
-          resolve,
-          params,
-        },
-      });
-    }).then(res => {
+  handleUpdateModalVisible = (text, record) => {
+    if (record.id) {
       this.setState({
-        loading: false,
+        visible: true,
+        brand: record
       });
-      // console.log(res);
-      if (res.success === true) {
-        this.handleSearch();
-      } else {
-        // 失败则重置
-        record.includeInMenu = !record.includeInMenu;
-        notification.error({
-          message: res.message,
-        });
-      }
-    });
+    }
   };
 
   handleChangeKeyword(event) {
@@ -148,6 +102,67 @@ class CategoryList extends PureComponent {
       keyword: event.target.value,
     });
   }
+
+  showModal = () => {
+    this.setState({
+      visible: true,
+      brand: {}
+    });
+  };
+
+  saveFormRef = (formRef) => {
+    this.formRef = formRef;
+  }
+
+  handleCreate = () => {
+    const { dispatch } = this.props;
+    const form = this.formRef.props.form;
+    form.validateFields((err, values) => {
+      if (err) {
+        return;
+      }
+      var params = {
+        ...values
+      };
+
+      let bt = 'brand/addBrand';
+      if (params.id) {
+        bt = 'brand/editBrand';
+      }
+
+      if (this.state.submitting)
+        return;
+
+      // console.log(params);
+      
+      this.setState({ submitting: true });
+      new Promise(resolve => {
+        dispatch({
+          type: bt,
+          payload: {
+            resolve,
+            params
+          },
+        });
+      }).then(res => {
+        if (res.success === true) {
+          form.resetFields();
+          this.setState({ visible: false, submitting: false });
+          this.handleSearchFirst();
+        } else {
+          notification.error({
+            message: res.message,
+          });
+        }
+      });
+    });
+  }
+
+  handleCancel = e => {
+    this.setState({
+      visible: false,
+    });
+  };
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
     var firstPage = sorter.field != this.state.predicate;
@@ -174,13 +189,38 @@ class CategoryList extends PureComponent {
     });
   };
 
-  handleSearchFirst = () => {
+  handleDelete = (text, record) => {
     this.setState({
-      pageNum: 1
-    }, () => {
-      this.handleSearch();
+      loading: true,
     });
-  }
+    const { dispatch } = this.props;
+    const params = {
+      id: record.id,
+    };
+    new Promise(resolve => {
+      dispatch({
+        type: 'brand/deleteBrand',
+        payload: {
+          resolve,
+          params,
+        },
+      });
+    }).then(res => {
+      this.setState({
+        loading: false,
+      });
+      // console.log(res);
+      // 字符串无法识别，再次转换一下，原因未知？？
+      var result = JSON.parse(res);
+      if (result.success === true) {
+        this.handleSearch();
+      } else {
+        notification.error({
+          message: result.message,
+        });
+      }
+    });
+  };
 
   handleSearch = () => {
     this.setState({
@@ -206,7 +246,7 @@ class CategoryList extends PureComponent {
 
     new Promise(resolve => {
       dispatch({
-        type: 'category/queryCategory',
+        type: 'brand/queryBrand',
         payload: {
           resolve,
           params,
@@ -226,49 +266,11 @@ class CategoryList extends PureComponent {
     });
   };
 
-  handleDelete = (text, record) => {
+  handleSearchFirst = () => {
     this.setState({
-      loading: true,
-    });
-    const { dispatch } = this.props;
-    const params = {
-      id: record.id,
-    };
-    new Promise(resolve => {
-      dispatch({
-        type: 'category/delCategory',
-        payload: {
-          resolve,
-          params,
-        },
-      });
-    }).then(res => {
-      this.setState({
-        loading: false,
-      });
-      // console.log(res);
-      // 字符串无法识别，再次转换一下，原因未知？？
-      var result = JSON.parse(res);
-      if (result.success === true) {
-        this.handleSearch();
-      } else {
-        notification.error({
-          message: result.message,
-        });
-      }
-    });
-  };
-
-  handleAddCategory = () => {
-    router.push('/catalog/category/add');
-  }
-
-  handleEditCategory = (text, record) => {
-    router.push({
-      pathname: '/catalog/category/edit',
-      query: {
-        id: record.id,
-      },
+      pageNum: 1
+    }, () => {
+      this.handleSearch();
     });
   }
 
@@ -289,7 +291,7 @@ class CategoryList extends PureComponent {
             </FormItem>
             <span>
               <Button
-                onClick={this.handleSearchFirst}
+                onClick={this.handleSearch}
                 style={{ marginTop: '3px' }}
                 type="primary"
                 icon="search">
@@ -298,7 +300,7 @@ class CategoryList extends PureComponent {
             <span>
               <Button
                 style={{ marginTop: '3px', marginLeft: '20px' }}
-                onClick={this.handleAddCategory}
+                onClick={this.showModal}
                 type="primary"
                 icon="plus">
                 新增</Button>
@@ -326,20 +328,10 @@ class CategoryList extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper title="商品分类">
+      <PageHeaderWrapper title="商品品牌">
         <Card bordered={false}>
           <div className="">
             <div className="">{this.renderSimpleForm()}</div>
-            {/* <Table
-              pagination={pagination}
-              loading={this.state.loading}
-              rowKey={record => record.id}
-              columns={this.columns}
-              bordered
-              dataSource={list}
-              onChange={this.handleStandardTableChange}
-              scroll={{ x: 800 }} /> */}
-
             <StandardTable
               pagination={pagination}
               loading={this.state.loading}
@@ -348,13 +340,20 @@ class CategoryList extends PureComponent {
               columns={this.columns}
               bordered
               onChange={this.handleStandardTableChange}
-              scroll={{ x: 1000 }}
+              scroll={{ x: 800 }}
             />
           </div>
         </Card>
+        <BrandComponent
+          visible={this.state.visible}
+          brand={this.state.brand}
+          wrappedComponentRef={this.saveFormRef}
+          showModal={this.showModal}
+          handleCancel={this.handleCancel}
+          onCreate={this.handleCreate} />
       </PageHeaderWrapper>
     );
   }
 }
 
-export default CategoryList;
+export default TableList;

@@ -276,8 +276,7 @@ class CategoryEdit extends PureComponent {
                             {getFieldDecorator('name', {
                                 initialValue: this.state.data.name,
                                 rules: [{ required: true, message: '请输入分类名称' }],
-                            })(
-                                <Input placeholder="名称" />)}
+                            })(<Input placeholder="名称" />)}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}

@@ -291,4 +291,6 @@ export default {
   'menu.catalog.category.list': '列表',
   'menu.catalog.category.add': '新增',
   'menu.catalog.category.edit': '修改',
+
+  'menu.catalog.brand': '商品品牌',
 };

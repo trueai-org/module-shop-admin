@@ -285,10 +285,12 @@ class TableList extends PureComponent {
     {
       title: '规则名称',
       dataIndex: 'name',
+      fixed: 'left',
     },
     {
       title: '描述',
       dataIndex: 'desc',
+      fixed: 'left',
     },
     {
       title: '服务调用次数',
@@ -656,6 +658,8 @@ class TableList extends PureComponent {
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
+
+              scroll={{ x: 1500 }}
             />
           </div>
         </Card>

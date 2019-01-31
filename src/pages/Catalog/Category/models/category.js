@@ -6,14 +6,8 @@ import {
 
 export default {
     namespace: 'category',
-
     state: {
-        list: [],
-        total: 0,
-        data: {
-            list: [],
-            pagination: {},
-        },
+
     },
 
     effects: {
@@ -21,21 +15,6 @@ export default {
             const { resolve, params } = payload;
             const response = yield call(queryCategories, params);
             !!resolve && resolve(response);
-
-            if (response.success === true) {
-                yield put({
-                    type: 'save',
-                    payload: response.data,
-                });
-                yield put({
-                    type: 'saveCategoryList',
-                    payload: response.data.list,
-                });
-                yield put({
-                    type: 'saveCategoryListTotal',
-                    payload: response.data.pagination.total,
-                });
-            }
         },
 
         *allCategories({ payload }, { call, put }) {
@@ -82,23 +61,6 @@ export default {
     },
 
     reducers: {
-        save(state, action) {
-            return {
-                ...state,
-                data: action.payload,
-            };
-        },
-        saveCategoryList(state, { payload }) {
-            return {
-                ...state,
-                list: payload,
-            };
-        },
-        saveCategoryListTotal(state, { payload }) {
-            return {
-                ...state,
-                total: payload,
-            };
-        },
+
     },
 };

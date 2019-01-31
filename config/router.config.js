@@ -288,19 +288,10 @@ export default [
               },
             ]
           },
-        ],
-      },
-
-      // 商品目录
-      {
-        name: 'category',
-        icon: 'table',
-        path: '/category',
-        routes: [
           {
-            path: '/category/list',
-            name: 'category',
-            component: './Category/List',
+            path: '/catalog/brand',
+            name: 'brand',
+            component: './Catalog/Brand/List',
           },
         ],
       },

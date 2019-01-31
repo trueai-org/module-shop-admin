@@ -127,7 +127,7 @@ export async function getFakeCaptcha(mobile) {
 }
 
 /**
- * add
+ * add 
  * 
  */
 export async function loginAdmin(params) {
@@ -140,6 +140,9 @@ export async function loginAdmin(params) {
 export async function currentAccount() {
   return request('/api/account');
 }
+
+
+// 分类
 
 export async function allCategories() {
   return request('/api/categories');
@@ -185,6 +188,39 @@ export async function updateCategory(params) {
 export async function uploadImage(params) {
   return requestUpload(`/api/upload`, {
     method: 'POST',
+    body: params
+  });
+}
+
+// 品牌
+
+export async function queryBrand(params) {
+  return request('/api/brands/grid', {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function deleteBrand(params) {
+  return request(`/api/brands/${params.id}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function firstBrand(params) {
+  return request(`/api/brands/${params.id}`);
+}
+
+export async function addBrand(params) {
+  return request(`/api/brands`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editBrand(params) {
+  return request(`/api/brands/${params.id}`, {
+    method: 'PUT',
     body: params
   });
 }
