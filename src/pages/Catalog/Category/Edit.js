@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     Form, Input, Select, Button, Card, InputNumber,
@@ -6,10 +6,21 @@ import {
 } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import router from 'umi/router';
+import Link from 'umi/link';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const Option = Select.Option;
+
+const action = (
+    <Fragment>
+        <Link to="./list">
+            <Button>
+                <Icon type="rollback" />
+            </Button>
+        </Link>
+    </Fragment>
+);
 
 @connect(({ category }) => ({
     category,
@@ -256,7 +267,7 @@ class CategoryEdit extends PureComponent {
         );
 
         return (
-            <PageHeaderWrapper title="商品分类">
+            <PageHeaderWrapper title="商品分类 - 修改" action={action}>
                 <Card bordered={false}>
                     <Form onSubmit={this.handleSubmit} hideRequiredMark style={{ marginTop: 8 }}>
                         <FormItem
