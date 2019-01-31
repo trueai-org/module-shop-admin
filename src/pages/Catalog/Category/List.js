@@ -8,6 +8,9 @@ import {
 
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
+import { routerRedux } from 'dva/router';
+import router from 'umi/router';
+import Link from 'umi/link';
 
 const FormItem = Form.Item;
 
@@ -41,7 +44,7 @@ class CategoryList extends PureComponent {
       width: 120,
       render: (text, record) => (
         <Fragment>
-          <a onClick={() => this.handleUpdateModalVisible(text, record)}>修改</a>
+          <a onClick={() => this.handleEditCategory(text, record)}>修改</a>
           <Divider type="vertical" />
           <Popconfirm title="确定要删除吗？" onConfirm={() => this.handleDelete(text, record)}>
             <a href="javascript:;">删除</a>
@@ -240,6 +243,19 @@ class CategoryList extends PureComponent {
     });
   };
 
+  handleAddCategory = () => {
+    router.push('/catalog/category/add');
+  }
+
+  handleEditCategory = (text, record) => {
+    router.push({
+      pathname: '/catalog/category/edit',
+      query: {
+        id: record.id,
+      },
+    });
+  }
+
   componentDidMount() {
     this.handleSearch();
   }
@@ -266,7 +282,7 @@ class CategoryList extends PureComponent {
             <span>
               <Button
                 style={{ marginTop: '3px', marginLeft: '20px' }}
-                onClick={this.showModal}
+                onClick={this.handleAddCategory}
                 type="primary"
                 icon="plus">
                 新增</Button>

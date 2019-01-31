@@ -1,4 +1,8 @@
-import { queryCategories, switchInMenu, delCategory, allCategories, addCategory } from '@/services/api';
+import {
+    queryCategories, switchInMenu, delCategory, allCategories, addCategory,
+    firstCategory, updateCategory,
+    uploadImage
+} from '@/services/api';
 
 export default {
     namespace: 'category',
@@ -55,6 +59,24 @@ export default {
         *addCategory({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(addCategory, params);
+            !!resolve && resolve(response);
+        },
+
+        *updateCategory({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(updateCategory, params);
+            !!resolve && resolve(response);
+        },
+
+        *uploadImage({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(uploadImage, params);
+            !!resolve && resolve(response);
+        },
+
+        *firstCategory({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(firstCategory, params);
             !!resolve && resolve(response);
         },
     },

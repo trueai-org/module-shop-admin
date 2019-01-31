@@ -1,5 +1,6 @@
 import { stringify } from 'qs';
 import request from '@/utils/request';
+import requestUpload from '@/utils/requestUpload';
 
 export async function queryProjectNotice() {
   return request('/api/project/notice');
@@ -163,10 +164,27 @@ export async function delCategory(params) {
   });
 }
 
+export async function firstCategory(params) {
+  return request(`/api/categories/${params.id}`);
+}
+
 export async function addCategory(params) {
   return request(`/api/categories`, {
     method: 'POST',
-    body: params,
+    body: params
   });
 }
 
+export async function updateCategory(params) {
+  return request(`/api/categories/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function uploadImage(params) {
+  return requestUpload(`/api/upload`, {
+    method: 'POST',
+    body: params
+  });
+}

@@ -288,6 +288,7 @@ export default {
    */
   'menu.catalog': '商品目录',
   'menu.catalog.category': '商品分类',
-  'menu.catalog.category-add': '商品分类 - 新增',
-  'menu.catalog.category-edit': '商品分类 - 修改',
+  'menu.catalog.category.list': '列表',
+  'menu.catalog.category.add': '新增',
+  'menu.catalog.category.edit': '修改',
 };

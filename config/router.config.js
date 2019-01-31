@@ -263,19 +263,30 @@ export default [
         path: '/catalog',
         routes: [
           {
-            path: '/catalog/category/list',
+            path: '/catalog/category',
             name: 'category',
-            component: './Catalog/Category/List',
-          },
-          {
-            path: '/catalog/category/add',
-            name: 'category-add',
-            component: './Catalog/Category/Add',
-          },
-          {
-            path: '/catalog/category/edit',
-            name: 'category-edit',
-            component: './Catalog/Category/Edit',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/catalog/category',
+                redirect: '/catalog/category/list',
+              },
+              {
+                path: '/catalog/category/list',
+                name: 'list',
+                component: './Catalog/Category/List'
+              },
+              {
+                path: '/catalog/category/add',
+                name: 'add',
+                component: './Catalog/Category/Add'
+              },
+              {
+                path: '/catalog/category/edit',
+                name: 'edit',
+                component: './Catalog/Category/Edit',
+              },
+            ]
           },
         ],
       },
