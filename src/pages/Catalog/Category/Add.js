@@ -313,7 +313,7 @@ class CategoryAdd extends PureComponent {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label={<span>包括在菜单中</span>}>
+                            label={<span>菜单中显示</span>}>
                             {
                                 getFieldDecorator('includeInMenu', { initialValue: false })(
                                     <Checkbox defaultChecked={false} />

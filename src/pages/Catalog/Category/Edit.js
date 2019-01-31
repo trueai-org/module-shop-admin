@@ -210,7 +210,7 @@ class CategoryEdit extends PureComponent {
 
                 new Promise(resolve => {
                     dispatch({
-                        type: 'category/updateCategory',
+                        type: 'category/editCategory',
                         payload: {
                             resolve,
                             params
@@ -365,7 +365,7 @@ class CategoryEdit extends PureComponent {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label={<span>包括在菜单中</span>}>
+                            label={<span>菜单中显示</span>}>
                             {
                                 getFieldDecorator('includeInMenu', { initialValue: this.state.data.includeInMenu || false, valuePropName: 'checked' })(
                                     <Checkbox />

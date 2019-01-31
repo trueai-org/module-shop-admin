@@ -236,7 +236,7 @@ class CategoryList extends PureComponent {
     };
     new Promise(resolve => {
       dispatch({
-        type: 'category/delCategory',
+        type: 'category/deleteCategory',
         payload: {
           resolve,
           params,
