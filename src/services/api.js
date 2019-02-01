@@ -226,3 +226,55 @@ export async function uploadImage(params) {
     body: params
   });
 }
+
+// 产品选项
+
+export async function queryProductOption(params) {
+  return request('/api/product-options');
+}
+
+export async function deleteProductOption(params) {
+  return request(`/api/product-options/${params.id}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function addProductOption(params) {
+  return request(`/api/product-options`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editProductOption(params) {
+  return request(`/api/product-options/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+// 产品属性组
+
+export async function queryProductAGS(params) {
+  return request('/api/product-attribute-groups');
+}
+
+export async function deleteProductAGS(params) {
+  return request(`/api/product-attribute-groups/${params.id}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function addProductAGS(params) {
+  return request(`/api/product-attribute-groups`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editProductAGS(params) {
+  return request(`/api/product-attribute-groups/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}

@@ -45,7 +45,7 @@ class CategoryList extends PureComponent {
       width: 120,
       render: (text, record) => (
         <Fragment>
-          <a onClick={() => this.handleEditCategory(text, record)}>修改</a>
+          <a onClick={() => this.handleEditCategory(text, record)}>编辑</a>
           <Divider type="vertical" />
           <Popconfirm title="确定要删除吗？" onConfirm={() => this.handleDelete(text, record)}>
             <a href="javascript:;">删除</a>

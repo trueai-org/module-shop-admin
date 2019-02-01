@@ -293,6 +293,16 @@ export default [
             name: 'brand',
             component: './Catalog/Brand/List',
           },
+          {
+            path: '/catalog/product-option',
+            name: 'product-option',
+            component: './Catalog/ProductOption/List',
+          },
+          {
+            path: '/catalog/product-attribute-group',
+            name: 'product-attribute-group',
+            component: './Catalog/ProductAttributeGroup/List',
+          },
         ],
       },
 
