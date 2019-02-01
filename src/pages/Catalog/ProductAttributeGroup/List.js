@@ -1,7 +1,7 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
-    List, Card, Input, Button, Modal, Form, notification
+    List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -18,6 +18,33 @@ class ProductAttributeGroupList extends PureComponent {
         current: {},
         submitting: false
     };
+
+    columns = [
+        {
+            title: '操作',
+            key: 'operation',
+            align: 'center',
+            width: 120,
+            render: (text, record) => (
+                <Fragment>
+                    <a onClick={() => this.showEditModal(record)}>编辑</a>
+                    <Divider type="vertical" />
+                    <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
+                        <a href="javascript:;">删除</a>
+                    </Popconfirm>
+                </Fragment>
+            )
+        },
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            width: 120,
+        },
+        {
+            title: '名称',
+            dataIndex: 'name',
+        }
+    ];
 
     componentDidMount() {
         this.handleInit();
@@ -179,28 +206,33 @@ class ProductAttributeGroupList extends PureComponent {
                 </Form>
             );
         };
+        const action = (
+            <Fragment>
+                <Button
+                    onClick={this.showModal}
+                    type="primary"
+                    icon="plus">新增</Button>
+            </Fragment>
+        );
         return (
-            <PageHeaderWrapper>
+            <PageHeaderWrapper title="商品属性组">
                 <div>
-                    <Card title="商品属性组" extra={extraContent}>
-                        <List
-                            rowKey="id"
+                    <Card bordered={false}
+                        // extra={extraContent}
+                    >
+                        <div style={{ marginBottom: '20px' }} >
+                            {action}
+                        </div>
+                        <Table bordered
+                            pagination={false}
                             loading={this.state.loading}
                             dataSource={this.state.data}
-                            renderItem={item => (
-                                <List.Item
-                                    actions={[
-                                        <a onClick={e => { e.preventDefault(); this.showEditModal(item); }}>编辑</a>,
-                                        <a onClick={e => { e.preventDefault(); this.showDeleteModal(item); }}>删除</a>,
-                                    ]}>
-                                    {item.name}
-                                </List.Item>
-                            )}
+                            columns={this.columns}
                         />
                     </Card>
                 </div>
                 <Modal
-                    title={`商品属性组 - ${this.state.current ? '编辑' : '新增'}`}
+                    title={`商品属性组 - ${this.state.current.id ? '编辑' : '新增'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>

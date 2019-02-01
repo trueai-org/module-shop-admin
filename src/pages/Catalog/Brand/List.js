@@ -328,7 +328,7 @@ class TableList extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper title="商品品牌">
+      <PageHeaderWrapper title="商品品牌"> 
         <Card bordered={false}>
           <div className="">
             <div className="">{this.renderSimpleForm()}</div>

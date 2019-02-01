@@ -1,7 +1,7 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
-    List, Card, Input, Button, Modal, Form, notification
+    List, Card, Input, Button, Modal, Form, notification, Table, Divider, Popconfirm
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -18,6 +18,33 @@ class ProductOptionList extends PureComponent {
         current: {},
         submitting: false
     };
+
+    columns = [
+        {
+            title: '操作',
+            key: 'operation',
+            align: 'center',
+            width: 120,
+            render: (text, record) => (
+                <Fragment>
+                    <a onClick={() => this.showEditModal(record)}>编辑</a>
+                    <Divider type="vertical" />
+                    <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
+                        <a href="javascript:;">删除</a>
+                    </Popconfirm>
+                </Fragment>
+            )
+        },
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            width: 120,
+        },
+        {
+            title: '名称',
+            dataIndex: 'name',
+        }
+    ];
 
     componentDidMount() {
         this.handleInit();
@@ -163,6 +190,14 @@ class ProductOptionList extends PureComponent {
                     新增</Button>
             </div>
         );
+        const action = (
+            <Fragment>
+                <Button
+                    onClick={this.showModal}
+                    type="primary"
+                    icon="plus">新增</Button>
+            </Fragment>
+        );
         const formLayout = {
             labelCol: { span: 7 },
             wrapperCol: { span: 13 },
@@ -180,10 +215,12 @@ class ProductOptionList extends PureComponent {
             );
         };
         return (
-            <PageHeaderWrapper>
+            <PageHeaderWrapper title="商品选项">
                 <div>
-                    <Card title="商品选项" extra={extraContent}>
-                        <List
+                    <Card bordered={false}
+                    // extra={extraContent}
+                    >
+                        {/* <List
                             rowKey="id"
                             loading={this.state.loading}
                             dataSource={this.state.data}
@@ -196,11 +233,21 @@ class ProductOptionList extends PureComponent {
                                     {item.name}
                                 </List.Item>
                             )}
+                        /> */}
+
+                        <div style={{ marginBottom: '20px' }} >
+                            {action}
+                        </div>
+                        <Table bordered
+                            pagination={false}
+                            loading={this.state.loading}
+                            dataSource={this.state.data}
+                            columns={this.columns}
                         />
                     </Card>
                 </div>
                 <Modal
-                    title={`商品选项 - ${this.state.current ? '编辑' : '新增'}`}
+                    title={`商品选项 - ${this.state.current.id ? '编辑' : '新增'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>
