@@ -311,3 +311,29 @@ export async function editProductAttr(params) {
     body: params
   });
 }
+
+export async function queryProductAttrDataGrid(params) {
+  return request(`/api/product-attributes/data/${params.attributeId}/grid`, {
+    method: 'POST',
+    body: params
+  });
+}
+export async function addProductAttrData(params) {
+  return request(`/api/product-attributes/data/${params.attributeId}`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editProductAttrData(params) {
+  return request(`/api/product-attributes/data/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function deleteProductAttrData(params) {
+  return request(`/api/product-attributes/data/${params.id}`, {
+    method: 'DELETE'
+  });
+}

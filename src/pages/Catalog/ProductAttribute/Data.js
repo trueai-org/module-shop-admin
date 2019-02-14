@@ -2,68 +2,69 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown
+    Redio, Menu, Dropdown, Checkbox, Switch
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
-
 import router from 'umi/router';
 import Link from 'umi/link';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
+const rollback = (
+    <Fragment>
+        <Link to="./list">
+            <Button>
+                <Icon type="rollback" />
+            </Button>
+        </Link>
+    </Fragment>
+);
 
 @connect()
 @Form.create()
-class ProductAttributeList extends PureComponent {
-    state = {
-        loading: false,
-        visible: false,
-        data: [],
-        current: {},
-        submitting: false,
-        selectLoading: false,
-        children: [],
+class ProductAttributeListData extends PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {
+            loading: false,
+            visible: false,
+            data: [],
+            current: {},
+            submitting: false,
+            selectLoading: false,
+            children: [],
 
-        pageNum: 1,
-        pageSize: 5,
-        predicate: 'id',
-        reverse: true,
-        pageData: {
-            list: [],
-            pagination: {}
-        },
-    };
+            pageNum: 1,
+            pageSize: 5,
+            predicate: 'id',
+            reverse: true,
+            pageData: {
+                list: [],
+                pagination: {}
+            },
+
+            attributeId: props.location.query.id,
+        };
+    }
+
     columns = [
         {
             title: '操作',
             align: 'center',
             key: 'operation',
-            width: 120,
+            width: 150,
             render: (text, record) => (
                 <Fragment>
-                    <Dropdown.Button size="small" overlay={<Menu>
-                        <Menu.Item onClick={() => this.showEditModal(record)}>编辑</Menu.Item>
-                        <Menu.Item onClick={() => this.showDeleteModal(record)}>删除</Menu.Item>
-                        {/* <Menu.Item>
-                            <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
-                                删除
-                            </Popconfirm>
-                        </Menu.Item> */}
-                    </Menu>}>
-                        <a onClick={() => this.handleData(text, record)}>属性值</a>
-                    </Dropdown.Button>
-                    {/* <Button type="primary" size="small" onClick={() => this.showEditModal(record)}>编辑</Button> */}
-                    {/* <Tag color="blue"><a onClick={() => this.showEditModal(record)}>编辑</a></Tag> */}
-                    {/* <Divider type="vertical" /> */}
-                    {/* <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
-                        <Button type="danger" size="small">删除</Button>
-                        <Tag color="red"><a href="javascript:;">删除</a></Tag>
-                    </Popconfirm> */}
-                    {/* <Divider type="vertical" /> */}
-                    {/* <Button size="small" onClick={() => this.showEditModal(record)}>数据</Button> */}
-                    {/* <Tag color="green"><a onClick={() => this.showEditModal(record)}>数据</a></Tag> */}
+                    <Button.Group>
+                        <Button size="small" onClick={() => this.showEditModal(record)}>编辑</Button>
+                        <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
+                            <Button type="danger" size="small">删除</Button>
+                            {/* <a href="javascript:;">删除</a> */}
+                        </Popconfirm>
+                        {/* <Button size="small" onClick={() => this.deleteItem(record.id)}>删除</Button> */}
+                    </Button.Group>
                 </Fragment>
             )
         },
@@ -75,13 +76,20 @@ class ProductAttributeList extends PureComponent {
             defaultSortOrder: 'descend',
         },
         {
-            title: '名称',
-            dataIndex: 'name',
+            title: '值',
+            dataIndex: 'value',
             sorter: true,
         },
         {
-            title: '组',
-            dataIndex: 'groupName'
+            title: '描述',
+            dataIndex: 'description'
+        },
+        {
+            title: '是否发布',
+            dataIndex: 'isPublished',
+            sorter: true,
+            width: 120,
+            render: (val) => <Switch checked={val} disabled />
         }
     ];
 
@@ -110,15 +118,6 @@ class ProductAttributeList extends PureComponent {
         });
     };
 
-    handleData = (text, record) => {
-        router.push({
-            pathname: '/catalog/product-attribute/data',
-            query: {
-                id: record.id,
-            },
-        });
-    }
-
     handleSubmit = e => {
         e.preventDefault();
         const { dispatch, form } = this.props;
@@ -128,13 +127,14 @@ class ProductAttributeList extends PureComponent {
             if (err) return;
 
             var params = {
-                ...values
+                ...values,
+                attributeId: this.state.attributeId
             };
 
-            let bt = 'attribute/addProductAttr';
+            let bt = 'attribute/addProductAttrData';
             if (id) {
                 params.id = id;
-                bt = 'attribute/editProductAttr';
+                bt = 'attribute/editProductAttrData';
             }
 
             // console.log(params);
@@ -174,7 +174,7 @@ class ProductAttributeList extends PureComponent {
         const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'attribute/deleteProductAttr',
+                type: 'attribute/deleteProductAttrData',
                 payload: {
                     resolve,
                     params,
@@ -273,12 +273,13 @@ class ProductAttributeList extends PureComponent {
             sort: {
                 predicate: this.state.predicate,
                 reverse: this.state.reverse
-            }
+            },
+            attributeId: this.state.attributeId
         };
 
         new Promise(resolve => {
             dispatch({
-                type: 'attribute/queryProductAttrGrid',
+                type: 'attribute/queryProductAttrDataGrid',
                 payload: {
                     resolve,
                     params,
@@ -363,20 +364,21 @@ class ProductAttributeList extends PureComponent {
         const getModalContent = () => {
             return (
                 <Form onSubmit={this.handleSubmit}>
-                    <FormItem label="名称" {...formLayout}>
-                        {getFieldDecorator('name', {
-                            rules: [{ required: true, message: '请输入属性名称' }],
-                            initialValue: this.state.current.name || '',
+                    <FormItem label="属性值" {...formLayout}>
+                        {getFieldDecorator('value', {
+                            rules: [{ required: true, message: '请输入属性值' }],
+                            initialValue: this.state.current.value || '',
                         })(<Input placeholder="请输入" />)}
                     </FormItem>
-                    <FormItem label={<span>组</span>} {...formLayout}>
-                        {getFieldDecorator('groupId', {
-                            rules: [{ required: true, message: '请选择属性组' }],
-                            initialValue: this.state.current.groupId || '', valuePropName: 'value'
-                        })(
-                            <Select loading={this.state.selectLoading} allowClear={true}>
-                                {this.state.children}
-                            </Select>)}
+                    <FormItem label="描述" {...formLayout}>
+                        {getFieldDecorator('description', {
+                            initialValue: this.state.current.description || '',
+                        })(<Input placeholder="请输入" />)}
+                    </FormItem>
+                    <FormItem label="发布" {...formLayout}>
+                        {getFieldDecorator('isPublished', {
+                            initialValue: this.state.current.isPublished || false, valuePropName: 'checked'
+                        })(<Checkbox />)}
                     </FormItem>
                 </Form>
             );
@@ -390,7 +392,7 @@ class ProductAttributeList extends PureComponent {
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="商品属性 - 列表">
+            <PageHeaderWrapper title="属性值" action={rollback}>
                 <div>
                     <Card bordered={false}
                     // extra={extraContent}
@@ -418,7 +420,7 @@ class ProductAttributeList extends PureComponent {
                     </Card>
                 </div>
                 <Modal
-                    title={`商品属性 - ${this.state.current.id ? '编辑' : '新增'}`}
+                    title={`属性值 - ${this.state.current.id ? '编辑' : '新增'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>
@@ -429,4 +431,4 @@ class ProductAttributeList extends PureComponent {
     }
 }
 
-export default ProductAttributeList;
+export default ProductAttributeListData;

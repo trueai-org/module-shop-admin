@@ -1,4 +1,7 @@
-import { queryProductAttrGrid , deleteProductAttr, addProductAttr, editProductAttr} from '@/services/api';
+import {
+    queryProductAttrGrid, deleteProductAttr, addProductAttr, editProductAttr,
+    queryProductAttrDataGrid, addProductAttrData, editProductAttrData, deleteProductAttrData
+} from '@/services/api';
 
 export default {
     namespace: 'attribute',
@@ -26,6 +29,30 @@ export default {
         *editProductAttr({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(editProductAttr, params);
+            !!resolve && resolve(response);
+        },
+
+        *queryProductAttrDataGrid({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(queryProductAttrDataGrid, params);
+            !!resolve && resolve(response);
+        },
+
+        *addProductAttrData({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(addProductAttrData, params);
+            !!resolve && resolve(response);
+        },
+
+        *editProductAttrData({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(editProductAttrData, params);
+            !!resolve && resolve(response);
+        },
+
+        *deleteProductAttrData({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(deleteProductAttrData, params);
             !!resolve && resolve(response);
         },
     },

@@ -306,7 +306,24 @@ export default [
           {
             path: '/catalog/product-attribute',
             name: 'product-attribute',
-            component: './Catalog/ProductAttribute/List',
+            // component: './Catalog/ProductAttribute/List',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/catalog/product-attribute',
+                redirect: '/catalog/product-attribute/list',
+              },
+              {
+                path: '/catalog/product-attribute/list',
+                name: 'list',
+                component: './Catalog/ProductAttribute/List',
+              },
+              {
+                path: '/catalog/product-attribute/data',
+                name: 'data',
+                component: './Catalog/ProductAttribute/Data',
+              }
+            ]
           },
         ],
       },
