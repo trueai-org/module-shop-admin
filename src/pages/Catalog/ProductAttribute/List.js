@@ -1,11 +1,12 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
-    List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select
+    List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
+    Redio, Menu, Dropdown
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-// import ProductAttributeGroupList from '../ProductAttributeGroup/List';
+import StandardTable from '@/components/StandardTable';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -20,9 +21,17 @@ class ProductAttributeList extends PureComponent {
         current: {},
         submitting: false,
         selectLoading: false,
-        children: []
-    };
+        children: [],
 
+        pageNum: 1,
+        pageSize: 5,
+        predicate: 'id',
+        reverse: true,
+        pageData: {
+            list: [],
+            pagination: {}
+        },
+    };
     columns = [
         {
             title: '操作',
@@ -31,11 +40,26 @@ class ProductAttributeList extends PureComponent {
             width: 120,
             render: (text, record) => (
                 <Fragment>
-                    <a onClick={() => this.showEditModal(record)}>编辑</a>
-                    <Divider type="vertical" />
-                    <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
-                        <a href="javascript:;">删除</a>
-                    </Popconfirm>
+                    <Dropdown.Button size="small" overlay={<Menu>
+                        <Menu.Item onClick={() => this.showEditModal(record)}>编辑</Menu.Item>
+                        <Menu.Item onClick={() => this.showDeleteModal(record)}>删除</Menu.Item>
+                        {/* <Menu.Item>
+                            <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
+                                删除
+                            </Popconfirm>
+                        </Menu.Item> */}
+                    </Menu>}>属性值
+                    </Dropdown.Button>
+                    {/* <Button type="primary" size="small" onClick={() => this.showEditModal(record)}>编辑</Button> */}
+                    {/* <Tag color="blue"><a onClick={() => this.showEditModal(record)}>编辑</a></Tag> */}
+                    {/* <Divider type="vertical" /> */}
+                    {/* <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
+                        <Button type="danger" size="small">删除</Button>
+                        <Tag color="red"><a href="javascript:;">删除</a></Tag>
+                    </Popconfirm> */}
+                    {/* <Divider type="vertical" /> */}
+                    {/* <Button size="small" onClick={() => this.showEditModal(record)}>数据</Button> */}
+                    {/* <Tag color="green"><a onClick={() => this.showEditModal(record)}>数据</a></Tag> */}
                 </Fragment>
             )
         },
@@ -43,19 +67,23 @@ class ProductAttributeList extends PureComponent {
             title: 'ID',
             dataIndex: 'id',
             width: 120,
+            sorter: true,
+            defaultSortOrder: 'descend',
         },
         {
             title: '名称',
             dataIndex: 'name',
+            sorter: true,
         },
         {
             title: '组',
-            dataIndex: 'groupName',
+            dataIndex: 'groupName'
         }
     ];
 
     componentDidMount() {
         this.handleInit();
+        this.handleSearchFirst();
     }
 
     showModal = () => {
@@ -90,10 +118,10 @@ class ProductAttributeList extends PureComponent {
                 ...values
             };
 
-            let bt = 'attr/addProductAttr';
+            let bt = 'attribute/addProductAttr';
             if (id) {
                 params.id = id;
-                bt = 'attr/editProductAttr';
+                bt = 'attribute/editProductAttr';
             }
 
             // console.log(params);
@@ -114,7 +142,8 @@ class ProductAttributeList extends PureComponent {
                 if (res.success === true) {
                     form.resetFields();
                     this.setState({ visible: false });
-                    this.handleInit();
+                    // this.handleInit();
+                    this.handleSearch();
                 } else {
                     notification.error({
                         message: res.message,
@@ -132,7 +161,7 @@ class ProductAttributeList extends PureComponent {
         const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'attr/deleteProductAttr',
+                type: 'attribute/deleteProductAttr',
                 payload: {
                     resolve,
                     params,
@@ -143,7 +172,8 @@ class ProductAttributeList extends PureComponent {
                 loading: false,
             });
             if (res.success === true) {
-                this.handleInit();
+                // this.handleInit();
+                this.handleSearch();
             } else {
                 notification.error({
                     message: res.message,
@@ -163,32 +193,32 @@ class ProductAttributeList extends PureComponent {
     };
 
     handleInit = () => {
-        this.setState({ loading: true });
         const { dispatch } = this.props;
-
-        new Promise(resolve => {
-            dispatch({
-                type: 'attr/queryProductAttr',
-                payload: { resolve }
-            });
-        }).then(res => {
-            this.setState({ loading: false });
-            if (res.success === true) {
-                if (res.data != null) {
-                    this.setState({
-                        data: res.data
-                    });
-                }
-            } else {
-                notification.error({
-                    message: res.message,
-                });
-            }
-        });
+        // this.setState({ loading: true });
+        // new Promise(resolve => {
+        //     dispatch({
+        //         type: 'attr/queryProductAttr',
+        //         payload: { resolve }
+        //     });
+        // }).then(res => {
+        //     this.setState({ loading: false });
+        //     if (res.success === true) {
+        //         if (res.data != null) {
+        //             this.setState({
+        //                 data: res.data
+        //             });
+        //         }
+        //     } else {
+        //         notification.error({
+        //             message: res.message,
+        //         });
+        //     }
+        // });
 
         this.setState({
             selectLoading: true
         });
+
         new Promise(resolve => {
             dispatch({
                 type: 'group/queryProductAGS',
@@ -198,7 +228,6 @@ class ProductAttributeList extends PureComponent {
             });
         }).then(res => {
             if (res.success === true) {
-                // console.log(res);
                 this.setState({
                     selectLoading: false,
                 });
@@ -213,6 +242,78 @@ class ProductAttributeList extends PureComponent {
                 notification.error({
                     message: res.message,
                 });
+            }
+        });
+    };
+
+    handleSearch = () => {
+        this.setState({
+            loading: true,
+        });
+        const { dispatch } = this.props;
+        const params =
+        {
+            pagination: {
+                current: this.state.pageNum,
+                pageSize: this.state.pageSize
+            },
+            sort: {
+                predicate: this.state.predicate,
+                reverse: this.state.reverse
+            }
+        };
+
+        new Promise(resolve => {
+            dispatch({
+                type: 'attribute/queryProductAttrGrid',
+                payload: {
+                    resolve,
+                    params,
+                },
+            });
+        }).then(res => {
+            if (res.success === true) {
+                this.setState({
+                    loading: false,
+                    pageData: res.data
+                });
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
+    };
+
+    handleSearchFirst = () => {
+        this.setState({
+            pageNum: 1
+        }, () => {
+            this.handleSearch();
+        });
+    }
+
+    handleStandardTableChange = (pagination, filtersArg, sorter) => {
+        var firstPage = sorter.field != this.state.predicate;
+        this.setState({
+            pageNum: pagination.current,
+            pageSize: pagination.pageSize
+        }, () => {
+            if (sorter.field) {
+                this.setState({
+                    predicate: sorter.field,
+                    reverse: sorter.order == 'descend'
+                }, () => {
+                    if (firstPage)
+                        this.handleSearchFirst();
+                    else
+                        this.handleSearch();
+                });
+            } else {
+                if (firstPage)
+                    this.handleSearchFirst();
+                else
+                    this.handleSearch();
             }
         });
     };
@@ -232,6 +333,19 @@ class ProductAttributeList extends PureComponent {
         const formLayout = {
             labelCol: { span: 7 },
             wrapperCol: { span: 13 },
+        };
+        const pagination = {
+            showQuickJumper: true,
+            showSizeChanger: true,
+            pageSizeOptions: ['5', '10', '50', '100'],
+            defaultPageSize: this.state.pageSize,
+            defaultCurrent: this.state.pageNum,
+            current: this.state.pageNum,
+            pageSize: this.state.pageSize,
+            total: this.state.pageData.pagination.total || 0,
+            showTotal: (total, range) => {
+                return `${range[0]}-${range[1]} 条 , 共 ${total} 条`;
+            }
         };
         const getModalContent = () => {
             return (
@@ -271,13 +385,23 @@ class ProductAttributeList extends PureComponent {
                         <div style={{ marginBottom: '20px' }} >
                             {action}
                         </div>
-                        <Table bordered
+                        <StandardTable
+                            pagination={pagination}
+                            loading={this.state.loading}
+                            data={this.state.pageData}
+                            rowKey={record => record.id}
+                            columns={this.columns}
+                            bordered
+                            onChange={this.handleStandardTableChange}
+                        // scroll={{ x: 800 }}
+                        />
+                        {/* <Table bordered
                             rowKey={record => record.id}
                             pagination={false}
                             loading={this.state.loading}
                             dataSource={this.state.data}
                             columns={this.columns}
-                        />
+                        /> */}
                     </Card>
                 </div>
                 <Modal

@@ -1,13 +1,13 @@
-import { queryProductAttr, deleteProductAttr, addProductAttr, editProductAttr } from '@/services/api';
+import { queryProductAttrGrid , deleteProductAttr, addProductAttr, editProductAttr} from '@/services/api';
 
 export default {
-    namespace: 'attr',
+    namespace: 'attribute',
     state: {
     },
     effects: {
-        *queryProductAttr({ payload }, { call, put }) {
-            const { resolve } = payload;
-            const response = yield call(queryProductAttr);
+        *queryProductAttrGrid({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(queryProductAttrGrid, params);
             !!resolve && resolve(response);
         },
 

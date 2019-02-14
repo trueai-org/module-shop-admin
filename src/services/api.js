@@ -285,6 +285,13 @@ export async function queryProductAttr(params) {
   return request('/api/product-attributes');
 }
 
+export async function queryProductAttrGrid(params) {
+  return request(`/api/product-attributes/grid`, {
+    method: 'POST',
+    body: params
+  });
+}
+
 export async function deleteProductAttr(params) {
   return request(`/api/product-attributes/${params.id}`, {
     method: 'DELETE'
