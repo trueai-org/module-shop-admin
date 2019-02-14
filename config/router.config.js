@@ -303,6 +303,11 @@ export default [
             name: 'product-attribute-group',
             component: './Catalog/ProductAttributeGroup/List',
           },
+          {
+            path: '/catalog/product-attribute',
+            name: 'product-attribute',
+            component: './Catalog/ProductAttribute/List',
+          },
         ],
       },
 

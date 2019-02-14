@@ -224,6 +224,7 @@ class ProductAttributeGroupList extends PureComponent {
                             {action}
                         </div>
                         <Table bordered
+                            rowKey={record => record.id}
                             pagination={false}
                             loading={this.state.loading}
                             dataSource={this.state.data}

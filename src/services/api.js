@@ -278,3 +278,29 @@ export async function editProductAGS(params) {
     body: params
   });
 }
+
+// 产品属性
+
+export async function queryProductAttr(params) {
+  return request('/api/product-attributes');
+}
+
+export async function deleteProductAttr(params) {
+  return request(`/api/product-attributes/${params.id}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function addProductAttr(params) {
+  return request(`/api/product-attributes`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editProductAttr(params) {
+  return request(`/api/product-attributes/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}

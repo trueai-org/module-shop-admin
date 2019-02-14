@@ -47,6 +47,8 @@ if (process.env.APP_TYPE === 'site') {
 }
 
 export default {
+  // history:'hash', //history: 'hash', // 默认是 browser , 官网推荐 browser https://pro.ant.design/docs/deploy-cn
+
   // add for transfer to umi
   plugins,
   targets: {
@@ -68,6 +70,7 @@ export default {
   proxy: {
     '/api': {
       target: 'http://localhost:52606/',
+      // target: 'http://circle.ac.cn:5020/',
       changeOrigin: true,
       // pathRewrite: { '^/api': '' },
     },

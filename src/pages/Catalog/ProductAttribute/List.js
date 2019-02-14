@@ -1,29 +1,33 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
-    List, Card, Input, Button, Modal, Form, notification, Table, Divider, Popconfirm
+    List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
+// import ProductAttributeGroupList from '../ProductAttributeGroup/List';
 
 const FormItem = Form.Item;
+const Option = Select.Option;
 
 @connect()
 @Form.create()
-class ProductOptionList extends PureComponent {
+class ProductAttributeList extends PureComponent {
     state = {
         loading: false,
         visible: false,
         data: [],
         current: {},
-        submitting: false
+        submitting: false,
+        selectLoading: false,
+        children: []
     };
 
     columns = [
         {
             title: '操作',
-            key: 'operation',
             align: 'center',
+            key: 'operation',
             width: 120,
             render: (text, record) => (
                 <Fragment>
@@ -43,6 +47,10 @@ class ProductOptionList extends PureComponent {
         {
             title: '名称',
             dataIndex: 'name',
+        },
+        {
+            title: '组',
+            dataIndex: 'groupName',
         }
     ];
 
@@ -82,10 +90,10 @@ class ProductOptionList extends PureComponent {
                 ...values
             };
 
-            let bt = 'option/addProductOption';
+            let bt = 'attr/addProductAttr';
             if (id) {
                 params.id = id;
-                bt = 'option/editProductOption';
+                bt = 'attr/editProductAttr';
             }
 
             // console.log(params);
@@ -124,7 +132,7 @@ class ProductOptionList extends PureComponent {
         const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'option/deleteProductOption',
+                type: 'attr/deleteProductAttr',
                 payload: {
                     resolve,
                     params,
@@ -146,8 +154,8 @@ class ProductOptionList extends PureComponent {
 
     showDeleteModal = (item) => {
         Modal.confirm({
-            title: '删除选项',
-            content: '确定删除该选项吗？',
+            title: '删除属性',
+            content: '确定删除该属性吗？',
             okText: '确认',
             cancelText: '取消',
             onOk: () => this.deleteItem(item.id),
@@ -157,9 +165,10 @@ class ProductOptionList extends PureComponent {
     handleInit = () => {
         this.setState({ loading: true });
         const { dispatch } = this.props;
+
         new Promise(resolve => {
             dispatch({
-                type: 'option/queryProductOption',
+                type: 'attr/queryProductAttr',
                 payload: { resolve }
             });
         }).then(res => {
@@ -170,6 +179,36 @@ class ProductOptionList extends PureComponent {
                         data: res.data
                     });
                 }
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
+
+        this.setState({
+            selectLoading: true
+        });
+        new Promise(resolve => {
+            dispatch({
+                type: 'group/queryProductAGS',
+                payload: {
+                    resolve,
+                },
+            });
+        }).then(res => {
+            if (res.success === true) {
+                // console.log(res);
+                this.setState({
+                    selectLoading: false,
+                });
+                let cs = [];
+                let list = [];
+                list = res.data;
+                list.forEach(c => {
+                    cs.push(<Option value={c.id} key={c.id}>{c.name}</Option>);
+                });
+                this.setState({ children: cs });
             } else {
                 notification.error({
                     message: res.message,
@@ -190,14 +229,6 @@ class ProductOptionList extends PureComponent {
                     新增</Button>
             </div>
         );
-        const action = (
-            <Fragment>
-                <Button
-                    onClick={this.showModal}
-                    type="primary"
-                    icon="plus">新增</Button>
-            </Fragment>
-        );
         const formLayout = {
             labelCol: { span: 7 },
             wrapperCol: { span: 13 },
@@ -207,34 +238,36 @@ class ProductOptionList extends PureComponent {
                 <Form onSubmit={this.handleSubmit}>
                     <FormItem label="名称" {...formLayout}>
                         {getFieldDecorator('name', {
-                            rules: [{ required: true, message: '请输入选项名称' }],
+                            rules: [{ required: true, message: '请输入属性名称' }],
                             initialValue: this.state.current.name || '',
                         })(<Input placeholder="请输入" />)}
+                    </FormItem>
+                    <FormItem label={<span>组</span>} {...formLayout}>
+                        {getFieldDecorator('groupId', {
+                            rules: [{ required: true, message: '请选择属性组' }],
+                            initialValue: this.state.current.groupId || '', valuePropName: 'value'
+                        })(
+                            <Select loading={this.state.selectLoading} allowClear={true}>
+                                {this.state.children}
+                            </Select>)}
                     </FormItem>
                 </Form>
             );
         };
+        const action = (
+            <Fragment>
+                <Button
+                    onClick={this.showModal}
+                    type="primary"
+                    icon="plus">新增</Button>
+            </Fragment>
+        );
         return (
-            <PageHeaderWrapper title="商品选项">
+            <PageHeaderWrapper title="商品属性">
                 <div>
                     <Card bordered={false}
                     // extra={extraContent}
                     >
-                        {/* <List
-                            rowKey="id"
-                            loading={this.state.loading}
-                            dataSource={this.state.data}
-                            renderItem={item => (
-                                <List.Item
-                                    actions={[
-                                        <a onClick={e => { e.preventDefault(); this.showEditModal(item); }}>编辑</a>,
-                                        <a onClick={e => { e.preventDefault(); this.showDeleteModal(item); }}>删除</a>,
-                                    ]}>
-                                    {item.name}
-                                </List.Item>
-                            )}
-                        /> */}
-
                         <div style={{ marginBottom: '20px' }} >
                             {action}
                         </div>
@@ -248,7 +281,7 @@ class ProductOptionList extends PureComponent {
                     </Card>
                 </div>
                 <Modal
-                    title={`商品选项 - ${this.state.current.id ? '编辑' : '新增'}`}
+                    title={`商品属性 - ${this.state.current.id ? '编辑' : '新增'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>
@@ -259,4 +292,4 @@ class ProductOptionList extends PureComponent {
     }
 }
 
-export default ProductOptionList;
+export default ProductAttributeList;
