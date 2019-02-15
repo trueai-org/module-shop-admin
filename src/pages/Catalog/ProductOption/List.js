@@ -43,7 +43,7 @@ class ProductOptionList extends PureComponent {
             width: 120,
             render: (text, record) => (
                 <Fragment>
-                    <Dropdown.Button size="small" placement="topRight" overlay={<Menu>
+                    <Dropdown.Button size="small" overlay={<Menu>
                         <Menu.Item onClick={() => this.showEditModal(record)}>编辑</Menu.Item>
                         <Menu.Item onClick={() => this.showDeleteModal(record)}>删除</Menu.Item>
                         {/* <Menu.Item>
@@ -51,7 +51,9 @@ class ProductOptionList extends PureComponent {
                                 删除
                             </Popconfirm>
                         </Menu.Item> */}
-                    </Menu>}>
+                    </Menu>}
+                    // placement="topRight"
+                    >
                         <a onClick={() => this.handleData(text, record)}>选项值</a>
                     </Dropdown.Button>
                     {/* <Button type="primary" size="small" onClick={() => this.showEditModal(record)}>编辑</Button> */}
