@@ -233,6 +233,13 @@ export async function queryProductOption(params) {
   return request('/api/product-options');
 }
 
+export async function queryProductOptionGrid(params) {
+  return request(`/api/product-options/grid`, {
+    method: 'POST',
+    body: params
+  });
+}
+
 export async function deleteProductOption(params) {
   return request(`/api/product-options/${params.id}`, {
     method: 'DELETE'
@@ -250,6 +257,34 @@ export async function editProductOption(params) {
   return request(`/api/product-options/${params.id}`, {
     method: 'PUT',
     body: params
+  });
+}
+
+// 产品选项值
+
+export async function queryProductOptionDataGrid(params) {
+  return request(`/api/product-options/data/${params.optionId}/grid`, {
+    method: 'POST',
+    body: params
+  });
+}
+export async function addProductOptionData(params) {
+  return request(`/api/product-options/data/${params.optionId}`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editProductOptionData(params) {
+  return request(`/api/product-options/data/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function deleteProductOptionData(params) {
+  return request(`/api/product-options/data/${params.id}`, {
+    method: 'DELETE'
   });
 }
 
@@ -311,6 +346,8 @@ export async function editProductAttr(params) {
     body: params
   });
 }
+
+// 产品属性值
 
 export async function queryProductAttrDataGrid(params) {
   return request(`/api/product-attributes/data/${params.attributeId}/grid`, {

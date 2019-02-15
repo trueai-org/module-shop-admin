@@ -294,6 +294,8 @@ export default {
 
   'menu.catalog.brand': '商品品牌',
   'menu.catalog.product-option': '商品选项',
+  'menu.catalog.product-option.list': '列表',
+  'menu.catalog.product-option.data': '选项值',
   'menu.catalog.product-attribute-group': '商品属性组',
   'menu.catalog.product-attribute': '商品属性',
   'menu.catalog.product-attribute.list': '列表',

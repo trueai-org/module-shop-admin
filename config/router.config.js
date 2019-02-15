@@ -296,7 +296,24 @@ export default [
           {
             path: '/catalog/product-option',
             name: 'product-option',
-            component: './Catalog/ProductOption/List',
+            // component: './Catalog/ProductAttribute/List',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/catalog/product-option',
+                redirect: '/catalog/product-option/list',
+              },
+              {
+                path: '/catalog/product-option/list',
+                name: 'list',
+                component: './Catalog/ProductOption/List',
+              },
+              {
+                path: '/catalog/product-option/data',
+                name: 'data',
+                component: './Catalog/ProductOption/Data',
+              }
+            ]
           },
           {
             path: '/catalog/product-attribute-group',
