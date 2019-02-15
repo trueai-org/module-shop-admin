@@ -45,7 +45,7 @@ class ProductOptionListData extends PureComponent {
                 pagination: {}
             },
 
-            attributeId: props.location.query.id,
+            optionId: props.location.query.id,
         };
     }
 
@@ -94,7 +94,6 @@ class ProductOptionListData extends PureComponent {
     ];
 
     componentDidMount() {
-        this.handleInit();
         this.handleSearchFirst();
     }
 
@@ -128,13 +127,13 @@ class ProductOptionListData extends PureComponent {
 
             var params = {
                 ...values,
-                attributeId: this.state.attributeId
+                optionId: this.state.optionId
             };
 
-            let bt = 'attribute/addProductAttrData';
+            let bt = 'option/addProductOptionData';
             if (id) {
                 params.id = id;
-                bt = 'attribute/editProductAttrData';
+                bt = 'option/editProductOptionData';
             }
 
             // console.log(params);
@@ -155,7 +154,6 @@ class ProductOptionListData extends PureComponent {
                 if (res.success === true) {
                     form.resetFields();
                     this.setState({ visible: false });
-                    // this.handleInit();
                     this.handleSearch();
                 } else {
                     notification.error({
@@ -174,7 +172,7 @@ class ProductOptionListData extends PureComponent {
         const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'attribute/deleteProductAttrData',
+                type: 'option/deleteProductOptionData',
                 payload: {
                     resolve,
                     params,
@@ -185,7 +183,6 @@ class ProductOptionListData extends PureComponent {
                 loading: false,
             });
             if (res.success === true) {
-                // this.handleInit();
                 this.handleSearch();
             } else {
                 notification.error({
@@ -205,60 +202,6 @@ class ProductOptionListData extends PureComponent {
         });
     };
 
-    handleInit = () => {
-        const { dispatch } = this.props;
-        // this.setState({ loading: true });
-        // new Promise(resolve => {
-        //     dispatch({
-        //         type: 'attr/queryProductAttr',
-        //         payload: { resolve }
-        //     });
-        // }).then(res => {
-        //     this.setState({ loading: false });
-        //     if (res.success === true) {
-        //         if (res.data != null) {
-        //             this.setState({
-        //                 data: res.data
-        //             });
-        //         }
-        //     } else {
-        //         notification.error({
-        //             message: res.message,
-        //         });
-        //     }
-        // });
-
-        this.setState({
-            selectLoading: true
-        });
-
-        new Promise(resolve => {
-            dispatch({
-                type: 'group/queryProductAGS',
-                payload: {
-                    resolve,
-                },
-            });
-        }).then(res => {
-            if (res.success === true) {
-                this.setState({
-                    selectLoading: false,
-                });
-                let cs = [];
-                let list = [];
-                list = res.data;
-                list.forEach(c => {
-                    cs.push(<Option value={c.id} key={c.id}>{c.name}</Option>);
-                });
-                this.setState({ children: cs });
-            } else {
-                notification.error({
-                    message: res.message,
-                });
-            }
-        });
-    };
-
     handleSearch = () => {
         this.setState({
             loading: true,
@@ -274,12 +217,12 @@ class ProductOptionListData extends PureComponent {
                 predicate: this.state.predicate,
                 reverse: this.state.reverse
             },
-            attributeId: this.state.attributeId
+            optionId: this.state.optionId
         };
 
         new Promise(resolve => {
             dispatch({
-                type: 'attribute/queryProductAttrDataGrid',
+                type: 'option/queryProductOptionDataGrid',
                 payload: {
                     resolve,
                     params,
@@ -388,7 +331,7 @@ class ProductOptionListData extends PureComponent {
                 <Button
                     onClick={this.showModal}
                     type="primary"
-                    icon="plus"></Button>
+                    icon="plus">新增</Button>
             </Fragment>
         );
         return (

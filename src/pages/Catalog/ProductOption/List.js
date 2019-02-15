@@ -43,7 +43,7 @@ class ProductOptionList extends PureComponent {
             width: 120,
             render: (text, record) => (
                 <Fragment>
-                    <Dropdown.Button size="small" overlay={<Menu>
+                    <Dropdown.Button size="small" placement="topRight" overlay={<Menu>
                         <Menu.Item onClick={() => this.showEditModal(record)}>编辑</Menu.Item>
                         <Menu.Item onClick={() => this.showDeleteModal(record)}>删除</Menu.Item>
                         {/* <Menu.Item>
