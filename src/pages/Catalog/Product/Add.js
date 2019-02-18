@@ -2,16 +2,28 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown, Checkbox, Switch
+    Redio, Menu, Dropdown, Checkbox, Switch, Tabs, InputNumber, Upload, DatePicker
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
 import router from 'umi/router';
 import Link from 'umi/link';
+import moment from 'moment';
 
+// editor
+import { EditorState, convertToRaw } from 'draft-js';
+import { Editor } from 'react-draft-wysiwyg';
+import draftToHtml from 'draftjs-to-html';
+import htmlToDraft from 'html-to-draftjs';
+import '../../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+
+const RangePicker = DatePicker.RangePicker;
 const FormItem = Form.Item;
 const Option = Select.Option;
+const TabPane = Tabs.TabPane;
+const { TextArea } = Input;
+
 const rollback = (
     <Fragment>
         <Link to="./list">
@@ -45,77 +57,34 @@ class ProductAdd extends PureComponent {
                 pagination: {}
             },
 
+
+            uploadLoading: false,
+            mediaId: '',
+            previewVisible: false,
+            previewImage: '',
+            fileList: [],
             // optionId: props.location.query.id,
+
+            categoryLoading: false,
+            categoryOptions: [],
+            categories: [],
+
+
+            brandLoading: false,
+            brandOptions: [],
+            brands: [],
+
+            editorState: EditorState.createEmpty()
         };
     }
 
-    columns = [
-        {
-            title: '操作',
-            align: 'center',
-            key: 'operation',
-            width: 150,
-            render: (text, record) => (
-                <Fragment>
-                    <Button.Group>
-                        <Button size="small" onClick={() => this.showEditModal(record)}>编辑</Button>
-                        <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
-                            <Button type="danger" size="small">删除</Button>
-                            {/* <a href="javascript:;">删除</a> */}
-                        </Popconfirm>
-                        {/* <Button size="small" onClick={() => this.deleteItem(record.id)}>删除</Button> */}
-                    </Button.Group>
-                </Fragment>
-            )
-        },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 120,
-            sorter: true,
-            defaultSortOrder: 'descend',
-        },
-        {
-            title: '值',
-            dataIndex: 'value',
-            sorter: true,
-        },
-        {
-            title: '描述',
-            dataIndex: 'description'
-        },
-        {
-            title: '是否发布',
-            dataIndex: 'isPublished',
-            sorter: true,
-            width: 120,
-            render: (val) => <Switch checked={val} disabled />
-        }
-    ];
-
-    componentDidMount() {
-        // this.handleSearchFirst();
+    onEditorStateChange = (editorState) => {
+        this.setState({ editorState: editorState });
     }
 
-    showModal = () => {
-        this.setState({
-            visible: true,
-            current: {},
-        });
-    };
-
-    showEditModal = item => {
-        this.setState({
-            visible: true,
-            current: item,
-        });
-    };
-
-    handleCancel = () => {
-        this.setState({
-            visible: false,
-        });
-    };
+    componentDidMount() {
+        this.handleInit();
+    }
 
     handleSubmit = e => {
         e.preventDefault();
@@ -126,9 +95,23 @@ class ProductAdd extends PureComponent {
             if (err) return;
 
             var params = {
-                ...values,
-                optionId: this.state.optionId
+                ...values
             };
+
+            //draftToHtml(convertToRaw(this.state.editorState.getCurrentContent()))
+
+            params.description = draftToHtml(params.description);
+            params.shortDescription = draftToHtml(params.shortDescription);
+            params.specification = draftToHtml(params.specification);
+
+            if (params.specialPriceRangePicker) {
+                params.specialPriceStart = params.specialPriceRangePicker[0].format('YYYY-MM-DD HH:mm:ss');
+                params.specialPriceEnd = params.specialPriceRangePicker[1].format('YYYY-MM-DD HH:mm:ss');
+                params.specialPriceRangePicker = {};
+            }
+
+            console.log(params);
+            return;
 
             let bt = 'option/addProductOptionData';
             if (id) {
@@ -164,211 +147,278 @@ class ProductAdd extends PureComponent {
         });
     };
 
-    deleteItem = id => {
-        this.setState({
-            loading: true,
-        });
+    handleInit = () => {
         const { dispatch } = this.props;
-        const params = { id };
-        new Promise(resolve => {
-            dispatch({
-                type: 'option/deleteProductOptionData',
-                payload: {
-                    resolve,
-                    params,
-                },
-            });
-        }).then(res => {
-            this.setState({
-                loading: false,
-            });
-            if (res.success === true) {
-                this.handleSearch();
-            } else {
-                notification.error({
-                    message: res.message,
-                });
-            }
-        });
-    };
 
-    showDeleteModal = (item) => {
-        Modal.confirm({
-            title: '删除选项值',
-            content: '确定删除该选项值吗？',
-            okText: '确认',
-            cancelText: '取消',
-            onOk: () => this.deleteItem(item.id),
-        });
-    };
-
-    handleSearch = () => {
         this.setState({
-            loading: true,
+            brandLoading: true,
+            categoryLoading: true,
         });
-        const { dispatch } = this.props;
-        const params =
-        {
-            pagination: {
-                current: this.state.pageNum,
-                pageSize: this.state.pageSize
-            },
-            sort: {
-                predicate: this.state.predicate,
-                reverse: this.state.reverse
-            },
-            optionId: this.state.optionId
-        };
 
         new Promise(resolve => {
             dispatch({
-                type: 'option/queryProductOptionDataGrid',
+                type: 'globalBrand/queryBrandAll',
                 payload: {
                     resolve,
-                    params,
                 },
             });
         }).then(res => {
             if (res.success === true) {
                 this.setState({
-                    loading: false,
-                    pageData: res.data
+                    brandLoading: false,
+                    brands: res.data
+                }, () => {
+                    let options = [];
+                    this.state.brands.forEach(c => {
+                        options.push(<Option key={c.id}>{c.name}</Option>);
+                    });
+                    this.setState({ brandOptions: options });
                 });
             } else {
                 notification.error({
                     message: res.message,
                 });
             }
-        });
-    };
-
-    handleSearchFirst = () => {
-        this.setState({
-            pageNum: 1
-        }, () => {
-            this.handleSearch();
         });
     }
 
-    handleStandardTableChange = (pagination, filtersArg, sorter) => {
-        var firstPage = sorter.field != this.state.predicate;
-        this.setState({
-            pageNum: pagination.current,
-            pageSize: pagination.pageSize
-        }, () => {
-            if (sorter.field) {
-                this.setState({
-                    predicate: sorter.field,
-                    reverse: sorter.order == 'descend'
-                }, () => {
-                    if (firstPage)
-                        this.handleSearchFirst();
-                    else
-                        this.handleSearch();
-                });
-            } else {
-                if (firstPage)
-                    this.handleSearchFirst();
-                else
-                    this.handleSearch();
-            }
-        });
-    };
-
     render() {
-        const { form: { getFieldDecorator }, } = this.props;
-        const modalFooter = { okText: '保存', onOk: this.handleSubmit, onCancel: this.handleCancel };
-        const extraContent = (
+        const {
+            editorState,
+            form: { getFieldDecorator, getFieldValue },
+        } = this.props;
+
+        const formItemLayout = {
+            labelCol: {
+                xs: { span: 24 },
+                sm: { span: 4 },
+            },
+            wrapperCol: {
+                xs: { span: 24 },
+                sm: { span: 24 },
+                md: { span: 20 },
+            },
+        };
+
+        const submitFormLayout = {
+            wrapperCol: {
+                xs: { span: 24, offset: 0 },
+                sm: { span: 10, offset: 4 },
+            },
+        };
+
+        const { previewVisible, previewImage, fileList } = this.state;
+        const uploadButton = (
             <div>
-                <Button
-                    onClick={this.showModal}
-                    type="primary"
-                    icon="plus">
-                    新增</Button>
+                <Icon type={this.state.uploadLoading ? 'loading' : 'plus'} />
+                <div className="ant-upload-text">上传</div>
             </div>
         );
-        const formLayout = {
-            labelCol: { span: 7 },
-            wrapperCol: { span: 13 },
-        };
-        const pagination = {
-            showQuickJumper: true,
-            showSizeChanger: true,
-            pageSizeOptions: ['5', '10', '50', '100'],
-            defaultPageSize: this.state.pageSize,
-            defaultCurrent: this.state.pageNum,
-            current: this.state.pageNum,
-            pageSize: this.state.pageSize,
-            total: this.state.pageData.pagination.total || 0,
-            showTotal: (total, range) => {
-                return `${range[0]}-${range[1]} 条 , 共 ${total} 条`;
-            }
-        };
-        const getModalContent = () => {
-            return (
-                <Form onSubmit={this.handleSubmit}>
-                    <FormItem label="选项值" {...formLayout}>
-                        {getFieldDecorator('value', {
-                            rules: [{ required: true, message: '请输入选项值' }],
-                            initialValue: this.state.current.value || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                    <FormItem label="描述" {...formLayout}>
-                        {getFieldDecorator('description', {
-                            initialValue: this.state.current.description || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                    <FormItem label="发布" {...formLayout}>
-                        {getFieldDecorator('isPublished', {
-                            initialValue: this.state.current.isPublished || false, valuePropName: 'checked'
-                        })(<Checkbox />)}
-                    </FormItem>
-                </Form>
-            );
-        };
-        const action = (
-            <Fragment>
-                <Button
-                    onClick={this.showModal}
-                    type="primary"
-                    icon="plus">新增</Button>
-            </Fragment>
-        );
+
         return (
-            <PageHeaderWrapper title="选项值" action={rollback}>
-                <div>
-                    <Card bordered={false}
-                    // extra={extraContent}
-                    >
-                        <div style={{ marginBottom: '20px' }} >
-                            {action}
-                        </div>
-                        <StandardTable
-                            pagination={pagination}
-                            loading={this.state.loading}
-                            data={this.state.pageData}
-                            rowKey={record => record.id}
-                            columns={this.columns}
-                            bordered
-                            onChange={this.handleStandardTableChange}
-                        // scroll={{ x: 800 }}
-                        />
-                        {/* <Table bordered
-                            rowKey={record => record.id}
-                            pagination={false}
-                            loading={this.state.loading}
-                            dataSource={this.state.data}
-                            columns={this.columns}
-                        /> */}
-                    </Card>
-                </div>
-                <Modal
-                    title={`选项值 - ${this.state.current.id ? '编辑' : '新增'}`}
-                    destroyOnClose
-                    visible={this.state.visible}
-                    {...modalFooter}>
-                    {getModalContent()}
-                </Modal>
+            <PageHeaderWrapper title="新增商品" action={rollback}>
+                <Card bordered={false}>
+                    <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
+                        <Tabs type="card">
+                            <TabPane tab="基本信息" key="1">
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>名称</span>}>
+                                    {getFieldDecorator('name', {
+                                        initialValue: '',
+                                        rules: [{ required: true, message: '请输入产品名称' }],
+                                    })(
+                                        <Input placeholder="名称" />)}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>Slug</span>}>
+                                    {getFieldDecorator('slug', { initialValue: '' })(
+                                        <Input placeholder="Slug" />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>品牌</span>}>
+                                    {getFieldDecorator('brandId', { initialValue: '' })(
+                                        <Select loading={this.state.brandLoading} allowClear={true}>
+                                            {this.state.brandOptions}
+                                        </Select>)}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>简短描述</span>}>
+                                    {getFieldDecorator('shortDescription')(
+                                        <Editor
+                                            toolbar={{
+                                                inline: { inDropdown: true },
+                                                list: { inDropdown: true },
+                                                textAlign: { inDropdown: true },
+                                                link: { inDropdown: true },
+                                                history: { inDropdown: true },
+                                            }}
+                                        />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>描述</span>}>
+                                    {getFieldDecorator('description')(
+                                        <Editor />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>规格</span>}>
+                                    {getFieldDecorator('specification')(
+                                        <Editor />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>SKU</span>}>
+                                    {getFieldDecorator('sku', { initialValue: '' })(
+                                        <Input placeholder="SKU" />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>GTIN</span>}>
+                                    {getFieldDecorator('gtin', { initialValue: '' })(
+                                        <Input placeholder="GTIN" />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>价格</span>}>
+                                    {getFieldDecorator('price', { initialValue: '' })(
+                                        <InputNumber placeholder="价格" />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>原价</span>}>
+                                    {getFieldDecorator('oldPrice', { initialValue: '' })(
+                                        <InputNumber placeholder="原价" />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>特价</span>}>
+                                    {getFieldDecorator('specialPrice', { initialValue: '' })(
+                                        <InputNumber placeholder="特价" />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>特价时间</span>}>
+                                    {getFieldDecorator('specialPriceRangePicker', { initialValue: '' })(
+                                        <RangePicker
+                                            ranges={{ Today: [moment(), moment()], 'This Month': [moment().startOf('month'), moment().endOf('month')] }}
+                                            showTime
+                                            format="YYYY/MM/DD HH:mm:ss"
+                                        />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>产品图片</span>}>
+                                    <Upload action={this.handleUpload}
+                                        listType="picture-card"
+                                        fileList={fileList}
+                                        onRemove={this.handleRemove}
+                                        onPreview={this.handlePreview}
+                                        onChange={this.handleChange}>
+                                        {uploadButton}
+                                    </Upload>
+                                    <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
+                                        <img alt="example" style={{ width: '100%' }} src={previewImage} />
+                                    </Modal>
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>精品</span>}>
+                                    {
+                                        getFieldDecorator('isFeatured', { initialValue: false })(
+                                            <Checkbox defaultChecked={false} />
+                                        )
+                                    }
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>已发布</span>}>
+                                    {
+                                        getFieldDecorator('isPublished', { initialValue: false })(
+                                            <Checkbox defaultChecked={false} />
+                                        )
+                                    }
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>允许订购</span>}>
+                                    {
+                                        getFieldDecorator('isAllowToOrder', { initialValue: false })(
+                                            <Checkbox defaultChecked={false} />
+                                        )
+                                    }
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>isCallForPricing</span>}>
+                                    {
+                                        getFieldDecorator('isCallForPricing', { initialValue: false })(
+                                            <Checkbox defaultChecked={false} />
+                                        )
+                                    }
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>Enable Stock Tracking</span>}>
+                                    {
+                                        getFieldDecorator('stockTrackingIsEnabled', { initialValue: false })(
+                                            <Checkbox defaultChecked={false} />
+                                        )
+                                    }
+                                </FormItem>
+                            </TabPane>
+                            <TabPane tab="产品选项" key="2">Content of Tab Pane 2</TabPane>
+                            <TabPane tab="产品属性" key="3">Content of Tab Pane 3</TabPane>
+                            <TabPane tab="产品类别" key="4">Content of Tab Pane 产品类别</TabPane>
+                            <TabPane tab="SEO" key="5">
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>Meta Title</span>}>
+                                    {getFieldDecorator('metaTitle', { initialValue: '' })(
+                                        <Input placeholder="Meta Title" />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>Meta Keywords</span>}>
+                                    {getFieldDecorator('metaKeywords', { initialValue: '' })(
+                                        <TextArea
+                                            style={{ minHeight: 32 }}
+                                            placeholder="Meta Keywords"
+                                            rows={2} />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>Meta Description</span>}>
+                                    {getFieldDecorator('metaDescription', { initialValue: '' })(
+                                        <TextArea
+                                            style={{ minHeight: 32 }}
+                                            placeholder="Meta Description"
+                                            rows={2} />)
+                                    }
+                                </FormItem>
+                            </TabPane>
+                        </Tabs>
+                        <FormItem {...submitFormLayout}>
+                            <Button type="primary" htmlType="submit" loading={this.state.submitting}>保存</Button>
+                        </FormItem>
+                    </Form>
+                </Card>
             </PageHeaderWrapper>
         );
     }

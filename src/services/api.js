@@ -194,6 +194,10 @@ export async function queryBrand(params) {
   });
 }
 
+export async function queryBrandAll() {
+  return request('/api/brands');
+}
+
 export async function deleteBrand(params) {
   return request(`/api/brands/${params.id}`, {
     method: 'DELETE'
