@@ -263,6 +263,32 @@ export default [
         path: '/catalog',
         routes: [
           {
+            path: '/catalog/product',
+            name: 'product',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/catalog/product',
+                redirect: '/catalog/product/list',
+              },
+              {
+                path: '/catalog/product/list',
+                name: 'list',
+                component: './Catalog/Product/List'
+              },
+              {
+                path: '/catalog/product/add',
+                name: 'add',
+                component: './Catalog/Product/Add'
+              },
+              {
+                path: '/catalog/product/edit',
+                name: 'edit',
+                component: './Catalog/Product/Edit'
+              },
+            ]
+          },
+          {
             path: '/catalog/category',
             name: 'category',
             hideChildrenInMenu: true,

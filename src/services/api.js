@@ -374,3 +374,31 @@ export async function deleteProductAttrData(params) {
     method: 'DELETE'
   });
 }
+
+
+//产品
+export async function queryProductGrid(params) {
+  return request(`/api/products/grid`, {
+    method: 'POST',
+    body: params
+  });
+}
+export async function addProduct(params) {
+  return request(`/api/products`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editProduct(params) {
+  return request(`/api/products/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function deleteProduct(params) {
+  return request(`/api/products/${params.id}`, {
+    method: 'DELETE'
+  });
+}

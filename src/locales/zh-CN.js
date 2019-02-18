@@ -287,10 +287,15 @@ export default {
    * add 20190128
    */
   'menu.catalog': '商品目录',
+  'menu.catalog.product': '商品',
+  'menu.catalog.product.list': '列表',
+  'menu.catalog.product.add': '新增',
+  'menu.catalog.product.edit': '编辑',
+
   'menu.catalog.category': '商品分类',
   'menu.catalog.category.list': '列表',
   'menu.catalog.category.add': '新增',
-  'menu.catalog.category.edit': '修改',
+  'menu.catalog.category.edit': '编辑',
 
   'menu.catalog.brand': '商品品牌',
   'menu.catalog.product-option': '商品选项',
