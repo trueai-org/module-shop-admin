@@ -34,52 +34,30 @@ const rollback = (
     </Fragment>
 );
 
+
 @connect()
 @Form.create()
 class ProductAdd extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            loading: false,
-            visible: false,
-            data: [],
-            current: {},
             submitting: false,
-            selectLoading: false,
-            children: [],
-
-            pageNum: 1,
-            pageSize: 5,
-            predicate: 'id',
-            reverse: true,
-            pageData: {
-                list: [],
-                pagination: {}
-            },
-
 
             uploadLoading: false,
-            mediaId: '',
             previewVisible: false,
             previewImage: '',
             fileList: [],
-            // optionId: props.location.query.id,
 
             categoryLoading: false,
             categoryOptions: [],
             categories: [],
 
-
             brandLoading: false,
             brandOptions: [],
             brands: [],
 
-            editorState: EditorState.createEmpty()
+            // editorState: EditorState.createEmpty()
         };
-    }
-
-    onEditorStateChange = (editorState) => {
-        this.setState({ editorState: editorState });
     }
 
     componentDidMount() {
@@ -89,7 +67,6 @@ class ProductAdd extends PureComponent {
     handleSubmit = e => {
         e.preventDefault();
         const { dispatch, form } = this.props;
-        const id = this.state.current ? this.state.current.id : '';
 
         form.validateFields((err, values) => {
             if (err) return;
@@ -98,35 +75,37 @@ class ProductAdd extends PureComponent {
                 ...values
             };
 
+            //富文本处理
             //draftToHtml(convertToRaw(this.state.editorState.getCurrentContent()))
-
             params.description = draftToHtml(params.description);
             params.shortDescription = draftToHtml(params.shortDescription);
             params.specification = draftToHtml(params.specification);
 
+            //特价时间处理
             if (params.specialPriceRangePicker) {
                 params.specialPriceStart = params.specialPriceRangePicker[0].format('YYYY-MM-DD HH:mm:ss');
                 params.specialPriceEnd = params.specialPriceRangePicker[1].format('YYYY-MM-DD HH:mm:ss');
                 params.specialPriceRangePicker = {};
             }
 
-            console.log(params);
-            return;
-
-            let bt = 'option/addProductOptionData';
-            if (id) {
-                params.id = id;
-                bt = 'option/editProductOptionData';
-            }
+            //图片处理
+            params.mediaIds = [];
+            this.state.fileList.forEach(c => {
+                if (c.mediaId) {
+                    params.mediaIds.push(c.mediaId);
+                }
+            });
 
             // console.log(params);
+            // return;
 
             if (this.state.submitting === true)
                 return;
+
             this.setState({ submitting: true });
             new Promise(resolve => {
                 dispatch({
-                    type: bt,
+                    type: 'product/addProduct',
                     payload: {
                         resolve,
                         params
@@ -135,9 +114,7 @@ class ProductAdd extends PureComponent {
             }).then(res => {
                 this.setState({ submitting: false });
                 if (res.success === true) {
-                    form.resetFields();
-                    this.setState({ visible: false });
-                    this.handleSearch();
+                    router.push('./list');
                 } else {
                     notification.error({
                         message: res.message,
@@ -180,34 +157,135 @@ class ProductAdd extends PureComponent {
                 });
             }
         });
+
+        new Promise(resolve => {
+            dispatch({
+                type: 'globalCategory/all',
+                payload: {
+                    resolve,
+                },
+            });
+        }).then(res => {
+            if (res.success === true) {
+                this.setState({
+                    categoryLoading: false,
+                    categories: res.data
+                }, () => {
+                    let options = [];
+                    this.state.categories.forEach(c => {
+                        options.push(<Option key={c.id}>{c.name}</Option>);
+                    });
+                    this.setState({ categoryOptions: options });
+                });
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
     }
+
+
+    handleUpload = file => {
+        this.setState({ uploadLoading: true });
+
+        const { dispatch } = this.props;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // dispatch({
+        //     type: 'upload/uploadImage',
+        //     payload: {
+        //         params: formData
+        //     },
+        // });
+        // console.log(upload);
+        // console.log(uploadLoading);
+        // return;
+
+        new Promise(resolve => {
+            dispatch({
+                type: 'upload/uploadImage',
+                payload: {
+                    resolve,
+                    params: formData
+                },
+            });
+        }).then(res => {
+            this.setState({ uploadLoading: false });
+            if (res.success === true) {
+                file.url = res.data.url;
+                file.mediaId = res.data.id;
+                this.setState({
+                    fileList: [...this.state.fileList, file]
+                });
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
+    }
+
+    handleRemove = (file) => {
+        this.setState(({ fileList }) => {
+            const index = fileList.indexOf(file);
+            const newFileList = fileList.slice();
+            newFileList.splice(index, 1);
+            return {
+                fileList: newFileList,
+            };
+        });
+    }
+
+    handleCancel = () => this.setState({ previewVisible: false })
+
+    handlePreview = (file) => {
+        this.setState({
+            previewImage: file.url || file.thumbUrl,
+            previewVisible: true,
+        });
+    }
+
+    // handleUploadChange = info => {
+    //     const status = info.file.status;
+    //     if (status !== 'uploading') {
+    //         console.log(info.file, info.fileList);
+    //     }
+    //     if (status === 'done') {
+    //         console.log(`${info.file.name} file uploaded successfully.`);
+    //     } else if (status === 'error') {
+    //         console.log(`${info.file.name} file upload failed.`);
+    //     }
+    // }
 
     render() {
         const {
             editorState,
-            form: { getFieldDecorator, getFieldValue },
+            form: { getFieldDecorator, getFieldValue }
         } = this.props;
 
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
-                sm: { span: 4 },
+                sm: { span: 6 },
             },
             wrapperCol: {
                 xs: { span: 24 },
                 sm: { span: 24 },
-                md: { span: 20 },
+                md: { span: 18 },
             },
         };
 
         const submitFormLayout = {
             wrapperCol: {
                 xs: { span: 24, offset: 0 },
-                sm: { span: 10, offset: 4 },
+                sm: { span: 10, offset: 6 },
             },
         };
 
-        const { previewVisible, previewImage, fileList } = this.state;
+        const { previewVisible, previewImage } = this.state;
         const uploadButton = (
             <div>
                 <Icon type={this.state.uploadLoading ? 'loading' : 'plus'} />
@@ -233,7 +311,12 @@ class ProductAdd extends PureComponent {
                                 <FormItem
                                     {...formItemLayout}
                                     label={<span>Slug</span>}>
-                                    {getFieldDecorator('slug', { initialValue: '' })(
+                                    {getFieldDecorator('slug', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: ''
+                                    })(
                                         <Input placeholder="Slug" />
                                     )}
                                 </FormItem>
@@ -291,7 +374,10 @@ class ProductAdd extends PureComponent {
                                 <FormItem
                                     {...formItemLayout}
                                     label={<span>价格</span>}>
-                                    {getFieldDecorator('price', { initialValue: '' })(
+                                    {getFieldDecorator('price', {
+                                        rules: [{ required: true, message: '请输入产品价格' }],
+                                        initialValue: ''
+                                    })(
                                         <InputNumber placeholder="价格" />
                                     )}
                                 </FormItem>
@@ -325,10 +411,11 @@ class ProductAdd extends PureComponent {
                                     label={<span>产品图片</span>}>
                                     <Upload action={this.handleUpload}
                                         listType="picture-card"
-                                        fileList={fileList}
+                                        fileList={this.state.fileList}
                                         onRemove={this.handleRemove}
                                         onPreview={this.handlePreview}
-                                        onChange={this.handleChange}>
+                                    // onChange={this.handleUploadChange}
+                                    >
                                         {uploadButton}
                                     </Upload>
                                     <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
@@ -383,7 +470,27 @@ class ProductAdd extends PureComponent {
                             </TabPane>
                             <TabPane tab="产品选项" key="2">Content of Tab Pane 2</TabPane>
                             <TabPane tab="产品属性" key="3">Content of Tab Pane 3</TabPane>
-                            <TabPane tab="产品类别" key="4">Content of Tab Pane 产品类别</TabPane>
+                            <TabPane tab="产品类别" key="4">
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>产品类别映射</span>}>
+                                    {
+                                        getFieldDecorator('categoryIds', {})(
+                                            <Select
+                                                mode="multiple"
+                                                // style={{ width: '100%' }}
+                                                placeholder="请选择产品类别"
+                                            // defaultValue={[]}
+                                            // onChange={handleChange}
+                                            >
+                                                {this.state.categoryOptions}
+                                            </Select>
+                                        )
+                                    }
+                                </FormItem>
+
+
+                            </TabPane>
                             <TabPane tab="SEO" key="5">
                                 <FormItem
                                     {...formItemLayout}
