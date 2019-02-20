@@ -320,9 +320,14 @@ export async function editProductAGS(params) {
 
 // 产品属性
 
-export async function queryProductAttr(params) {
+export async function queryProductAttr() {
   return request('/api/product-attributes');
 }
+
+export async function queryProductAttributeGroupArray() {
+  return request('/api/product-attributes/group-array');
+}
+
 
 export async function queryProductAttrGrid(params) {
   return request(`/api/product-attributes/grid`, {
@@ -404,5 +409,39 @@ export async function editProduct(params) {
 export async function deleteProduct(params) {
   return request(`/api/products/${params.id}`, {
     method: 'DELETE'
+  });
+}
+
+
+// 产品属性模板
+
+export async function queryProductAttributeTemplates() {
+  return request('/api/product-attribute-templates');
+}
+
+export async function queryProductAttributeTemplateGrid(params) {
+  return request(`/api/product-attribute-templates/grid`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function deleteProductAttributeTemplate(params) {
+  return request(`/api/product-attribute-templates/${params.id}`, {
+    method: 'DELETE'
+  });
+}
+
+export async function addProductAttributeTemplate(params) {
+  return request(`/api/product-attribute-templates`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editProductAttributeTemplate(params) {
+  return request(`/api/product-attribute-templates/${params.id}`, {
+    method: 'PUT',
+    body: params
   });
 }

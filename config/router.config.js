@@ -368,6 +368,12 @@ export default [
               }
             ]
           },
+          {
+            path: '/catalog/product-attribute-template',
+            name: 'product-attribute-template',
+            component: './Catalog/ProductAttributeTemplate/List',
+          },
+
         ],
       },
 
