@@ -20,7 +20,7 @@ import '../../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.cs
 
 const RangePicker = DatePicker.RangePicker;
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option, OptGroup } = Select;
 const TabPane = Tabs.TabPane;
 const { TextArea } = Input;
 
@@ -56,9 +56,49 @@ class ProductAdd extends PureComponent {
             brandOptions: [],
             brands: [],
 
-            // editorState: EditorState.createEmpty()
+            attributeLoading: false,
+            attributeOptions: [],
+            attributes: [],
+
+            templateLoading: false,
+            templateOptions: [],
+            templates: [],
+
+            productAttributeLoading: false,
+            productAttributeData: [],
         };
+
+        // this.state.productAttributeData.push([
+        //     { id: '1', name: 'ceshi', value: '123' }
+        // ]);
     }
+
+    columnsAttribute = [
+        {
+            title: '属性名称',
+            dataIndex: 'name',
+            width: 150,
+        },
+        {
+            title: '属性值',
+            dataIndex: 'value',
+            width: 150,
+        },
+        {
+            title: '操作',
+            key: 'operation',
+            align: 'center',
+            render: (text, record) => (
+                <Fragment>
+                    {/* <a onClick={() => this.showEditModal(record)}>编辑</a>
+                    <Divider type="vertical" /> */}
+                    <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
+                        <a href="javascript:;">删除</a>
+                    </Popconfirm>
+                </Fragment>
+            )
+        },
+    ];
 
     componentDidMount() {
         this.handleInit();
@@ -124,12 +164,21 @@ class ProductAdd extends PureComponent {
         });
     };
 
+
+    handleAddProductAttribute = () => {
+        console.log('add');
+
+
+    }
+
     handleInit = () => {
         const { dispatch } = this.props;
 
         this.setState({
             brandLoading: true,
             categoryLoading: true,
+            templateLoading: true,
+            attributeLoading: true
         });
 
         new Promise(resolve => {
@@ -176,6 +225,67 @@ class ProductAdd extends PureComponent {
                         options.push(<Option key={c.id}>{c.name}</Option>);
                     });
                     this.setState({ categoryOptions: options });
+                });
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
+
+        new Promise(resolve => {
+            dispatch({
+                type: 'catalog/attributesGroupArray',
+                payload: {
+                    resolve,
+                },
+            });
+        }).then(res => {
+            if (res.success === true) {
+                this.setState({
+                    attributeLoading: false,
+                    attributes: res.data
+                });
+                let groups = [];
+                let list = [];
+                list = res.data;
+                list.forEach(x => {
+                    let options = [];
+                    x.productAttributes.forEach(c => {
+                        options.push(<Option value={c.id} key={c.id}>{c.name}</Option>);
+                    });
+                    groups.push(
+                        <OptGroup key={x.groupId} label={x.groupName}>
+                            {options}
+                        </OptGroup>
+                    );
+                });
+                this.setState({ attributeOptions: groups });
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
+
+        new Promise(resolve => {
+            dispatch({
+                type: 'catalog/templates',
+                payload: {
+                    resolve,
+                },
+            });
+        }).then(res => {
+            if (res.success === true) {
+                this.setState({
+                    templateLoading: false,
+                    templates: res.data
+                }, () => {
+                    let options = [];
+                    this.state.templates.forEach(c => {
+                        options.push(<Option key={c.id}>{c.name}</Option>);
+                    });
+                    this.setState({ templateOptions: options });
                 });
             } else {
                 notification.error({
@@ -378,21 +488,21 @@ class ProductAdd extends PureComponent {
                                         rules: [{ required: true, message: '请输入产品价格' }],
                                         initialValue: ''
                                     })(
-                                        <InputNumber placeholder="价格" />
+                                        <InputNumber style={{ width: '100%' }} placeholder="价格" />
                                     )}
                                 </FormItem>
                                 <FormItem
                                     {...formItemLayout}
                                     label={<span>原价</span>}>
                                     {getFieldDecorator('oldPrice', { initialValue: '' })(
-                                        <InputNumber placeholder="原价" />
+                                        <InputNumber style={{ width: '100%' }} placeholder="原价" />
                                     )}
                                 </FormItem>
                                 <FormItem
                                     {...formItemLayout}
                                     label={<span>特价</span>}>
                                     {getFieldDecorator('specialPrice', { initialValue: '' })(
-                                        <InputNumber placeholder="特价" />
+                                        <InputNumber style={{ width: '100%' }} placeholder="特价" />
                                     )}
                                 </FormItem>
                                 <FormItem
@@ -469,7 +579,41 @@ class ProductAdd extends PureComponent {
                                 </FormItem>
                             </TabPane>
                             <TabPane tab="产品选项" key="2">Content of Tab Pane 2</TabPane>
-                            <TabPane tab="产品属性" key="3">Content of Tab Pane 3</TabPane>
+                            <TabPane tab="产品属性" key="3">
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>属性模板</span>}>
+                                    <Select
+                                        placeholder="属性模板"
+                                        loading={this.state.templateLoading}
+                                        allowClear={true}>
+                                        {this.state.templateOptions}
+                                    </Select>
+                                    <Button>应用</Button>
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>可用属性</span>}>
+                                    <Select
+                                        placeholder="可用属性"
+                                        loading={this.state.attributeLoading}
+                                        allowClear={true}>
+                                        {this.state.attributeOptions}
+                                    </Select>
+                                    <Button onClick={this.handleAddProductAttribute}>添加属性</Button>
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>产品属性</span>}>
+                                    <Table bordered={false}
+                                        rowKey={record => record.id}
+                                        pagination={false}
+                                        loading={this.state.productAttributeLoading}
+                                        dataSource={this.state.productAttributeData}
+                                        columns={this.columnsAttribute}
+                                    />
+                                </FormItem>
+                            </TabPane>
                             <TabPane tab="产品类别" key="4">
                                 <FormItem
                                     {...formItemLayout}
@@ -488,8 +632,6 @@ class ProductAdd extends PureComponent {
                                         )
                                     }
                                 </FormItem>
-
-
                             </TabPane>
                             <TabPane tab="SEO" key="5">
                                 <FormItem
