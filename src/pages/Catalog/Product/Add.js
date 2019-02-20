@@ -169,6 +169,7 @@ class ProductAdd extends PureComponent {
         console.log('add');
 
 
+        
     }
 
     handleInit = () => {
