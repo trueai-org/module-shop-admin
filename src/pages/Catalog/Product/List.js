@@ -51,22 +51,15 @@ class ProductList extends PureComponent {
             width: 180,
             render: (text, record) => (
                 <Fragment>
-
                     <Button.Group>
-                        <Button icon="edit" size="small" onClick={() => this.showEditModal(record)}></Button>
-                        <Button style={{ color: record.isPublished == true ? "#1890ff" : "#f5222d" }} icon={record.isPublished == true ? "pause-circle" : "play-circle"} size="small" onClick={() => this.showEditModal(record)}></Button>
+                        {/* //#f5222d */}
+                        <Button icon="edit" size="small" onClick={() => this.handleEdit(record.id)}></Button>
+                        <Button style={{ color: record.isPublished == true ? "#1890ff" : "" }} icon={record.isPublished == true ? "pause-circle" : "play-circle"} size="small" onClick={() => this.showEditModal(record)}></Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
                             <Button icon="delete" type="danger" size="small"></Button>
                             {/* <a href="javascript:;">删除</a> */}
                         </Popconfirm>
-                        {/* <Button size="small" onClick={() => this.deleteItem(record.id)}>删除</Button> */}
                     </Button.Group>
-
-                    {/* <a onClick={() => this.handleEditCategory(text, record)}>编辑</a>
-                    <Divider type="vertical" />
-                    <Popconfirm title="确定要删除吗？" onConfirm={() => this.handleDelete(text, record)}>
-                        <a href="javascript:;">删除</a>
-                    </Popconfirm> */}
                 </Fragment>
             )
         },
@@ -238,7 +231,7 @@ class ProductList extends PureComponent {
         const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'product/deleteProductOption',
+                type: 'product/deleteProduct',
                 payload: {
                     resolve,
                     params,
@@ -344,12 +337,11 @@ class ProductList extends PureComponent {
         router.push('./add');
     }
 
-
-    handleEdit = (text, record) => {
+    handleEdit = (id) => {
         router.push({
             pathname: './edit',
             query: {
-                id: record.id,
+                id: id,
             },
         });
     }

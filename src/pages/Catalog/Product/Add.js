@@ -340,6 +340,22 @@ class ProductAdd extends PureComponent {
                 });
             }
 
+            //产品选项
+            params.options = [];
+            this.state.productOptionData.forEach(c => {
+                if (c.value && c.value.length > 0) {
+                    let vs = [];
+                    c.value.forEach(x => {
+                        vs.push({ key: x, value: x });
+                    });
+                    params.options.push({
+                        id: c.optionId,
+                        displayType: 0,
+                        values: vs
+                    });
+                }
+            });
+
             //产品选项组合
             params.variations = [];
             if (this.state.productSku && this.state.productSku.length > 0) {
