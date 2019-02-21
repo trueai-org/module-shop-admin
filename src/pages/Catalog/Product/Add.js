@@ -2,7 +2,8 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown, Checkbox, Switch, Tabs, InputNumber, Upload, DatePicker
+    Redio, Menu, Dropdown, Checkbox, Switch, Tabs, InputNumber, Upload, DatePicker,
+    Avatar
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -205,7 +206,7 @@ class ProductAdd extends PureComponent {
                 <Fragment>
                     <Button.Group>
                         <Button icon="setting" type="" size="small"></Button>
-                        <Button onClick={() => this.handleRemoveProductAttribute(record)} icon="close" type="danger" size="small"></Button>
+                        <Button onClick={() => this.handleRemoveProductOption(record)} icon="close" type="danger" size="small"></Button>
                     </Button.Group>
                 </Fragment>
             )
@@ -224,20 +225,26 @@ class ProductAdd extends PureComponent {
             width: 150,
             render: (value) => (
                 <Fragment>
-                    <Input defaultValue={value}></Input>
+                    <Input
+                        // onChange={(e) => {
+                        //     value = e.target.value;
+                        //     console.log(value);
+                        //     console.log(this.state.productSku);
+                        // }}
+                        defaultValue={value}></Input>
                 </Fragment>
             )
         },
-        {
-            title: 'GTIN',
-            dataIndex: 'gtin',
-            width: 150,
-            render: (value) => (
-                <Fragment>
-                    <Input defaultValue={value}></Input>
-                </Fragment>
-            )
-        },
+        // {
+        //     title: 'GTIN',
+        //     dataIndex: 'gtin',
+        //     width: 150,
+        //     render: (value) => (
+        //         <Fragment>
+        //             <Input defaultValue={value}></Input>
+        //         </Fragment>
+        //     )
+        // },
         {
             title: '价格',
             dataIndex: 'price',
@@ -248,23 +255,23 @@ class ProductAdd extends PureComponent {
                 </Fragment>
             )
         },
-        {
-            title: '原价',
-            dataIndex: 'oldPrice',
-            width: 100,
-            render: (value) => (
-                <Fragment>
-                    <InputNumber defaultValue={value}></InputNumber>
-                </Fragment>
-            )
-        },
+        // {
+        //     title: '原价',
+        //     dataIndex: 'oldPrice',
+        //     width: 100,
+        //     render: (value) => (
+        //         <Fragment>
+        //             <InputNumber defaultValue={value}></InputNumber>
+        //         </Fragment>
+        //     )
+        // },
         {
             title: '图片',
             dataIndex: 'mediaId',
             width: 100,
             render: (text, record) => (
                 <Fragment>
-                    <Button>上传</Button>
+                    <Avatar shape="square" size={64} src={record.mediaUrl} />
                 </Fragment>
             )
         },
@@ -275,7 +282,10 @@ class ProductAdd extends PureComponent {
             width: 100,
             render: (text, record) => (
                 <Fragment>
-                    <Button onClick={() => this.handleRemoveProductAttribute(record)} icon="close" type="danger" size="small"></Button>
+                    <Button.Group>
+                        <Button icon="upload" type="" size="small"></Button>
+                        <Button onClick={() => this.handleRemoveSku(record)} icon="close" type="danger" size="small"></Button>
+                    </Button.Group>
                 </Fragment>
             )
         },
@@ -330,6 +340,12 @@ class ProductAdd extends PureComponent {
                 });
             }
 
+            //产品选项组合
+            params.variations = [];
+            if (this.state.productSku && this.state.productSku.length > 0) {
+                params.variations = this.state.productSku
+            }
+
             // console.log(params);
             // return;
 
@@ -358,24 +374,56 @@ class ProductAdd extends PureComponent {
         });
     };
 
-    handleGenSku = () => {
+    handleGenerateOptionCombination = () => {
         var optionDatas = this.state.productOptionData;
         if (!optionDatas || optionDatas.length <= 0)
             return;
-        let skus = [];
-        let sku = {
-            id: 'red_s',
-            name: 'red s',
-            sku: 'SKU001',
-            gtin: 'G001',
-            price: '50.1',
-            oldPrice: '100.22',
-            mediaId: '1',
-            mediaUrl: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
-        };
-        skus.push(sku);
-        this.setState({ productSku: skus });
         // console.log(optionDatas);
+
+        let maxIndexOption = this.state.productOptionData.length - 1;
+        let skus = [];
+        this.helper([], 0, maxIndexOption, skus);
+        this.setState({ productSku: skus });
+    }
+
+    helper = (arr, optionIndex, maxIndexOption, skus) => {
+        let j, l, variation, optionCombinations, optionValue;
+        for (j = 0, l = this.state.productOptionData[optionIndex].value.length; j < l; j = j + 1) {
+            optionCombinations = arr.slice(0);
+            optionValue = {
+                optionName: this.state.productOptionData[optionIndex].name,
+                optionId: this.state.productOptionData[optionIndex].id,
+                value: this.state.productOptionData[optionIndex].value[j],
+                displayOrder: optionIndex
+            };
+            optionCombinations.push(optionValue);
+
+            if (optionIndex === maxIndexOption) {
+                variation = {
+                    id: optionCombinations.map(this.getItemValue).join('-'),
+                    // name: 'red s',
+                    sku: '',
+                    gtin: '',
+                    // price: '50.1',
+                    // oldPrice: '100.22',
+                    mediaId: '1',
+                    mediaUrl: 'https://raw.githubusercontent.com/trueai-org/data/master/images/a1/6e/e5/a16ee588de2b28f2a6d6148991cfbcbd636855803382322009.jpg',
+
+                    name: 'vm.product.name' + ' ' + optionCombinations.map(this.getItemValue).join(' '),
+                    normalizedName: optionCombinations.map(this.getItemValue).join('-'),
+                    optionCombinations: optionCombinations,
+                    price: '0', //vm.product.price,
+                    oldPrice: '0' //vm.product.oldPrice
+                };
+                skus.push(variation);
+            } else {
+                this.helper(optionCombinations, optionIndex + 1, maxIndexOption, skus);
+            }
+        }
+    }
+
+    getItemValue = (item) => {
+        return item.value;
     }
 
     handleApplyProductAttrTemplate = () => {
@@ -427,7 +475,7 @@ class ProductAdd extends PureComponent {
         if (!id) {
             return;
         }
-        let p = { id, attributeId: id, name, value: undefined, list: [] };
+        let p = { id, attributeId: id, name, value: [], list: [] };
         var any = false;
         this.state.productAttributeData.forEach(c => {
             if (any === false && c.attributeId == p.attributeId) {
@@ -473,7 +521,7 @@ class ProductAdd extends PureComponent {
                 }
                 this.setState({
                     attributeDatas: [...olds, {
-                        id, name, attributeId: id, list: res.data, value: undefined
+                        id, name, attributeId: id, list: res.data, value: []
                     }]
                 });
             } else {
@@ -488,7 +536,7 @@ class ProductAdd extends PureComponent {
         if (!id) {
             return;
         }
-        let p = { id, optionId: id, name, value: undefined, list: [] };
+        let p = { id, optionId: id, name, value: [], list: [] };
         var any = false;
         this.state.productOptionData.forEach(c => {
             if (any === false && c.optionId == p.optionId) {
@@ -541,7 +589,7 @@ class ProductAdd extends PureComponent {
                 }
                 this.setState({
                     productOptionData: [...olds, {
-                        id, name, optionId: id, list: res.data, value: undefined
+                        id, name, optionId: id, list: res.data, value: []
                     }]
                 });
             } else {
@@ -567,6 +615,28 @@ class ProductAdd extends PureComponent {
             list.splice(index, 1);
             return {
                 productAttributeData: list,
+            };
+        });
+    }
+
+    handleRemoveProductOption = (record) => {
+        this.setState(({ productOptionData }) => {
+            const index = productOptionData.indexOf(record);
+            const list = productOptionData.slice();
+            list.splice(index, 1);
+            return {
+                productOptionData: list,
+            };
+        });
+    }
+
+    handleRemoveSku = (record) => {
+        this.setState(({ productSku }) => {
+            const index = productSku.indexOf(record);
+            const list = productSku.slice();
+            list.splice(index, 1);
+            return {
+                productSku: list,
             };
         });
     }
@@ -1028,7 +1098,7 @@ class ProductAdd extends PureComponent {
                                         dataSource={this.state.productOptionData}
                                         columns={this.columnsOption}
                                     />
-                                    <Button onClick={this.handleGenSku}>生成组合</Button>
+                                    <Button onClick={this.handleGenerateOptionCombination}>生成组合</Button>
                                 </FormItem>
                                 <FormItem
                                     {...formItemLayout}
@@ -1039,7 +1109,7 @@ class ProductAdd extends PureComponent {
                                         loading={this.state.productSkuLoading}
                                         dataSource={this.state.productSku}
                                         columns={this.columnsSku}
-                                        scroll={{ x: 860 }}
+                                        scroll={{ x: 600 }}
                                     />
                                 </FormItem>
                             </TabPane>
