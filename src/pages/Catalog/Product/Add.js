@@ -66,17 +66,27 @@ class ProductAdd extends PureComponent {
             templates: [],
             templateCurrent: undefined,
 
+            //产品属性列表
             productAttributeLoading: false,
             productAttributeData: [],
 
             applyLoading: false,
 
-            attributeDatas: []
-        };
+            attributeDatas: [],
 
-        // this.state.productAttributeData.push([
-        //     { id: '1', name: 'ceshi', value: '123' }
-        // ]);
+            optionLoading: false,
+            optionOptions: [],
+            options: [],
+            optionCurrent: undefined,
+
+            //产品选项列表
+            productOptionDataLoading: false,
+            productOptionData: [],
+
+            //产品规格列表
+            productSkuLoading: false,
+            productSku: [],
+        };
     }
 
     columnsAttribute = [
@@ -91,7 +101,7 @@ class ProductAdd extends PureComponent {
             render: (text, record) => (
                 <Fragment>
                     <Select
-                        loading={record.loading}
+                        // loading={record.loading}
                         mode="tags"
                         placeholder="Please select"
                         allowClear={true}
@@ -123,6 +133,138 @@ class ProductAdd extends PureComponent {
                             return os;
                         })}
                     </Select>
+                </Fragment>
+            )
+        },
+        {
+            title: '操作',
+            key: 'operation',
+            align: 'center',
+            width: 100,
+            render: (text, record) => (
+                <Fragment>
+                    <Button onClick={() => this.handleRemoveProductAttribute(record)} icon="close" type="danger" size="small"></Button>
+                </Fragment>
+            )
+        },
+    ];
+
+    columnsOption = [
+        {
+            title: '选项名称',
+            dataIndex: 'name',
+            width: 150,
+        },
+        {
+            title: '选项值',
+            dataIndex: 'value',
+            render: (text, record) => (
+                <Fragment>
+                    <Select
+                        // loading={record.loading}
+                        mode="tags"
+                        placeholder="Please select"
+                        allowClear={true}
+                        labelInValue
+                        onChange={(value) => {
+                            if (value) {
+                                var vs = [];
+                                value.forEach(c => {
+                                    vs.push(c.label);
+                                });
+                                let obj = this.state.productOptionData.find(c => c.optionId == record.optionId);
+                                if (obj) {
+                                    obj.value = vs;
+                                }
+                            }
+                        }}
+                    // onSearch={() => this.handleQueryAttributeData(record)}
+                    >
+                        {this.state.productOptionData.map(item => {
+                            // console.log(item);
+                            let os = [];
+                            if (item.optionId == record.optionId) {
+                                item.list.forEach(c => {
+                                    os.push(<Option key={c.id}>
+                                        {c.value}
+                                    </Option>);
+                                });
+                            }
+                            return os;
+                        })}
+                    </Select>
+                </Fragment>
+            )
+        },
+        {
+            title: '操作',
+            key: 'operation',
+            align: 'center',
+            width: 100,
+            render: (text, record) => (
+                <Fragment>
+                    <Button.Group>
+                        <Button icon="setting" type="" size="small"></Button>
+                        <Button onClick={() => this.handleRemoveProductAttribute(record)} icon="close" type="danger" size="small"></Button>
+                    </Button.Group>
+                </Fragment>
+            )
+        },
+    ];
+
+    columnsSku = [
+        {
+            title: '名称',
+            dataIndex: 'name',
+            // width: 150,
+        },
+        {
+            title: 'SKU',
+            dataIndex: 'sku',
+            width: 150,
+            render: (value) => (
+                <Fragment>
+                    <Input defaultValue={value}></Input>
+                </Fragment>
+            )
+        },
+        {
+            title: 'GTIN',
+            dataIndex: 'gtin',
+            width: 150,
+            render: (value) => (
+                <Fragment>
+                    <Input defaultValue={value}></Input>
+                </Fragment>
+            )
+        },
+        {
+            title: '价格',
+            dataIndex: 'price',
+            width: 100,
+            render: (value) => (
+                <Fragment>
+                    <InputNumber defaultValue={value}></InputNumber>
+                </Fragment>
+            )
+        },
+        {
+            title: '原价',
+            dataIndex: 'oldPrice',
+            width: 100,
+            render: (value) => (
+                <Fragment>
+                    <InputNumber defaultValue={value}></InputNumber>
+                </Fragment>
+            )
+        },
+        {
+            title: '图片',
+            dataIndex: 'mediaId',
+            width: 100,
+            render: (text, record) => (
+                <Fragment>
+                    <Button>上传</Button>
                 </Fragment>
             )
         },
@@ -216,6 +358,26 @@ class ProductAdd extends PureComponent {
         });
     };
 
+    handleGenSku = () => {
+        var optionDatas = this.state.productOptionData;
+        if (!optionDatas || optionDatas.length <= 0)
+            return;
+        let skus = [];
+        let sku = {
+            id: 'red_s',
+            name: 'red s',
+            sku: 'SKU001',
+            gtin: 'G001',
+            price: '50.1',
+            oldPrice: '100.22',
+            mediaId: '1',
+            mediaUrl: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+        };
+        skus.push(sku);
+        this.setState({ productSku: skus });
+        // console.log(optionDatas);
+    }
+
     handleApplyProductAttrTemplate = () => {
         if (!this.state.templateCurrent || this.state.applyLoading) {
             return;
@@ -265,7 +427,7 @@ class ProductAdd extends PureComponent {
         if (!id) {
             return;
         }
-        let p = { id, attributeId: id, name, value: undefined };
+        let p = { id, attributeId: id, name, value: undefined, list: [] };
         var any = false;
         this.state.productAttributeData.forEach(c => {
             if (any === false && c.attributeId == p.attributeId) {
@@ -274,13 +436,13 @@ class ProductAdd extends PureComponent {
         });
         if (any)
             return;
-        this.queryAttributeData(id);
+        this.queryAttributeData(id, name);
         this.setState({
             productAttributeData: [...this.state.productAttributeData, p]
         });
     }
 
-    queryAttributeData = (id) => {
+    queryAttributeData = (id, name) => {
         if (!id)
             return;
         // if (record.id && record.loading)
@@ -311,7 +473,75 @@ class ProductAdd extends PureComponent {
                 }
                 this.setState({
                     attributeDatas: [...olds, {
-                        id, attributeId: id, list: res.data, value: undefined
+                        id, name, attributeId: id, list: res.data, value: undefined
+                    }]
+                });
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
+    }
+
+    addProductOption = (id, name) => {
+        if (!id) {
+            return;
+        }
+        let p = { id, optionId: id, name, value: undefined, list: [] };
+        var any = false;
+        this.state.productOptionData.forEach(c => {
+            if (any === false && c.optionId == p.optionId) {
+                any = true;
+            }
+        });
+        if (any)
+            return;
+        this.queryOptionData(id, name);
+        this.setState({
+            productOptionData: [...this.state.productOptionData, p]
+        });
+    }
+
+    handleAddProductOption = () => {
+        if (!this.state.optionCurrent) {
+            return;
+        }
+        this.addProductOption(this.state.optionCurrent.key, this.state.optionCurrent.label);
+    }
+
+    queryOptionData = (id, name) => {
+        if (!id)
+            return;
+        // if (record.id && record.loading)
+        //     return;
+        // record.loading = true;
+        const { dispatch } = this.props;
+        new Promise(resolve => {
+            dispatch({
+                type: 'catalog/optionData',
+                payload: {
+                    resolve,
+                    params: { optionId: id }
+                },
+            });
+        }).then(res => {
+            // record.loading = false;
+            if (res.success === true) {
+                let olds = this.state.productOptionData;
+                // if (this.state.productOptionData.length > 10) {
+                //     olds = [];
+                // }
+                let obj = olds.find(c => c.optionId == id);
+                if (obj) {
+                    let index = olds.indexOf(obj);
+                    let list = olds.slice();
+                    list.splice(index, 1);
+                    olds = list;
+                }
+                this.setState({
+                    productOptionData: [...olds, {
+                        id, name, optionId: id, list: res.data, value: undefined
                     }]
                 });
             } else {
@@ -348,7 +578,8 @@ class ProductAdd extends PureComponent {
             brandLoading: true,
             categoryLoading: true,
             templateLoading: true,
-            attributeLoading: true
+            attributeLoading: true,
+            optionLoading: true
         });
 
         new Promise(resolve => {
@@ -395,6 +626,32 @@ class ProductAdd extends PureComponent {
                         options.push(<Option key={c.id}>{c.name}</Option>);
                     });
                     this.setState({ categoryOptions: options });
+                });
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
+
+        new Promise(resolve => {
+            dispatch({
+                type: 'catalog/options',
+                payload: {
+                    resolve,
+                },
+            });
+        }).then(res => {
+            this.setState({ optionLoading: false });
+            if (res.success === true) {
+                this.setState({
+                    options: res.data
+                }, () => {
+                    let options = [];
+                    this.state.options.forEach(c => {
+                        options.push(<Option key={c.id}>{c.name}</Option>);
+                    });
+                    this.setState({ optionOptions: options });
                 });
             } else {
                 notification.error({
@@ -747,7 +1004,45 @@ class ProductAdd extends PureComponent {
                                     }
                                 </FormItem>
                             </TabPane>
-                            <TabPane tab="产品选项" key="2">Content of Tab Pane 2</TabPane>
+                            <TabPane tab="产品选项" key="2">
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>可用选项</span>}>
+                                    <Select labelInValue
+                                        placeholder="可用选项"
+                                        loading={this.state.optionLoading}
+                                        allowClear={true}
+                                        onChange={(value) => this.setState({ optionCurrent: value })}
+                                    >
+                                        {this.state.optionOptions}
+                                    </Select>
+                                    <Button onClick={this.handleAddProductOption}>添加选项</Button>
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>产品选项</span>}>
+                                    <Table bordered={false}
+                                        rowKey={record => record.id}
+                                        pagination={false}
+                                        loading={this.state.productOptionDataLoading}
+                                        dataSource={this.state.productOptionData}
+                                        columns={this.columnsOption}
+                                    />
+                                    <Button onClick={this.handleGenSku}>生成组合</Button>
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>产品规格</span>}>
+                                    <Table bordered={false}
+                                        rowKey={record => record.id}
+                                        pagination={false}
+                                        loading={this.state.productSkuLoading}
+                                        dataSource={this.state.productSku}
+                                        columns={this.columnsSku}
+                                        scroll={{ x: 860 }}
+                                    />
+                                </FormItem>
+                            </TabPane>
                             <TabPane tab="产品属性" key="3">
                                 <FormItem
                                     {...formItemLayout}

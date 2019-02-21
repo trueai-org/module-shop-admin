@@ -266,6 +266,10 @@ export async function editProductOption(params) {
 
 // 产品选项值
 
+export async function queryProductOptionData(params) {
+  return request(`/api/product-options/data/${params.optionId}`);
+}
+
 export async function queryProductOptionDataGrid(params) {
   return request(`/api/product-options/data/${params.optionId}/grid`, {
     method: 'POST',

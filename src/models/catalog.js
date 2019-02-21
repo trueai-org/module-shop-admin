@@ -5,7 +5,8 @@ import {
     queryProductAttr,
     queryProductAttributeGroupArray,
     firstProductAttributeTemplate,
-    queryProductAttrData
+    queryProductAttrData,
+    queryProductOptionData
 } from '@/services/api';
 
 export default {
@@ -48,6 +49,12 @@ export default {
         *options({ payload }, { call, put }) {
             const { resolve } = payload;
             const response = yield call(queryProductOption);
+            !!resolve && resolve(response);
+        },
+
+        *optionData({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(queryProductOptionData, params);
             !!resolve && resolve(response);
         },
 
