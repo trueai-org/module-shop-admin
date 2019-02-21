@@ -3,7 +3,9 @@ import {
     queryBrandAll,
     queryProductAttributeTemplates,
     queryProductAttr,
-    queryProductAttributeGroupArray
+    queryProductAttributeGroupArray,
+    firstProductAttributeTemplate,
+    queryProductAttrData
 } from '@/services/api';
 
 export default {
@@ -19,9 +21,21 @@ export default {
             !!resolve && resolve(response);
         },
 
+        *templateFirst({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(firstProductAttributeTemplate, params);
+            !!resolve && resolve(response);
+        },
+
         *attributes({ payload }, { call, put }) {
             const { resolve } = payload;
             const response = yield call(queryProductAttr);
+            !!resolve && resolve(response);
+        },
+
+        *attributeData({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(queryProductAttrData, params);
             !!resolve && resolve(response);
         },
 

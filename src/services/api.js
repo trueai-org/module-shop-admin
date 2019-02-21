@@ -358,12 +358,17 @@ export async function editProductAttr(params) {
 
 // 产品属性值
 
+export async function queryProductAttrData(params) {
+  return request(`/api/product-attributes/data/${params.attributeId}`);
+}
+
 export async function queryProductAttrDataGrid(params) {
   return request(`/api/product-attributes/data/${params.attributeId}/grid`, {
     method: 'POST',
     body: params
   });
 }
+
 export async function addProductAttrData(params) {
   return request(`/api/product-attributes/data/${params.attributeId}`, {
     method: 'POST',
@@ -414,6 +419,10 @@ export async function deleteProduct(params) {
 
 
 // 产品属性模板
+
+export async function firstProductAttributeTemplate(params) {
+  return request(`/api/product-attribute-templates/${params.id}`);
+}
 
 export async function queryProductAttributeTemplates() {
   return request('/api/product-attribute-templates');

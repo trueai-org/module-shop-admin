@@ -59,13 +59,19 @@ class ProductAdd extends PureComponent {
             attributeLoading: false,
             attributeOptions: [],
             attributes: [],
+            attributeCurrent: undefined,
 
             templateLoading: false,
             templateOptions: [],
             templates: [],
+            templateCurrent: undefined,
 
             productAttributeLoading: false,
             productAttributeData: [],
+
+            applyLoading: false,
+
+            attributeDatas: []
         };
 
         // this.state.productAttributeData.push([
@@ -82,19 +88,52 @@ class ProductAdd extends PureComponent {
         {
             title: '属性值',
             dataIndex: 'value',
-            width: 150,
+            render: (text, record) => (
+                <Fragment>
+                    <Select
+                        loading={record.loading}
+                        mode="tags"
+                        placeholder="Please select"
+                        allowClear={true}
+                        labelInValue
+                        onChange={(value) => {
+                            if (value) {
+                                var vs = [];
+                                value.forEach(c => {
+                                    vs.push(c.label);
+                                });
+                                let obj = this.state.attributeDatas.find(c => c.attributeId == record.attributeId);
+                                if (obj) {
+                                    obj.value = vs;
+                                }
+                            }
+                        }}
+                    // onSearch={() => this.handleQueryAttributeData(record)}
+                    >
+                        {this.state.attributeDatas.map(item => {
+                            // console.log(item);
+                            let os = [];
+                            if (item.attributeId == record.attributeId) {
+                                item.list.forEach(c => {
+                                    os.push(<Option key={c.id}>
+                                        {c.value}
+                                    </Option>);
+                                });
+                            }
+                            return os;
+                        })}
+                    </Select>
+                </Fragment>
+            )
         },
         {
             title: '操作',
             key: 'operation',
             align: 'center',
+            width: 100,
             render: (text, record) => (
                 <Fragment>
-                    {/* <a onClick={() => this.showEditModal(record)}>编辑</a>
-                    <Divider type="vertical" /> */}
-                    <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
-                        <a href="javascript:;">删除</a>
-                    </Popconfirm>
+                    <Button onClick={() => this.handleRemoveProductAttribute(record)} icon="close" type="danger" size="small"></Button>
                 </Fragment>
             )
         },
@@ -136,6 +175,19 @@ class ProductAdd extends PureComponent {
                 }
             });
 
+            //产品属性
+            params.attributes = [];
+            if (this.state.attributeDatas) {
+                this.state.attributeDatas.forEach(c => {
+                    if (c.value) {
+                        params.attributes.push({
+                            attributeId: c.attributeId,
+                            value: c.value
+                        });
+                    }
+                });
+            }
+
             // console.log(params);
             // return;
 
@@ -164,12 +216,129 @@ class ProductAdd extends PureComponent {
         });
     };
 
+    handleApplyProductAttrTemplate = () => {
+        if (!this.state.templateCurrent || this.state.applyLoading) {
+            return;
+        }
+
+        this.setState({ applyLoading: true });
+        const { dispatch } = this.props;
+        new Promise(resolve => {
+            dispatch({
+                type: 'catalog/templateFirst',
+                payload: {
+                    resolve,
+                    params: { id: this.state.templateCurrent }
+                },
+            });
+        }).then(res => {
+            this.setState({ applyLoading: false });
+            if (res.success === true) {
+                let list = [];
+                let listIds = [];
+                list = res.data.attributes;
+                listIds = res.data.attributesIds;
+                list.forEach(c => {
+                    this.addProductAttribute(c.id, c.name);
+                });
+                this.state.productAttributeData.forEach(c => {
+                    if (listIds.indexOf(c.id) < 0) {
+                        this.handleRemoveProductAttribute(c);
+                    }
+                });
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
+    }
 
     handleAddProductAttribute = () => {
-        console.log('add');
+        if (!this.state.attributeCurrent) {
+            return;
+        }
+        this.addProductAttribute(this.state.attributeCurrent.key, this.state.attributeCurrent.label);
+    }
 
+    addProductAttribute = (id, name) => {
+        if (!id) {
+            return;
+        }
+        let p = { id, attributeId: id, name, value: undefined };
+        var any = false;
+        this.state.productAttributeData.forEach(c => {
+            if (any === false && c.attributeId == p.attributeId) {
+                any = true;
+            }
+        });
+        if (any)
+            return;
+        this.queryAttributeData(id);
+        this.setState({
+            productAttributeData: [...this.state.productAttributeData, p]
+        });
+    }
 
-        
+    queryAttributeData = (id) => {
+        if (!id)
+            return;
+        // if (record.id && record.loading)
+        //     return;
+        // record.loading = true;
+        const { dispatch } = this.props;
+        new Promise(resolve => {
+            dispatch({
+                type: 'catalog/attributeData',
+                payload: {
+                    resolve,
+                    params: { attributeId: id }
+                },
+            });
+        }).then(res => {
+            // record.loading = false;
+            if (res.success === true) {
+                let olds = this.state.attributeDatas;
+                // if (this.state.attributeDatas.length > 10) {
+                //     olds = [];
+                // }
+                let obj = olds.find(c => c.attributeId == id);
+                if (obj) {
+                    let index = olds.indexOf(obj);
+                    let list = olds.slice();
+                    list.splice(index, 1);
+                    olds = list;
+                }
+                this.setState({
+                    attributeDatas: [...olds, {
+                        id, attributeId: id, list: res.data, value: undefined
+                    }]
+                });
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
+    }
+
+    handleQueryAttributeData = (record) => {
+        // if (record.id && record.loading)
+        //     return;
+        // record.loading = true;
+
+        //搜索
+    }
+
+    handleRemoveProductAttribute = (record) => {
+        this.setState(({ productAttributeData }) => {
+            const index = productAttributeData.indexOf(record);
+            const list = productAttributeData.slice();
+            list.splice(index, 1);
+            return {
+                productAttributeData: list,
+            };
+        });
     }
 
     handleInit = () => {
@@ -296,7 +465,6 @@ class ProductAdd extends PureComponent {
         });
     }
 
-
     handleUpload = file => {
         this.setState({ uploadLoading: true });
 
@@ -380,19 +548,19 @@ class ProductAdd extends PureComponent {
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
-                sm: { span: 6 },
+                sm: { span: 5 },
             },
             wrapperCol: {
                 xs: { span: 24 },
                 sm: { span: 24 },
-                md: { span: 18 },
+                md: { span: 19 },
             },
         };
 
         const submitFormLayout = {
             wrapperCol: {
                 xs: { span: 24, offset: 0 },
-                sm: { span: 10, offset: 6 },
+                sm: { span: 10, offset: 5 },
             },
         };
 
@@ -587,18 +755,22 @@ class ProductAdd extends PureComponent {
                                     <Select
                                         placeholder="属性模板"
                                         loading={this.state.templateLoading}
-                                        allowClear={true}>
+                                        allowClear={true}
+                                        onChange={(value) => this.setState({ templateCurrent: value })}
+                                    >
                                         {this.state.templateOptions}
                                     </Select>
-                                    <Button>应用</Button>
+                                    <Button loading={this.state.applyLoading} onClick={this.handleApplyProductAttrTemplate}>应用</Button>
                                 </FormItem>
                                 <FormItem
                                     {...formItemLayout}
                                     label={<span>可用属性</span>}>
-                                    <Select
+                                    <Select labelInValue
                                         placeholder="可用属性"
                                         loading={this.state.attributeLoading}
-                                        allowClear={true}>
+                                        allowClear={true}
+                                        onChange={(value) => this.setState({ attributeCurrent: value })}
+                                    >
                                         {this.state.attributeOptions}
                                     </Select>
                                     <Button onClick={this.handleAddProductAttribute}>添加属性</Button>
@@ -625,6 +797,7 @@ class ProductAdd extends PureComponent {
                                                 mode="multiple"
                                                 // style={{ width: '100%' }}
                                                 placeholder="请选择产品类别"
+                                                allowClear={true}
                                             // defaultValue={[]}
                                             // onChange={handleChange}
                                             >
