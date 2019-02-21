@@ -675,32 +675,6 @@ class ProductAdd extends PureComponent {
 
         new Promise(resolve => {
             dispatch({
-                type: 'globalBrand/queryBrandAll',
-                payload: {
-                    resolve,
-                },
-            });
-        }).then(res => {
-            if (res.success === true) {
-                this.setState({
-                    brandLoading: false,
-                    brands: res.data
-                }, () => {
-                    let options = [];
-                    this.state.brands.forEach(c => {
-                        options.push(<Option key={c.id}>{c.name}</Option>);
-                    });
-                    this.setState({ brandOptions: options });
-                });
-            } else {
-                notification.error({
-                    message: res.message,
-                });
-            }
-        });
-
-        new Promise(resolve => {
-            dispatch({
                 type: 'product/first',
                 payload: {
                     resolve,
@@ -857,6 +831,48 @@ class ProductAdd extends PureComponent {
                         options.push(<Option key={c.id}>{c.name}</Option>);
                     });
                     this.setState({ templateOptions: options });
+                });
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
+    }
+
+    handleUpload = file => {
+        this.setState({ uploadLoading: true });
+
+        const { dispatch } = this.props;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // dispatch({
+        //     type: 'upload/uploadImage',
+        //     payload: {
+        //         params: formData
+        //     },
+        // });
+        // console.log(upload);
+        // console.log(uploadLoading);
+        // return;
+
+        new Promise(resolve => {
+            dispatch({
+                type: 'upload/uploadImage',
+                payload: {
+                    resolve,
+                    params: formData
+                },
+            });
+        }).then(res => {
+            this.setState({ uploadLoading: false });
+            if (res.success === true) {
+                file.url = res.data.url;
+                file.mediaId = res.data.id;
+                this.setState({
+                    fileList: [...this.state.fileList, file]
                 });
             } else {
                 notification.error({
