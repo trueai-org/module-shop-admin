@@ -1,4 +1,4 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { Component, PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
@@ -13,11 +13,16 @@ import Link from 'umi/link';
 import moment from 'moment';
 
 // editor
-import { EditorState, convertToRaw } from 'draft-js';
-import { Editor } from 'react-draft-wysiwyg';
-import draftToHtml from 'draftjs-to-html';
-import htmlToDraft from 'html-to-draftjs';
-import '../../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+// import { EditorState, convertToRaw } from 'draft-js';
+// import { Editor } from 'react-draft-wysiwyg';
+// import draftToHtml from 'draftjs-to-html';
+// import htmlToDraft from 'html-to-draftjs';
+
+// editor2
+import 'braft-editor/dist/index.css';
+import BraftEditor from 'braft-editor';
+
+import styles from './Edit.less';
 
 const RangePicker = DatePicker.RangePicker;
 const FormItem = Form.Item;
@@ -77,7 +82,8 @@ class ProductAdd extends PureComponent {
 
             applyLoading: false,
 
-            attributeDatas: [],
+            //属性值
+            attributeData: [],
 
             optionLoading: false,
             optionOptions: [],
@@ -110,27 +116,30 @@ class ProductAdd extends PureComponent {
                         mode="tags"
                         placeholder="Please select"
                         allowClear={true}
-                        labelInValue
+                        // labelInValue
                         onChange={(value) => {
                             if (value) {
                                 var vs = [];
                                 value.forEach(c => {
-                                    vs.push(c.label);
+                                    // vs.push(c.label);
+                                    vs.push({ id: 0, value: c });
                                 });
-                                let obj = this.state.attributeDatas.find(c => c.attributeId == record.attributeId);
+                                let obj = this.state.productAttributeData.find(c => c.id == record.id);
                                 if (obj) {
-                                    obj.value = vs;
+                                    obj.values = vs;
                                 }
+                                // console.log(this.state.productAttributeData);
                             }
                         }}
-                    // onSearch={() => this.handleQueryAttributeData(record)}
+                        defaultValue={record.values.map(x => x.value
+                            //{return x.value; // return { key: x.id }}
+                        )}
                     >
-                        {this.state.attributeDatas.map(item => {
-                            // console.log(item);
+                        {this.state.attributeData.map(item => {
                             let os = [];
-                            if (item.attributeId == record.attributeId) {
+                            if (item.id == record.id) {
                                 item.list.forEach(c => {
-                                    os.push(<Option key={c.id}>
+                                    os.push(<Option key={c.value}>
                                         {c.value}
                                     </Option>);
                                 });
@@ -312,9 +321,9 @@ class ProductAdd extends PureComponent {
 
             //富文本处理
             //draftToHtml(convertToRaw(this.state.editorState.getCurrentContent()))
-            params.description = draftToHtml(params.description);
-            params.shortDescription = draftToHtml(params.shortDescription);
-            params.specification = draftToHtml(params.specification);
+            params.description = params.description.toHTML(); //draftToHtml(params.description);
+            params.shortDescription = params.shortDescription.toHTML(); //draftToHtml(params.shortDescription);
+            params.specification = params.specification.toHTML(); //draftToHtml(params.specification);
 
             //特价时间处理
             if (params.specialPriceRangePicker) {
@@ -333,13 +342,11 @@ class ProductAdd extends PureComponent {
 
             //产品属性
             params.attributes = [];
-            if (this.state.attributeDatas) {
-                this.state.attributeDatas.forEach(c => {
-                    if (c.value) {
-                        params.attributes.push({
-                            attributeId: c.attributeId,
-                            value: c.value
-                        });
+            if (this.state.productAttributeData) {
+                this.state.productAttributeData.forEach(x => {
+                    if (x && x.values && x.values.length > 0) {
+                        let p = { attributeId: x.id, values: x.values.map(p => p.value) };
+                        params.attributes.push(p);
                     }
                 });
             }
@@ -366,8 +373,8 @@ class ProductAdd extends PureComponent {
                 params.variations = this.state.productSku
             }
 
-            // console.log(params);
-            // return;
+            console.log(params);
+            return;
 
             if (this.state.submitting === true)
                 return;
@@ -375,7 +382,7 @@ class ProductAdd extends PureComponent {
             this.setState({ submitting: true });
             new Promise(resolve => {
                 dispatch({
-                    type: 'product/addProduct',
+                    type: 'product/edit',
                     payload: {
                         resolve,
                         params
@@ -495,10 +502,10 @@ class ProductAdd extends PureComponent {
         if (!id) {
             return;
         }
-        let p = { id, attributeId: id, name, value: [], list: [] };
+        let p = { id, name, values: [], list: [] };
         var any = false;
         this.state.productAttributeData.forEach(c => {
-            if (any === false && c.attributeId == p.attributeId) {
+            if (any === false && c.id == p.id) {
                 any = true;
             }
         });
@@ -528,8 +535,8 @@ class ProductAdd extends PureComponent {
         }).then(res => {
             // record.loading = false;
             if (res.success === true) {
-                let olds = this.state.attributeDatas;
-                // if (this.state.attributeDatas.length > 10) {
+                let olds = this.state.attributeData;
+                // if (this.state.attributeData.length > 10) {
                 //     olds = [];
                 // }
                 let obj = olds.find(c => c.attributeId == id);
@@ -540,8 +547,8 @@ class ProductAdd extends PureComponent {
                     olds = list;
                 }
                 this.setState({
-                    attributeDatas: [...olds, {
-                        id, name, attributeId: id, list: res.data, value: []
+                    attributeData: [...olds, {
+                        id, name, list: res.data, value: []
                     }]
                 });
             } else {
@@ -686,6 +693,31 @@ class ProductAdd extends PureComponent {
             if (res.success === true) {
                 this.setState({
                     current: res.data
+                }, () => {
+                    this.props.form.setFieldsValue({
+                        shortDescription: BraftEditor.createEditorState(this.state.current.shortDescription || ''),
+                        description: BraftEditor.createEditorState(this.state.current.description || ''),
+                        specification: BraftEditor.createEditorState(this.state.current.specification || ''),
+                    })
+                });
+
+                let imgs = res.data.productImages || [];
+                let fs = [];
+                imgs.forEach(c => {
+                    fs.push({
+                        uid: -c.id,
+                        name: c.caption || '',
+                        status: 'done',
+                        url: c.mediaUrl,
+                        mediaId: c.id
+                    });
+                    this.setState({ fileList: fs });
+                });
+
+                this.setState({ productAttributeData: res.data.attributes });
+                //加载属性对应的属性值列表
+                res.data.attributes.forEach(c => {
+                    this.queryAttributeData(c.id, c.name);
                 });
             } else {
                 notification.error({
@@ -735,7 +767,7 @@ class ProductAdd extends PureComponent {
                 }, () => {
                     let options = [];
                     this.state.categories.forEach(c => {
-                        options.push(<Option key={c.id}>{c.name}</Option>);
+                        options.push(<Option value={c.id} key={c.id}>{c.name}</Option>);
                     });
                     this.setState({ categoryOptions: options });
                 });
@@ -867,48 +899,8 @@ class ProductAdd extends PureComponent {
                 file.mediaId = res.data.id;
                 this.setState({
                     fileList: [...this.state.fileList, file]
-                });
-            } else {
-                notification.error({
-                    message: res.message,
-                });
-            }
-        });
-    }
-
-    handleUpload = file => {
-        this.setState({ uploadLoading: true });
-
-        const { dispatch } = this.props;
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        // dispatch({
-        //     type: 'upload/uploadImage',
-        //     payload: {
-        //         params: formData
-        //     },
-        // });
-        // console.log(upload);
-        // console.log(uploadLoading);
-        // return;
-
-        new Promise(resolve => {
-            dispatch({
-                type: 'upload/uploadImage',
-                payload: {
-                    resolve,
-                    params: formData
-                },
-            });
-        }).then(res => {
-            this.setState({ uploadLoading: false });
-            if (res.success === true) {
-                file.url = res.data.url;
-                file.mediaId = res.data.id;
-                this.setState({
-                    fileList: [...this.state.fileList, file]
+                }, () => {
+                    console.log(this.state.fileList);
                 });
             } else {
                 notification.error({
@@ -959,19 +951,19 @@ class ProductAdd extends PureComponent {
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
-                sm: { span: 5 },
+                sm: { span: 4 },
             },
             wrapperCol: {
                 xs: { span: 24 },
                 sm: { span: 24 },
-                md: { span: 19 },
+                md: { span: 20 },
             },
         };
 
         const submitFormLayout = {
             wrapperCol: {
                 xs: { span: 24, offset: 0 },
-                sm: { span: 10, offset: 5 },
+                sm: { span: 10, offset: 4 },
             },
         };
 
@@ -982,6 +974,23 @@ class ProductAdd extends PureComponent {
                 <div className="ant-upload-text">上传</div>
             </div>
         );
+
+        const controls = [
+            'headings', 'font-size', 'separator',
+            'bold', 'italic', 'underline', 'text-color', 'strike-through', 'emoji', 'media', 'separator',
+            'link', 'separator',
+            'text-indent', 'text-align', 'separator',
+            'list-ul', 'list-ol', 'blockquote', 'code', 'hr', 'separator',
+
+            'remove-styles', 'fullscreen'
+        ];
+        const controlsEasy = [
+            'bold', 'italic', 'underline', 'text-color', 'media', 'separator',
+            'link', 'separator',
+            'text-align', 'separator',
+            'list-ul', 'list-ol', 'separator',
+            'remove-styles'
+        ];
 
         return (
             <PageHeaderWrapper title="新增商品" action={rollback}>
@@ -994,7 +1003,7 @@ class ProductAdd extends PureComponent {
                                         {...formItemLayout}
                                         label={<span>名称</span>}>
                                         {getFieldDecorator('name', {
-                                            initialValue: '',
+                                            initialValue: this.state.current.name || '',
                                             rules: [{ required: true, message: '请输入产品名称' }],
                                         })(
                                             <Input placeholder="名称" />)}
@@ -1006,7 +1015,7 @@ class ProductAdd extends PureComponent {
                                             rules: [{
                                                 required: true
                                             }],
-                                            initialValue: ''
+                                            initialValue: this.state.current.slug || ''
                                         })(
                                             <Input placeholder="Slug" />
                                         )}
@@ -1014,51 +1023,79 @@ class ProductAdd extends PureComponent {
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>品牌</span>}>
-                                        {getFieldDecorator('brandId', { initialValue: '' })(
-                                            <Select loading={this.state.brandLoading} allowClear={true}>
-                                                {this.state.brandOptions}
-                                            </Select>)}
+                                        {getFieldDecorator('brandId',
+                                            {
+                                                initialValue: this.state.current.brandId || ''
+                                            })(
+                                                <Select loading={this.state.brandLoading} allowClear={true}>
+                                                    {this.state.brandOptions}
+                                                </Select>)}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>简短描述</span>}>
-                                        {getFieldDecorator('shortDescription')(
-                                            <Editor
-                                                toolbar={{
-                                                    inline: { inDropdown: true },
-                                                    list: { inDropdown: true },
-                                                    textAlign: { inDropdown: true },
-                                                    link: { inDropdown: true },
-                                                    history: { inDropdown: true },
-                                                }}
-                                            />
-                                        )}
+                                        {getFieldDecorator('shortDescription',
+                                            {
+                                                // initialValue: this.state.editorState
+                                                // initialValue: '123',//BraftEditor.createEditorState(this.state.current.shortDescription || '')
+                                                // valuePropName: 'defaultValue'
+                                            })(
+                                                <BraftEditor
+                                                    className={styles.myEditor}
+                                                    controls={controlsEasy}
+                                                    placeholder=""
+                                                    contentStyle={{ height: 120 }}
+                                                />
+                                                // <Editor
+                                                //     toolbar={{
+                                                //         inline: { inDropdown: true },
+                                                //         list: { inDropdown: true },
+                                                //         textAlign: { inDropdown: true },
+                                                //         link: { inDropdown: true },
+                                                //         history: { inDropdown: true },
+                                                //     }}
+                                                //     editorClassName="editor-class"
+                                                // // editorStyle={{ border: '1px solid black' }}
+                                                // />
+                                            )}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>描述</span>}>
                                         {getFieldDecorator('description')(
-                                            <Editor />
+                                            // <Editor />
+                                            <BraftEditor
+                                                className={styles.myEditor}
+                                                controls={controls}
+                                                placeholder=""
+                                                contentStyle={{ height: 200 }}
+                                            />
                                         )}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>规格</span>}>
                                         {getFieldDecorator('specification')(
-                                            <Editor />
+                                            // <Editor />
+                                            <BraftEditor
+                                                className={styles.myEditor}
+                                                controls={controls}
+                                                placeholder=""
+                                                contentStyle={{ height: 120 }}
+                                            />
                                         )}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>SKU</span>}>
-                                        {getFieldDecorator('sku', { initialValue: '' })(
+                                        {getFieldDecorator('sku', { initialValue: this.state.current.sku || '' })(
                                             <Input placeholder="SKU" />
                                         )}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>GTIN</span>}>
-                                        {getFieldDecorator('gtin', { initialValue: '' })(
+                                        {getFieldDecorator('gtin', { initialValue: this.state.current.gtin || '' })(
                                             <Input placeholder="GTIN" />
                                         )}
                                     </FormItem>
@@ -1067,7 +1104,7 @@ class ProductAdd extends PureComponent {
                                         label={<span>价格</span>}>
                                         {getFieldDecorator('price', {
                                             rules: [{ required: true, message: '请输入产品价格' }],
-                                            initialValue: ''
+                                            initialValue: this.state.current.price || 0
                                         })(
                                             <InputNumber style={{ width: '100%' }} placeholder="价格" />
                                         )}
@@ -1075,21 +1112,27 @@ class ProductAdd extends PureComponent {
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>原价</span>}>
-                                        {getFieldDecorator('oldPrice', { initialValue: '' })(
+                                        {getFieldDecorator('oldPrice', { initialValue: this.state.current.oldPrice || 0 })(
                                             <InputNumber style={{ width: '100%' }} placeholder="原价" />
                                         )}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>特价</span>}>
-                                        {getFieldDecorator('specialPrice', { initialValue: '' })(
+                                        {getFieldDecorator('specialPrice', { initialValue: this.state.current.specialPrice || 0 })(
                                             <InputNumber style={{ width: '100%' }} placeholder="特价" />
                                         )}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>特价时间</span>}>
-                                        {getFieldDecorator('specialPriceRangePicker', { initialValue: '' })(
+                                        {getFieldDecorator('specialPriceRangePicker', {
+                                            initialValue: [
+                                                moment(this.state.current.specialPriceStart || '',
+                                                    "YYYY/MM/DD HH:mm:ss"),
+                                                moment(this.state.current.specialPriceEnd || '',
+                                                    "YYYY/MM/DD HH:mm:ss")]
+                                        })(
                                             <RangePicker
                                                 ranges={{ Today: [moment(), moment()], 'This Month': [moment().startOf('month'), moment().endOf('month')] }}
                                                 showTime
@@ -1117,8 +1160,8 @@ class ProductAdd extends PureComponent {
                                         {...formItemLayout}
                                         label={<span>精品</span>}>
                                         {
-                                            getFieldDecorator('isFeatured', { initialValue: false })(
-                                                <Checkbox defaultChecked={false} />
+                                            getFieldDecorator('isFeatured', { initialValue: this.state.current.isFeatured || false, valuePropName: 'checked' })(
+                                                <Checkbox />
                                             )
                                         }
                                     </FormItem>
@@ -1126,8 +1169,8 @@ class ProductAdd extends PureComponent {
                                         {...formItemLayout}
                                         label={<span>已发布</span>}>
                                         {
-                                            getFieldDecorator('isPublished', { initialValue: false })(
-                                                <Checkbox defaultChecked={false} />
+                                            getFieldDecorator('isPublished', { initialValue: this.state.current.isPublished || false, valuePropName: 'checked' })(
+                                                <Checkbox />
                                             )
                                         }
                                     </FormItem>
@@ -1135,8 +1178,8 @@ class ProductAdd extends PureComponent {
                                         {...formItemLayout}
                                         label={<span>允许订购</span>}>
                                         {
-                                            getFieldDecorator('isAllowToOrder', { initialValue: false })(
-                                                <Checkbox defaultChecked={false} />
+                                            getFieldDecorator('isAllowToOrder', { initialValue: this.state.current.isAllowToOrder || false, valuePropName: 'checked' })(
+                                                <Checkbox />
                                             )
                                         }
                                     </FormItem>
@@ -1144,17 +1187,17 @@ class ProductAdd extends PureComponent {
                                         {...formItemLayout}
                                         label={<span>isCallForPricing</span>}>
                                         {
-                                            getFieldDecorator('isCallForPricing', { initialValue: false })(
-                                                <Checkbox defaultChecked={false} />
+                                            getFieldDecorator('isCallForPricing', { initialValue: this.state.current.isCallForPricing || false, valuePropName: 'checked' })(
+                                                <Checkbox />
                                             )
                                         }
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>Enable Stock Tracking</span>}>
+                                        label='Enable Stock Tracking'>
                                         {
-                                            getFieldDecorator('stockTrackingIsEnabled', { initialValue: false })(
-                                                <Checkbox defaultChecked={false} />
+                                            getFieldDecorator('stockTrackingIsEnabled', { initialValue: this.state.current.stockTrackingIsEnabled || false, valuePropName: 'checked' })(
+                                                <Checkbox />
                                             )
                                         }
                                     </FormItem>
@@ -1242,18 +1285,19 @@ class ProductAdd extends PureComponent {
                                         {...formItemLayout}
                                         label={<span>产品类别映射</span>}>
                                         {
-                                            getFieldDecorator('categoryIds', {})(
-                                                <Select
-                                                    mode="multiple"
-                                                    // style={{ width: '100%' }}
-                                                    placeholder="请选择产品类别"
-                                                    allowClear={true}
-                                                // defaultValue={[]}
-                                                // onChange={handleChange}
-                                                >
-                                                    {this.state.categoryOptions}
-                                                </Select>
-                                            )
+                                            getFieldDecorator('categoryIds',
+                                                { initialValue: this.state.current.categoryIds || [], valuePropName: 'value' })(
+                                                    <Select
+                                                        mode="multiple"
+                                                        // style={{ width: '100%' }}
+                                                        placeholder="请选择产品类别"
+                                                        allowClear={true}
+                                                    // defaultValue={[]}
+                                                    // onChange={handleChange}
+                                                    >
+                                                        {this.state.categoryOptions}
+                                                    </Select>
+                                                )
                                         }
                                     </FormItem>
                                 </TabPane>
@@ -1261,14 +1305,14 @@ class ProductAdd extends PureComponent {
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>Meta Title</span>}>
-                                        {getFieldDecorator('metaTitle', { initialValue: '' })(
+                                        {getFieldDecorator('metaTitle', { initialValue: this.state.current.metaTitle || '' })(
                                             <Input placeholder="Meta Title" />
                                         )}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>Meta Keywords</span>}>
-                                        {getFieldDecorator('metaKeywords', { initialValue: '' })(
+                                        {getFieldDecorator('metaKeywords', { initialValue: this.state.current.metaKeywords || '' })(
                                             <TextArea
                                                 style={{ minHeight: 32 }}
                                                 placeholder="Meta Keywords"
@@ -1278,7 +1322,7 @@ class ProductAdd extends PureComponent {
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>Meta Description</span>}>
-                                        {getFieldDecorator('metaDescription', { initialValue: '' })(
+                                        {getFieldDecorator('metaDescription', { initialValue: this.state.current.metaDescription || '' })(
                                             <TextArea
                                                 style={{ minHeight: 32 }}
                                                 placeholder="Meta Description"
