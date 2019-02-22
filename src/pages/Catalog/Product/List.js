@@ -231,7 +231,7 @@ class ProductList extends PureComponent {
         const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'product/deleteProduct',
+                type: 'product/delete',
                 payload: {
                     resolve,
                     params,
@@ -280,7 +280,7 @@ class ProductList extends PureComponent {
 
         new Promise(resolve => {
             dispatch({
-                type: 'product/queryProductGrid',
+                type: 'product/grid',
                 payload: {
                     resolve,
                     params,

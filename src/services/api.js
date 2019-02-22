@@ -395,12 +395,17 @@ export async function deleteProductAttrData(params) {
 
 
 //产品
+export async function queryProductFirst(params) {
+  return request(`/api/products/${params.id}`);
+}
+
 export async function queryProductGrid(params) {
   return request(`/api/products/grid`, {
     method: 'POST',
     body: params
   });
 }
+
 export async function addProduct(params) {
   return request(`/api/products`, {
     method: 'POST',

@@ -43,7 +43,7 @@ class ProductAdd extends PureComponent {
         super(props);
         this.state = {
             id: props.location.query.id, //产品id
-            data: undefined, //产品数据
+            current: {}, //产品数据
             loading: false, //产品数据加载中
 
             submitting: false,
@@ -675,24 +675,18 @@ class ProductAdd extends PureComponent {
 
         new Promise(resolve => {
             dispatch({
-                type: 'product/first',
+                type: 'product/get',
                 payload: {
                     resolve,
+                    params: { id: this.state.id }
                 },
             });
         }).then(res => {
             this.setState({ loading: false });
             if (res.success === true) {
-                // this.setState({
-                //     brandLoading: false,
-                //     brands: res.data
-                // }, () => {
-                //     let options = [];
-                //     this.state.brands.forEach(c => {
-                //         options.push(<Option key={c.id}>{c.name}</Option>);
-                //     });
-                //     this.setState({ brandOptions: options });
-                // });
+                this.setState({
+                    current: res.data
+                });
             } else {
                 notification.error({
                     message: res.message,

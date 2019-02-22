@@ -371,7 +371,7 @@ class ProductAdd extends PureComponent {
             this.setState({ submitting: true });
             new Promise(resolve => {
                 dispatch({
-                    type: 'product/addProduct',
+                    type: 'product/add',
                     payload: {
                         resolve,
                         params
