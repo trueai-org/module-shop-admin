@@ -76,12 +76,12 @@ class ProductAdd extends PureComponent {
             templates: [],
             templateCurrent: undefined,
 
+            //应用模板
+            applyLoading: false,
+
             //产品属性列表
             productAttributeLoading: false,
             productAttributeData: [],
-
-            applyLoading: false,
-
             //属性值
             attributeData: [],
 
@@ -93,6 +93,8 @@ class ProductAdd extends PureComponent {
             //产品选项列表
             productOptionDataLoading: false,
             productOptionData: [],
+            //选项值
+            optionData: [],
 
             //产品规格列表
             productSkuLoading: false,
@@ -179,33 +181,51 @@ class ProductAdd extends PureComponent {
                         mode="tags"
                         placeholder="Please select"
                         allowClear={true}
-                        labelInValue
+                        // labelInValue
                         onChange={(value) => {
+                            // console.log(value);
+                            // return;
                             if (value) {
                                 var vs = [];
                                 value.forEach(c => {
-                                    vs.push(c.label);
+                                    // vs.push(c.label);
+                                    // vs.push({ id: 0, value: c.label });
+                                    vs.push({ id: 0, value: c });
                                 });
-                                let obj = this.state.productOptionData.find(c => c.optionId == record.optionId);
+                                let obj = this.state.productOptionData.find(c => c.id == record.id);
                                 if (obj) {
-                                    obj.value = vs;
+                                    obj.values = vs;
                                 }
                             }
                         }}
-                    // onSearch={() => this.handleQueryAttributeData(record)}
+                        defaultValue={record.values.map(x => x.value
+                            // {
+                            //     // return x.value; 
+                            //     return { key: x.key }
+                            // }
+                        )}
                     >
-                        {this.state.productOptionData.map(item => {
-                            // console.log(item);
-                            let os = [];
-                            if (item.optionId == record.optionId) {
-                                item.list.forEach(c => {
-                                    os.push(<Option key={c.id}>
-                                        {c.value}
-                                    </Option>);
-                                });
-                            }
-                            return os;
-                        })}
+                        {
+                            this.state.optionData.map(item => {
+                                let os = [];
+                                if (item.id == record.id) {
+                                    item.list.forEach(c => {
+                                        os.push(<Option key={c.value}>
+                                            {c.value}
+                                        </Option>);
+                                    });
+                                }
+                                return os;
+                            })
+
+                            // record.list.map(c => {
+                            //     return <Option key={c.value}>{c.value}</Option>;
+                            // })
+                            // (record.list != undefined && record.list.length > 0) ?
+                            //     record.list.map(c => {
+                            //         return <Option key={c.value}>{c.value}</Option>;
+                            //     }) : {}
+                        }
                     </Select>
                 </Fragment>
             )
@@ -373,8 +393,8 @@ class ProductAdd extends PureComponent {
                 params.variations = this.state.productSku
             }
 
-            console.log(params);
-            return;
+            // console.log(params);
+            // return;
 
             if (this.state.submitting === true)
                 return;
@@ -415,12 +435,12 @@ class ProductAdd extends PureComponent {
 
     helper = (arr, optionIndex, maxIndexOption, skus) => {
         let j, l, variation, optionCombinations, optionValue;
-        for (j = 0, l = this.state.productOptionData[optionIndex].value.length; j < l; j = j + 1) {
+        for (j = 0, l = this.state.productOptionData[optionIndex].values.length; j < l; j = j + 1) {
             optionCombinations = arr.slice(0);
             optionValue = {
                 optionName: this.state.productOptionData[optionIndex].name,
                 optionId: this.state.productOptionData[optionIndex].id,
-                value: this.state.productOptionData[optionIndex].value[j],
+                value: this.state.productOptionData[optionIndex].values[j].value,
                 displayOrder: optionIndex
             };
             optionCombinations.push(optionValue);
@@ -559,24 +579,7 @@ class ProductAdd extends PureComponent {
         });
     }
 
-    addProductOption = (id, name) => {
-        if (!id) {
-            return;
-        }
-        let p = { id, optionId: id, name, value: [], list: [] };
-        var any = false;
-        this.state.productOptionData.forEach(c => {
-            if (any === false && c.optionId == p.optionId) {
-                any = true;
-            }
-        });
-        if (any)
-            return;
-        this.queryOptionData(id, name);
-        this.setState({
-            productOptionData: [...this.state.productOptionData, p]
-        });
-    }
+
 
     handleAddProductOption = () => {
         if (!this.state.optionCurrent) {
@@ -585,12 +588,29 @@ class ProductAdd extends PureComponent {
         this.addProductOption(this.state.optionCurrent.key, this.state.optionCurrent.label);
     }
 
+    addProductOption = (id, name) => {
+        if (!id) {
+            return;
+        }
+        let p = { id, name, values: [], list: [] };
+        var any = false;
+        this.state.productOptionData.forEach(c => {
+            if (any === false && c.id == p.id) {
+                any = true;
+            }
+        });
+        if (any)
+            return;
+        this.setState({
+            productOptionData: [...this.state.productOptionData, p]
+        }, () => {
+            this.queryOptionData(id, name);
+        });
+    }
+
     queryOptionData = (id, name) => {
         if (!id)
             return;
-        // if (record.id && record.loading)
-        //     return;
-        // record.loading = true;
         const { dispatch } = this.props;
         new Promise(resolve => {
             dispatch({
@@ -601,22 +621,23 @@ class ProductAdd extends PureComponent {
                 },
             });
         }).then(res => {
-            // record.loading = false;
             if (res.success === true) {
-                let olds = this.state.productOptionData;
-                // if (this.state.productOptionData.length > 10) {
-                //     olds = [];
-                // }
-                let obj = olds.find(c => c.optionId == id);
+                let olds = this.state.optionData;
+                let obj = olds.find(c => c.id == id);
+                // console.log(res.data);
                 if (obj) {
+                    // obj.list = res.data;
                     let index = olds.indexOf(obj);
                     let list = olds.slice();
                     list.splice(index, 1);
                     olds = list;
+                    // console.log(this.state.productOptionData);
                 }
                 this.setState({
-                    productOptionData: [...olds, {
-                        id, name, optionId: id, list: res.data, value: []
+                    optionData: [...olds, {
+                        id, name,
+                        list: res.data.map(x => { return { id: x.id, value: x.value } }),
+                        // values: obj ? obj.values : []
                     }]
                 });
             } else {
@@ -625,14 +646,6 @@ class ProductAdd extends PureComponent {
                 });
             }
         });
-    }
-
-    handleQueryAttributeData = (record) => {
-        // if (record.id && record.loading)
-        //     return;
-        // record.loading = true;
-
-        //搜索
     }
 
     handleRemoveProductAttribute = (record) => {
@@ -714,10 +727,19 @@ class ProductAdd extends PureComponent {
                     this.setState({ fileList: fs });
                 });
 
-                this.setState({ productAttributeData: res.data.attributes });
-                //加载属性对应的属性值列表
-                res.data.attributes.forEach(c => {
-                    this.queryAttributeData(c.id, c.name);
+                this.setState({
+                    productAttributeData: res.data.attributes,
+                    productOptionData: res.data.options,
+                    productSku: res.data.variations
+                }, () => {
+                    //加载属性对应的属性值列表
+                    this.state.attributes.forEach(c => {
+                        this.queryAttributeData(c.id, c.name);
+                    });
+
+                    this.state.options.forEach(c => {
+                        this.queryOptionData(c.id, c.name);
+                    });
                 });
             } else {
                 notification.error({
