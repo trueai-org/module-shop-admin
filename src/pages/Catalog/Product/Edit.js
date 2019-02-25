@@ -2,8 +2,8 @@ import React, { Component, PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown, Checkbox, Switch, Tabs, InputNumber, Upload, DatePicker,
-    Avatar, Spin
+    Menu, Dropdown, Checkbox, Switch, Tabs, InputNumber, Upload, DatePicker,
+    Avatar, Spin, Radio
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -93,6 +93,10 @@ class ProductAdd extends PureComponent {
             //产品规格列表
             productSkuLoading: false,
             productSku: [],
+
+            //选项配置
+            visibleOptionSetting: false,
+            optionSettingCurrent: {}
         };
     }
 
@@ -175,33 +179,42 @@ class ProductAdd extends PureComponent {
                         allowClear={true}
                         // labelInValue
                         onChange={(value) => {
-                            // console.log(value);
-                            // return;
                             if (value) {
-                                var vs = [];
-                                value.forEach(c => {
-                                    // vs.push(c.label);
-                                    // vs.push({ id: 0, value: c.label });
-                                    vs.push({ id: 0, value: c });
-                                });
                                 let obj = this.state.productOptionData.find(c => c.id == record.id);
                                 if (obj) {
-                                    obj.values = vs;
+                                    let ops = [];
+                                    value.forEach(x => {
+                                        var v = obj.values.find(c => c.value == x);
+                                        if (v) {
+                                            v.value = x;
+                                            ops.push(v);
+                                        } else {
+                                            let p = { id: 0, value: x, display: '', displayOrder: 0, mediaUrl: '', mediaId: '' };
+                                            let opValues = this.state.optionData.find(c => c.id == record.id);
+                                            if (opValues && opValues.values.length > 0) {
+                                                let ov = opValues.values.find(c => c.value == x);
+                                                if (ov) {
+                                                    p.id = ov.id;
+                                                    p.display = ov.display;
+                                                }
+                                            }
+                                            ops.push(p);
+                                        }
+                                    });
+                                    obj.values = ops;
                                 }
                             }
                         }}
-                        defaultValue={record.values.map(x => x.value
-                            // {
-                            //     // return x.value; 
-                            //     return { key: x.key }
-                            // }
-                        )}
+                        defaultValue={record.values.map(x => {
+                            // return { key: x.value }
+                            return x.value;
+                        })}
                     >
                         {
                             this.state.optionData.map(item => {
                                 let os = [];
                                 if (item.id == record.id) {
-                                    item.list.forEach(c => {
+                                    item.values.forEach(c => {
                                         os.push(<Option key={c.value}>
                                             {c.value}
                                         </Option>);
@@ -209,14 +222,6 @@ class ProductAdd extends PureComponent {
                                 }
                                 return os;
                             })
-
-                            // record.list.map(c => {
-                            //     return <Option key={c.value}>{c.value}</Option>;
-                            // })
-                            // (record.list != undefined && record.list.length > 0) ?
-                            //     record.list.map(c => {
-                            //         return <Option key={c.value}>{c.value}</Option>;
-                            //     }) : {}
                         }
                     </Select>
                 </Fragment>
@@ -230,9 +235,36 @@ class ProductAdd extends PureComponent {
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
-                        <Button icon="setting" type="" size="small"></Button>
+                        <Button onClick={() => this.showOptionSettingModal(record)} icon="setting" type="" size="small"></Button>
                         <Button onClick={() => this.handleRemoveProductOption(record)} icon="close" type="danger" size="small"></Button>
                     </Button.Group>
+                </Fragment>
+            )
+        },
+    ];
+
+    columnsOptionSetting = [
+        {
+            title: '选项值',
+            dataIndex: 'value'
+        },
+        {
+            title: '显示',
+            dataIndex: 'display'
+        },
+        {
+            title: '显示顺序',
+            dataIndex: 'displayOrder',
+            width: 100,
+        },
+        {
+            title: '图片',
+            dataIndex: 'mediaId',
+            width: 100,
+            // align: 'center',
+            render: (text, record) => (
+                <Fragment>
+                    <Avatar shape="square" size={32} src={record.mediaUrl} />
                 </Fragment>
             )
         },
@@ -419,6 +451,67 @@ class ProductAdd extends PureComponent {
         });
     };
 
+    showOptionSettingModal = item => {
+        // console.log(item);
+        this.setState({
+            visibleOptionSetting: true,
+            optionSettingCurrent: item
+        });
+    };
+
+    handleOptionSettingCancel = () => {
+        this.setState({
+            visibleOptionSetting: false,
+            optionSettingCurrent: {}
+        });
+    };
+
+    handleOptionSettingSubmit = e => {
+        e.preventDefault();
+        const { dispatch, form } = this.props;
+        // const id = this.state.current ? this.state.current.id : '';
+
+        form.validateFields((err, values) => {
+            if (err) return;
+
+            // var params = {
+            //     ...values
+            // };
+
+            // let bt = 'option/addProductOption';
+            // if (id) {
+            //     params.id = id;
+            //     bt = 'option/editProductOption';
+            // }
+
+            // // console.log(params);
+
+            // if (this.state.submitting === true)
+            //     return;
+            // this.setState({ submitting: true });
+            // new Promise(resolve => {
+            //     dispatch({
+            //         type: bt,
+            //         payload: {
+            //             resolve,
+            //             params
+            //         },
+            //     });
+            // }).then(res => {
+            //     this.setState({ submitting: false });
+            //     if (res.success === true) {
+            //         form.resetFields();
+            //         this.setState({ visible: false });
+            //         this.handleSearch();
+            //     } else {
+            //         notification.error({
+            //             message: res.message,
+            //         });
+            //     }
+            // });
+        });
+    };
+
     handleGenerateOptionCombination = () => {
         var optionDatas = this.state.productOptionData;
         if (!optionDatas || optionDatas.length <= 0)
@@ -574,7 +667,7 @@ class ProductAdd extends PureComponent {
     }
 
     addProductOption = (id, name) => {
-        let p = { id, name, values: [], list: [] };
+        let p = { id, name, values: [] };
         let any = this.state.productOptionData.findIndex(c => c.id == p.id) >= 0;
         if (any) return;
         this.setState({
@@ -598,26 +691,19 @@ class ProductAdd extends PureComponent {
             if (res.success === true) {
                 let olds = this.state.optionData;
                 let obj = olds.find(c => c.id == id);
-                // console.log(res.data);
                 if (obj) {
-                    // obj.list = res.data;
                     let index = olds.indexOf(obj);
                     let list = olds.slice();
                     list.splice(index, 1);
                     olds = list;
-                    // console.log(this.state.productOptionData);
                 }
                 this.setState({
                     optionData: [...olds, {
-                        id, name,
-                        list: res.data.map(x => { return { id: x.id, value: x.value } }),
-                        // values: obj ? obj.values : []
+                        id, name, values: res.data
                     }]
                 });
             } else {
-                notification.error({
-                    message: res.message,
-                });
+                notification.error({ message: res.message });
             }
         });
     }
@@ -929,6 +1015,11 @@ class ProductAdd extends PureComponent {
             'remove-styles'
         ];
 
+        const formLayout = {
+            labelCol: { span: 7 },
+            wrapperCol: { span: 13 },
+        };
+        const modalFooter = { okText: '保存', onOk: this.handleOptionSettingSubmit, onCancel: this.handleOptionSettingCancel };
         return (
             <PageHeaderWrapper title="新增商品" action={rollback}>
                 <Spin spinning={this.state.loading}>
@@ -1288,6 +1379,18 @@ class ProductAdd extends PureComponent {
                         </Form>
                     </Card>
                 </Spin>
+                <Modal
+                    title={`选项配置 - ${this.state.optionSettingCurrent.name}`}
+                    destroyOnClose
+                    visible={this.state.visibleOptionSetting}
+                    {...modalFooter}>
+                    <Table bordered={false}
+                        rowKey={(record, index) => `option_${record.id}_v_${index}`} //{record => record.id}
+                        pagination={false}
+                        dataSource={this.state.optionSettingCurrent.values}
+                        columns={this.columnsOptionSetting}
+                    />
+                </Modal>
             </PageHeaderWrapper>
         );
     }
