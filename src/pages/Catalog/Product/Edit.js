@@ -51,44 +51,38 @@ class ProductAdd extends PureComponent {
             current: {}, //产品数据
             loading: false, //产品数据加载中
 
-            submitting: false,
+            submitting: false, //数据保存中
 
             uploadLoading: false,
             previewVisible: false,
             previewImage: '',
             fileList: [],
 
-            categoryLoading: false,
-            categoryOptions: [],
+            categoryLoading: false, //类别加载中
             categories: [],
 
-            brandLoading: false,
-            brandOptions: [],
+            brandLoading: false, //品牌加载中
             brands: [],
 
-            attributeLoading: false,
-            attributeOptions: [],
-            attributes: [],
-            attributeCurrent: undefined,
+            optionLoading: false, //选项加载中
+            options: [],
+            optionCurrent: undefined,
 
-            templateLoading: false,
-            templateOptions: [],
+            templateLoading: false, //属性模板加载中
             templates: [],
             templateCurrent: undefined,
-
-            //应用模板
+            //应用产品属性模板
             applyLoading: false,
+
+            attributeLoading: false, //属性加载中
+            attributes: [],
+            attributeCurrent: undefined,
 
             //产品属性列表
             productAttributeLoading: false,
             productAttributeData: [],
             //属性值
             attributeData: [],
-
-            optionLoading: false,
-            optionOptions: [],
-            options: [],
-            optionCurrent: undefined,
 
             //产品选项列表
             productOptionDataLoading: false,
@@ -133,9 +127,7 @@ class ProductAdd extends PureComponent {
                                 // console.log(this.state.productAttributeData);
                             }
                         }}
-                        defaultValue={record.values.map(x => x.value
-                            //{return x.value; // return { key: x.id }}
-                        )}
+                        defaultValue={record.values.map(x => x.value)}
                     >
                         {this.state.attributeData.map(item => {
                             let os = [];
@@ -256,28 +248,33 @@ class ProductAdd extends PureComponent {
             title: 'SKU',
             dataIndex: 'sku',
             width: 150,
-            render: (value) => (
+            render: (text, record) => (
                 <Fragment>
                     <Input
-                        // onChange={(e) => {
-                        //     value = e.target.value;
-                        //     console.log(value);
-                        //     console.log(this.state.productSku);
-                        // }}
-                        defaultValue={value}></Input>
+                        onChange={(e) => {
+                            // value = e.target.value;
+                            let obj = this.state.productSku.find(c => c.id == record.id);
+                            if (obj) {
+                                obj.sku = e.target.value;
+                            }
+
+                            // console.log(value);
+                            console.log(this.state.productSku);
+                        }}
+                        defaultValue={text}></Input>
                 </Fragment>
             )
         },
-        // {
-        //     title: 'GTIN',
-        //     dataIndex: 'gtin',
-        //     width: 150,
-        //     render: (value) => (
-        //         <Fragment>
-        //             <Input defaultValue={value}></Input>
-        //         </Fragment>
-        //     )
-        // },
+        {
+            title: 'GTIN',
+            dataIndex: 'gtin',
+            width: 150,
+            render: (value) => (
+                <Fragment>
+                    <Input defaultValue={value}></Input>
+                </Fragment>
+            )
+        },
         {
             title: '价格',
             dataIndex: 'price',
@@ -288,23 +285,23 @@ class ProductAdd extends PureComponent {
                 </Fragment>
             )
         },
-        // {
-        //     title: '原价',
-        //     dataIndex: 'oldPrice',
-        //     width: 100,
-        //     render: (value) => (
-        //         <Fragment>
-        //             <InputNumber defaultValue={value}></InputNumber>
-        //         </Fragment>
-        //     )
-        // },
+        {
+            title: '原价',
+            dataIndex: 'oldPrice',
+            width: 100,
+            render: (value) => (
+                <Fragment>
+                    <InputNumber defaultValue={value}></InputNumber>
+                </Fragment>
+            )
+        },
         {
             title: '图片',
             dataIndex: 'mediaId',
             width: 100,
             render: (text, record) => (
                 <Fragment>
-                    <Avatar shape="square" size={64} src={record.mediaUrl} />
+                    <Avatar shape="square" size={32} src={record.mediaUrl} />
                 </Fragment>
             )
         },
@@ -312,7 +309,7 @@ class ProductAdd extends PureComponent {
             title: '操作',
             key: 'operation',
             align: 'center',
-            width: 100,
+            width: 120,
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
@@ -336,6 +333,7 @@ class ProductAdd extends PureComponent {
             if (err) return;
 
             var params = {
+                id: this.state.id,
                 ...values
             };
 
@@ -393,8 +391,8 @@ class ProductAdd extends PureComponent {
                 params.variations = this.state.productSku
             }
 
-            // console.log(params);
-            // return;
+            console.log(params);
+            return;
 
             if (this.state.submitting === true)
                 return;
@@ -519,30 +517,17 @@ class ProductAdd extends PureComponent {
     }
 
     addProductAttribute = (id, name) => {
-        if (!id) {
-            return;
-        }
         let p = { id, name, values: [], list: [] };
-        var any = false;
-        this.state.productAttributeData.forEach(c => {
-            if (any === false && c.id == p.id) {
-                any = true;
-            }
-        });
-        if (any)
-            return;
-        this.queryAttributeData(id, name);
+        let any = this.state.productAttributeData.findIndex(c => c.id == p.id) >= 0;
+        if (any) return;
         this.setState({
             productAttributeData: [...this.state.productAttributeData, p]
+        }, () => {
+            this.queryAttributeData(id, name)
         });
     }
 
     queryAttributeData = (id, name) => {
-        if (!id)
-            return;
-        // if (record.id && record.loading)
-        //     return;
-        // record.loading = true;
         const { dispatch } = this.props;
         new Promise(resolve => {
             dispatch({
@@ -553,13 +538,12 @@ class ProductAdd extends PureComponent {
                 },
             });
         }).then(res => {
-            // record.loading = false;
             if (res.success === true) {
                 let olds = this.state.attributeData;
                 // if (this.state.attributeData.length > 10) {
                 //     olds = [];
                 // }
-                let obj = olds.find(c => c.attributeId == id);
+                let obj = olds.find(c => c.id == id);
                 if (obj) {
                     let index = olds.indexOf(obj);
                     let list = olds.slice();
@@ -568,7 +552,10 @@ class ProductAdd extends PureComponent {
                 }
                 this.setState({
                     attributeData: [...olds, {
-                        id, name, list: res.data, value: []
+                        id,
+                        name,
+                        list: res.data.map(x => { return { id: x.id, value: x.value } }),
+                        // list: res.data
                     }]
                 });
             } else {
@@ -579,8 +566,6 @@ class ProductAdd extends PureComponent {
         });
     }
 
-
-
     handleAddProductOption = () => {
         if (!this.state.optionCurrent) {
             return;
@@ -589,18 +574,9 @@ class ProductAdd extends PureComponent {
     }
 
     addProductOption = (id, name) => {
-        if (!id) {
-            return;
-        }
         let p = { id, name, values: [], list: [] };
-        var any = false;
-        this.state.productOptionData.forEach(c => {
-            if (any === false && c.id == p.id) {
-                any = true;
-            }
-        });
-        if (any)
-            return;
+        let any = this.state.productOptionData.findIndex(c => c.id == p.id) >= 0;
+        if (any) return;
         this.setState({
             productOptionData: [...this.state.productOptionData, p]
         }, () => {
@@ -609,8 +585,6 @@ class ProductAdd extends PureComponent {
     }
 
     queryOptionData = (id, name) => {
-        if (!id)
-            return;
         const { dispatch } = this.props;
         new Promise(resolve => {
             dispatch({
@@ -722,7 +696,7 @@ class ProductAdd extends PureComponent {
                         name: c.caption || '',
                         status: 'done',
                         url: c.mediaUrl,
-                        mediaId: c.id
+                        mediaId: c.mediaId
                     });
                     this.setState({ fileList: fs });
                 });
@@ -733,11 +707,11 @@ class ProductAdd extends PureComponent {
                     productSku: res.data.variations
                 }, () => {
                     //加载属性对应的属性值列表
-                    this.state.attributes.forEach(c => {
+                    this.state.productAttributeData.forEach(c => {
                         this.queryAttributeData(c.id, c.name);
                     });
 
-                    this.state.options.forEach(c => {
+                    this.state.productOptionData.forEach(c => {
                         this.queryOptionData(c.id, c.name);
                     });
                 });
@@ -750,53 +724,33 @@ class ProductAdd extends PureComponent {
 
         new Promise(resolve => {
             dispatch({
-                type: 'globalBrand/queryBrandAll',
+                type: 'catalog/brands',
                 payload: {
                     resolve,
                 },
             });
         }).then(res => {
+            this.setState({ brandLoading: false });
             if (res.success === true) {
-                this.setState({
-                    brandLoading: false,
-                    brands: res.data
-                }, () => {
-                    let options = [];
-                    this.state.brands.forEach(c => {
-                        options.push(<Option key={c.id}>{c.name}</Option>);
-                    });
-                    this.setState({ brandOptions: options });
-                });
+                this.setState({ brands: res.data });
             } else {
-                notification.error({
-                    message: res.message,
-                });
+                notification.error({ message: res.message });
             }
         });
 
         new Promise(resolve => {
             dispatch({
-                type: 'globalCategory/all',
+                type: 'catalog/categories',
                 payload: {
                     resolve,
                 },
             });
         }).then(res => {
+            this.setState({ categoryLoading: false });
             if (res.success === true) {
-                this.setState({
-                    categoryLoading: false,
-                    categories: res.data
-                }, () => {
-                    let options = [];
-                    this.state.categories.forEach(c => {
-                        options.push(<Option value={c.id} key={c.id}>{c.name}</Option>);
-                    });
-                    this.setState({ categoryOptions: options });
-                });
+                this.setState({ categories: res.data });
             } else {
-                notification.error({
-                    message: res.message,
-                });
+                notification.error({ message: res.message });
             }
         });
 
@@ -810,54 +764,9 @@ class ProductAdd extends PureComponent {
         }).then(res => {
             this.setState({ optionLoading: false });
             if (res.success === true) {
-                this.setState({
-                    options: res.data
-                }, () => {
-                    let options = [];
-                    this.state.options.forEach(c => {
-                        options.push(<Option key={c.id}>{c.name}</Option>);
-                    });
-                    this.setState({ optionOptions: options });
-                });
+                this.setState({ options: res.data });
             } else {
-                notification.error({
-                    message: res.message,
-                });
-            }
-        });
-
-        new Promise(resolve => {
-            dispatch({
-                type: 'catalog/attributesGroupArray',
-                payload: {
-                    resolve,
-                },
-            });
-        }).then(res => {
-            if (res.success === true) {
-                this.setState({
-                    attributeLoading: false,
-                    attributes: res.data
-                });
-                let groups = [];
-                let list = [];
-                list = res.data;
-                list.forEach(x => {
-                    let options = [];
-                    x.productAttributes.forEach(c => {
-                        options.push(<Option value={c.id} key={c.id}>{c.name}</Option>);
-                    });
-                    groups.push(
-                        <OptGroup key={x.groupId} label={x.groupName}>
-                            {options}
-                        </OptGroup>
-                    );
-                });
-                this.setState({ attributeOptions: groups });
-            } else {
-                notification.error({
-                    message: res.message,
-                });
+                notification.error({ message: res.message });
             }
         });
 
@@ -869,21 +778,27 @@ class ProductAdd extends PureComponent {
                 },
             });
         }).then(res => {
+            this.setState({ optionLoading: false });
             if (res.success === true) {
-                this.setState({
-                    templateLoading: false,
-                    templates: res.data
-                }, () => {
-                    let options = [];
-                    this.state.templates.forEach(c => {
-                        options.push(<Option key={c.id}>{c.name}</Option>);
-                    });
-                    this.setState({ templateOptions: options });
-                });
+                this.setState({ templates: res.data });
             } else {
-                notification.error({
-                    message: res.message,
-                });
+                notification.error({ message: res.message });
+            }
+        });
+
+        new Promise(resolve => {
+            dispatch({
+                type: 'catalog/attributesGroupArray',
+                payload: {
+                    resolve,
+                },
+            });
+        }).then(res => {
+            this.setState({ optionLoading: false });
+            if (res.success === true) {
+                this.setState({ attributes: res.data });
+            } else {
+                notification.error({ message: res.message });
             }
         });
     }
@@ -1033,25 +948,26 @@ class ProductAdd extends PureComponent {
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>Slug</span>}>
-                                        {getFieldDecorator('slug', {
-                                            rules: [{
-                                                required: true
-                                            }],
-                                            initialValue: this.state.current.slug || ''
-                                        })(
-                                            <Input placeholder="Slug" />
-                                        )}
+                                        {getFieldDecorator('slug',
+                                            {
+                                                rules: [{
+                                                    required: true
+                                                }],
+                                                initialValue: this.state.current.slug || ''
+                                            })(<Input placeholder="Slug" />)}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>品牌</span>}>
                                         {getFieldDecorator('brandId',
-                                            {
-                                                initialValue: this.state.current.brandId || ''
-                                            })(
-                                                <Select loading={this.state.brandLoading} allowClear={true}>
-                                                    {this.state.brandOptions}
-                                                </Select>)}
+                                            { initialValue: this.state.current.brandId || '' })
+                                            (<Select loading={this.state.brandLoading} allowClear={true}>
+                                                {
+                                                    this.state.brands.map(c => {
+                                                        return <Option value={c.id} key={c.id}>{c.name}</Option>;
+                                                    })
+                                                }
+                                            </Select>)}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
@@ -1224,17 +1140,22 @@ class ProductAdd extends PureComponent {
                                         }
                                     </FormItem>
                                 </TabPane>
-                                <TabPane tab="产品选项" key="2">
+                                <TabPane tab="产品选项"
+                                    disabled={(this.state.current.parentGroupedProductId || 0) > 0}
+                                    key="2">
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>可用选项</span>}>
-                                        <Select labelInValue
+                                        <Select
+                                            labelInValue
                                             placeholder="可用选项"
                                             loading={this.state.optionLoading}
                                             allowClear={true}
                                             onChange={(value) => this.setState({ optionCurrent: value })}
                                         >
-                                            {this.state.optionOptions}
+                                            {this.state.options.map(c => {
+                                                return <Option key={c.id}>{c.name}</Option>;
+                                            })}
                                         </Select>
                                         <Button onClick={this.handleAddProductOption}>添加选项</Button>
                                     </FormItem>
@@ -1259,7 +1180,7 @@ class ProductAdd extends PureComponent {
                                             loading={this.state.productSkuLoading}
                                             dataSource={this.state.productSku}
                                             columns={this.columnsSku}
-                                            scroll={{ x: 600 }}
+                                            scroll={{ x: 900 }}
                                         />
                                     </FormItem>
                                 </TabPane>
@@ -1273,7 +1194,9 @@ class ProductAdd extends PureComponent {
                                             allowClear={true}
                                             onChange={(value) => this.setState({ templateCurrent: value })}
                                         >
-                                            {this.state.templateOptions}
+                                            {this.state.templates.map(c => {
+                                                return <Option key={c.id}>{c.name}</Option>;
+                                            })}
                                         </Select>
                                         <Button loading={this.state.applyLoading} onClick={this.handleApplyProductAttrTemplate}>应用</Button>
                                     </FormItem>
@@ -1286,7 +1209,16 @@ class ProductAdd extends PureComponent {
                                             allowClear={true}
                                             onChange={(value) => this.setState({ attributeCurrent: value })}
                                         >
-                                            {this.state.attributeOptions}
+                                            {this.state.attributes.map(x => {
+                                                if (x.productAttributes) {
+                                                    let options = x.productAttributes.map(c => {
+                                                        return <Option value={c.id} key={c.id}>{c.name}</Option>;
+                                                    })
+                                                    return <OptGroup key={x.groupId} label={x.groupName}>
+                                                        {options}
+                                                    </OptGroup>;
+                                                }
+                                            })}
                                         </Select>
                                         <Button onClick={this.handleAddProductAttribute}>添加属性</Button>
                                     </FormItem>
@@ -1306,21 +1238,18 @@ class ProductAdd extends PureComponent {
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>产品类别映射</span>}>
-                                        {
-                                            getFieldDecorator('categoryIds',
-                                                { initialValue: this.state.current.categoryIds || [], valuePropName: 'value' })(
-                                                    <Select
-                                                        mode="multiple"
-                                                        // style={{ width: '100%' }}
-                                                        placeholder="请选择产品类别"
-                                                        allowClear={true}
-                                                    // defaultValue={[]}
-                                                    // onChange={handleChange}
-                                                    >
-                                                        {this.state.categoryOptions}
-                                                    </Select>
-                                                )
-                                        }
+                                        {getFieldDecorator('categoryIds',
+                                            { initialValue: this.state.current.categoryIds || [], valuePropName: 'value' })
+                                            (<Select
+                                                mode="multiple"
+                                                placeholder="请选择产品类别"
+                                                allowClear={true}>
+                                                {
+                                                    this.state.categories.map(c => {
+                                                        return <Option value={c.id} key={c.id}>{c.name}</Option>;
+                                                    })
+                                                }
+                                            </Select>)}
                                     </FormItem>
                                 </TabPane>
                                 <TabPane tab="SEO" key="5">

@@ -2,7 +2,7 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown
+    Menu, Dropdown, Radio
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -23,7 +23,7 @@ class ProductOptionList extends PureComponent {
         data: [],
         current: {},
         submitting: false,
-     
+
         children: [],
 
         pageNum: 1,
@@ -75,6 +75,14 @@ class ProductOptionList extends PureComponent {
             width: 120,
             sorter: true,
             defaultSortOrder: 'descend',
+        },
+        {
+            title: '类型',
+            dataIndex: 'displayType',
+            sorter: true,
+            width: 120,
+            // align: 'center',
+            render: (val) => <Tag color={val == 1 ? 'blue' : ''}>{val == 1 ? '颜色' : '文本'}</Tag>
         },
         {
             title: '名称',
@@ -304,11 +312,21 @@ class ProductOptionList extends PureComponent {
         const getModalContent = () => {
             return (
                 <Form onSubmit={this.handleSubmit}>
+                    <FormItem label="类型" {...formLayout}>
+                        {getFieldDecorator('displayType', {
+                            rules: [{ required: true, message: '显示类型' }],
+                            initialValue: this.state.current.displayType || 0,
+                        })(<Radio.Group>
+                            <Radio value={0}>文本</Radio>
+                            <Radio value={1}>颜色</Radio>
+                        </Radio.Group>)}
+                    </FormItem>
                     <FormItem label="名称" {...formLayout}>
                         {getFieldDecorator('name', {
                             rules: [{ required: true, message: '请输入选项名称' }],
                             initialValue: this.state.current.name || '',
                         })(<Input placeholder="请输入" />)}
+
                     </FormItem>
                 </Form>
             );

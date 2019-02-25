@@ -2,13 +2,14 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown, Checkbox, Switch
+    Menu, Dropdown, Checkbox, Switch, Badge, Tooltip
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
 import router from 'umi/router';
 import Link from 'umi/link';
+import { SketchPicker } from 'react-color'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -45,9 +46,27 @@ class ProductOptionListData extends PureComponent {
                 pagination: {}
             },
 
+            option: {},
             optionId: props.location.query.id,
+
+            displayColorPicker: false,
+            color: '',
         };
     }
+
+    handleClick = () => {
+        this.setState({ displayColorPicker: !this.state.displayColorPicker })
+    };
+
+    handleClose = () => {
+        this.setState({ displayColorPicker: false })
+    };
+
+    handleChange = (color) => {
+        this.setState({
+            color: color.hex
+        })
+    };
 
     columns = [
         {
@@ -81,8 +100,28 @@ class ProductOptionListData extends PureComponent {
             sorter: true,
         },
         {
+            title: '显示',
+            dataIndex: 'display',
+            sorter: true,
+            width: 120,
+            render: (text, record) => {
+                if (record.optionDisplayType == 1 && text) {
+                    return <Fragment>
+                        <Tooltip placement="topLeft" title={text}>
+                            <Tag style={{ backgroundColor: (record.optionDisplayType == 1 ? text : '') }}>
+                                {text}
+                            </Tag>
+                        </Tooltip>
+                    </Fragment>;
+                }
+                return text;
+            }
+
+        },
+        {
             title: '描述',
-            dataIndex: 'description'
+            dataIndex: 'description',
+            sorter: true,
         },
         {
             title: '是否发布',
@@ -94,6 +133,25 @@ class ProductOptionListData extends PureComponent {
     ];
 
     componentDidMount() {
+        const { dispatch } = this.props;
+        this.setState({ loading: true });
+        new Promise(resolve => {
+            dispatch({
+                type: 'option/get',
+                payload: {
+                    resolve,
+                    params: { id: this.state.optionId },
+                },
+            });
+        }).then(res => {
+            this.setState({ loading: false });
+            if (res.success === true) {
+                this.setState({ option: res.data });
+            } else {
+                notification.error({ message: res.message, });
+            }
+        });
+
         this.handleSearchFirst();
     }
 
@@ -101,6 +159,8 @@ class ProductOptionListData extends PureComponent {
         this.setState({
             visible: true,
             current: {},
+            color: '',
+            displayColorPicker: false
         });
     };
 
@@ -108,12 +168,15 @@ class ProductOptionListData extends PureComponent {
         this.setState({
             visible: true,
             current: item,
+            color: item.display,
+            displayColorPicker: false
         });
     };
 
     handleCancel = () => {
         this.setState({
             visible: false,
+            displayColorPicker: false
         });
     };
 
@@ -153,7 +216,7 @@ class ProductOptionListData extends PureComponent {
                 this.setState({ submitting: false });
                 if (res.success === true) {
                     form.resetFields();
-                    this.setState({ visible: false });
+                    this.setState({ visible: false, displayColorPicker: false });
                     this.handleSearch();
                 } else {
                     notification.error({
@@ -312,6 +375,23 @@ class ProductOptionListData extends PureComponent {
                             rules: [{ required: true, message: '请输入选项值' }],
                             initialValue: this.state.current.value || '',
                         })(<Input placeholder="请输入" />)}
+                    </FormItem>
+                    <FormItem label="显示" {...formLayout}>
+                        {getFieldDecorator('display', {
+                            initialValue: (this.state.option.displayType == 1) ? this.state.color || ''
+                                : this.state.current.display || '',
+                        })(<Input onClick={this.handleClick}
+                            style={{
+                                backgroundColor: this.state.color || ''
+                            }}
+                        />
+                        )}
+                        {
+                            (this.state.option.displayType == 1 && this.state.displayColorPicker) ? <div>
+                                <div onClick={this.handleClose} />
+                                <SketchPicker color={this.state.color} onChange={this.handleChange} />
+                            </div> : null
+                        }
                     </FormItem>
                     <FormItem label="描述" {...formLayout}>
                         {getFieldDecorator('description', {

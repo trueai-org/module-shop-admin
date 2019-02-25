@@ -232,6 +232,9 @@ export async function uploadImage(params) {
 }
 
 // 产品选项
+export async function firstProductOption(params) {
+  return request(`/api/product-options/${params.id}`);
+}
 
 export async function queryProductOption(params) {
   return request('/api/product-options');

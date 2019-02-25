@@ -6,7 +6,8 @@ import {
     queryProductAttributeGroupArray,
     firstProductAttributeTemplate,
     queryProductAttrData,
-    queryProductOptionData
+    queryProductOptionData,
+    categories
 } from '@/services/api';
 
 export default {
@@ -62,7 +63,13 @@ export default {
             const { resolve, params } = payload;
             const response = yield call(queryBrandAll, params);
             !!resolve && resolve(response);
-        }
+        },
+
+        *categories({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(categories, params);
+            !!resolve && resolve(response);
+        },
     },
 
     reducers: {
