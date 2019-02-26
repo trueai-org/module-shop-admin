@@ -12,6 +12,8 @@ import router from 'umi/router';
 import Link from 'umi/link';
 import moment from 'moment';
 
+import { SketchPicker } from 'react-color'
+
 // editor
 // import { EditorState, convertToRaw } from 'draft-js';
 // import { Editor } from 'react-draft-wysiwyg';
@@ -96,6 +98,8 @@ class ProductAdd extends PureComponent {
 
             //选项配置
             visibleOptionSetting: false,
+            currentColor: '',
+
             optionSettingCurrent: {}
         };
     }
@@ -250,21 +254,143 @@ class ProductAdd extends PureComponent {
         },
         {
             title: '显示',
-            dataIndex: 'display'
+            dataIndex: 'display',
+            width: 120,
+            render: (text, record) => (
+                <Fragment>
+                    <Input
+                        onChange={(e) => {
+                            let obj = this.state.optionSettingCurrent.values.find(c => c.value == record.value);
+                            if (obj) {
+                                obj.display = e.target.value;
+                            }
+                        }}
+                        defaultValue={text}
+                        style={
+                            this.state.optionSettingCurrent.displayType == 1 ? {
+                                backgroundColor: record.display || ''
+                            } : {}
+                        }
+                        // value={text}
+                        onClick={() => {
+                            this.state.optionSettingCurrent.displayType == 1 ?
+                                this.setState({ currentColor: record.display || '' }, () => {
+                                    Modal.info({
+                                        title: '选择颜色',
+                                        content: (
+                                            <SketchPicker
+                                                color={this.state.currentColor || ''}
+                                                onChange={(color) => {
+                                                    let olds = this.state.optionSettingCurrent.values;
+                                                    let obj = olds.find(c => c.value == record.value);
+                                                    if (obj) {
+                                                        let index = olds.indexOf(obj);
+                                                        let list = olds.slice();
+                                                        list.splice(index, 1);
+                                                        olds = list;
+
+                                                        obj.display = color.hex;
+                                                        olds.push(obj);
+                                                    }
+                                                    this.setState({
+                                                        'optionSettingCurrent.values': olds
+                                                    });
+                                                    this.setState({ currentColor: color.hex });
+                                                }}
+                                            />
+                                        ),
+                                        okText: '关闭',
+                                    });
+                                }) : {}
+                        }}
+                    ></Input>
+
+                </Fragment>
+            )
         },
         {
             title: '显示顺序',
             dataIndex: 'displayOrder',
-            width: 100,
+            width: 120,
+            render: (text, record) => <InputNumber width={110}
+                onChange={(v) => {
+                    let obj = this.state.optionSettingCurrent.values.find(c => c.value == record.value);
+                    if (obj) {
+                        obj.displayOrder = v;
+                    }
+                }}
+                defaultValue={text}></InputNumber>
+        },
+        {
+            title: '默认',
+            dataIndex: 'isDefault',
+            width: 80,
+            render: (val, record) => <Switch
+                onChange={(e) => {
+                    let obj = this.state.optionSettingCurrent.values.find(c => c.value == record.value);
+                    if (obj) {
+                        obj.isDefault = e;
+                    }
+                }}
+                defaultChecked={val} />
         },
         {
             title: '图片',
             dataIndex: 'mediaId',
-            width: 100,
+            width: 80,
             // align: 'center',
             render: (text, record) => (
                 <Fragment>
-                    <Avatar shape="square" size={32} src={record.mediaUrl} />
+                    <Avatar
+                        onClick={
+                            () => {
+                                Modal.info({
+                                    title: '选择图片',
+                                    content: (
+                                        <Radio.Group
+                                            defaultValue={record.mediaId || ''}
+                                            onChange={(e) => {
+                                                let olds = this.state.optionSettingCurrent.values;
+                                                let obj = olds.find(c => c.value == record.value);
+                                                if (obj) {
+                                                    let index = olds.indexOf(obj);
+                                                    let list = olds.slice();
+                                                    list.splice(index, 1);
+                                                    olds = list;
+
+                                                    obj.mediaId = '';
+                                                    obj.mediaUrl = '';
+                                                    if (e.target.value) {
+                                                        let first = this.state.fileList.find(c => c.mediaId == e.target.value);
+                                                        if (first) {
+                                                            obj.mediaId = first.mediaId;
+                                                            obj.mediaUrl = first.url;
+                                                        }
+                                                    }
+                                                    olds.push(obj);
+                                                    this.setState({
+                                                        'optionSettingCurrent.values': olds
+                                                    });
+                                                }
+                                            }}
+                                        >
+                                            <Radio value={''}>无</Radio>
+                                            {
+                                                this.state.fileList.map(x => {
+                                                    return <Radio key={x.mediaId} value={x.mediaId}>
+                                                        <Avatar shape="square" size={48} src={x.url} />
+                                                    </Radio>;
+                                                })
+                                            }
+                                        </Radio.Group>
+                                    ),
+                                    okText: '关闭'
+                                })
+                            }
+                        }
+                        shape="square"
+                        size={32}
+                        src={record.mediaUrl} />
                 </Fragment>
             )
         },
@@ -275,6 +401,18 @@ class ProductAdd extends PureComponent {
             title: '名称',
             dataIndex: 'name',
             // width: 150,
+            render: (text, record) => (
+                <Fragment>
+                    <Input
+                        onChange={(e) => {
+                            let obj = this.state.productSku.find(c => c.id == record.id);
+                            if (obj) {
+                                obj.name = e.target.value;
+                            }
+                        }}
+                        defaultValue={text}></Input>
+                </Fragment>
+            )
         },
         {
             title: 'SKU',
@@ -284,14 +422,10 @@ class ProductAdd extends PureComponent {
                 <Fragment>
                     <Input
                         onChange={(e) => {
-                            // value = e.target.value;
                             let obj = this.state.productSku.find(c => c.id == record.id);
                             if (obj) {
                                 obj.sku = e.target.value;
                             }
-
-                            // console.log(value);
-                            console.log(this.state.productSku);
                         }}
                         defaultValue={text}></Input>
                 </Fragment>
@@ -301,9 +435,16 @@ class ProductAdd extends PureComponent {
             title: 'GTIN',
             dataIndex: 'gtin',
             width: 150,
-            render: (value) => (
+            render: (text, record) => (
                 <Fragment>
-                    <Input defaultValue={value}></Input>
+                    <Input
+                        onChange={(e) => {
+                            let obj = this.state.productSku.find(c => c.id == record.id);
+                            if (obj) {
+                                obj.gtin = e.target.value;
+                            }
+                        }}
+                        defaultValue={text}></Input>
                 </Fragment>
             )
         },
@@ -311,9 +452,16 @@ class ProductAdd extends PureComponent {
             title: '价格',
             dataIndex: 'price',
             width: 100,
-            render: (value) => (
+            render: (value, record) => (
                 <Fragment>
-                    <InputNumber defaultValue={value}></InputNumber>
+                    <InputNumber
+                        onChange={(e) => {
+                            let obj = this.state.productSku.find(c => c.id == record.id);
+                            if (obj) {
+                                obj.price = e;
+                            }
+                        }}
+                        defaultValue={value}></InputNumber>
                 </Fragment>
             )
         },
@@ -321,19 +469,68 @@ class ProductAdd extends PureComponent {
             title: '原价',
             dataIndex: 'oldPrice',
             width: 100,
-            render: (value) => (
+            render: (value, record) => (
                 <Fragment>
-                    <InputNumber defaultValue={value}></InputNumber>
+                    <InputNumber
+                        onChange={(e) => {
+                            let obj = this.state.productSku.find(c => c.id == record.id);
+                            if (obj) {
+                                obj.oldPrice = e;
+                            }
+                        }}
+                        defaultValue={value}></InputNumber>
                 </Fragment>
             )
         },
         {
             title: '图片',
             dataIndex: 'mediaId',
-            width: 100,
+            align: 'center',
+            width: 64,
+            fixed: 'right',
             render: (text, record) => (
                 <Fragment>
-                    <Avatar shape="square" size={32} src={record.mediaUrl} />
+                    <Avatar
+                        onClick={
+                            () => {
+                                Modal.info({
+                                    title: '选择图片',
+                                    content: (
+                                        <Radio.Group
+                                            defaultValue={record.mediaId || ''}
+                                            onChange={(e) => {
+                                                let index = this.state.productSku.indexOf(record);
+                                                let list = this.state.productSku.slice();
+                                                list.splice(index, 1);
+                                                record.mediaId = '';
+                                                record.mediaUrl = '';
+                                                if (e.target.value) {
+                                                    let first = this.state.fileList.find(c => c.mediaId == e.target.value);
+                                                    if (first) {
+                                                        record.mediaId = first.mediaId;
+                                                        record.mediaUrl = first.url;
+                                                    }
+                                                }
+                                                // list.push(record);
+                                                list.splice(index, 0, record);
+                                                this.setState({ productSku: list });
+                                            }}
+                                        >
+                                            <Radio value={''}>无</Radio>
+                                            {
+                                                this.state.fileList.map(x => {
+                                                    return <Radio key={x.mediaId} value={x.mediaId}>
+                                                        <Avatar shape="square" size={48} src={x.url} />
+                                                    </Radio>;
+                                                })
+                                            }
+                                        </Radio.Group>
+                                    ),
+                                    okText: '关闭'
+                                })
+                            }
+                        }
+                        shape="square" size={32} src={record.mediaUrl} />
                 </Fragment>
             )
         },
@@ -341,11 +538,11 @@ class ProductAdd extends PureComponent {
             title: '操作',
             key: 'operation',
             align: 'center',
-            width: 120,
+            width: 64,
+            fixed: 'right',
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
-                        <Button icon="upload" type="" size="small"></Button>
                         <Button onClick={() => this.handleRemoveSku(record)} icon="close" type="danger" size="small"></Button>
                     </Button.Group>
                 </Fragment>
@@ -404,15 +601,10 @@ class ProductAdd extends PureComponent {
             //产品选项
             params.options = [];
             this.state.productOptionData.forEach(c => {
-                if (c.value && c.value.length > 0) {
-                    let vs = [];
-                    c.value.forEach(x => {
-                        vs.push({ key: x, value: x });
-                    });
+                if (c.values && c.values.length > 0) {
                     params.options.push({
-                        id: c.optionId,
-                        displayType: 0,
-                        values: vs
+                        id: c.id,
+                        values: c.values
                     });
                 }
             });
@@ -451,8 +643,8 @@ class ProductAdd extends PureComponent {
         });
     };
 
+
     showOptionSettingModal = item => {
-        // console.log(item);
         this.setState({
             visibleOptionSetting: true,
             optionSettingCurrent: item
@@ -463,52 +655,6 @@ class ProductAdd extends PureComponent {
         this.setState({
             visibleOptionSetting: false,
             optionSettingCurrent: {}
-        });
-    };
-
-    handleOptionSettingSubmit = e => {
-        e.preventDefault();
-        const { dispatch, form } = this.props;
-        // const id = this.state.current ? this.state.current.id : '';
-
-        form.validateFields((err, values) => {
-            if (err) return;
-
-            // var params = {
-            //     ...values
-            // };
-
-            // let bt = 'option/addProductOption';
-            // if (id) {
-            //     params.id = id;
-            //     bt = 'option/editProductOption';
-            // }
-
-            // // console.log(params);
-
-            // if (this.state.submitting === true)
-            //     return;
-            // this.setState({ submitting: true });
-            // new Promise(resolve => {
-            //     dispatch({
-            //         type: bt,
-            //         payload: {
-            //             resolve,
-            //             params
-            //         },
-            //     });
-            // }).then(res => {
-            //     this.setState({ submitting: false });
-            //     if (res.success === true) {
-            //         form.resetFields();
-            //         this.setState({ visible: false });
-            //         this.handleSearch();
-            //     } else {
-            //         notification.error({
-            //             message: res.message,
-            //         });
-            //     }
-            // });
         });
     };
 
@@ -532,26 +678,25 @@ class ProductAdd extends PureComponent {
                 optionName: this.state.productOptionData[optionIndex].name,
                 optionId: this.state.productOptionData[optionIndex].id,
                 value: this.state.productOptionData[optionIndex].values[j].value,
-                displayOrder: optionIndex
+                displayOrder: optionIndex,
+                mediaId: this.state.productOptionData[optionIndex].values[j].mediaId,
+                mediaUrl: this.state.productOptionData[optionIndex].values[j].mediaUrl
             };
             optionCombinations.push(optionValue);
 
             if (optionIndex === maxIndexOption) {
+                let firstImage = optionCombinations.find(c => c.mediaId && c.mediaId != '');
                 variation = {
                     id: optionCombinations.map(this.getItemValue).join('-'),
-                    // name: 'red s',
                     sku: '',
-                    gtin: '',
-                    // price: '50.1',
-                    // oldPrice: '100.22',
-                    mediaId: '1',
-                    mediaUrl: 'https://raw.githubusercontent.com/trueai-org/data/master/images/a1/6e/e5/a16ee588de2b28f2a6d6148991cfbcbd636855803382322009.jpg',
-
-                    name: 'vm.product.name' + ' ' + optionCombinations.map(this.getItemValue).join(' '),
+                    gtin: this.state.current.gtin || '',
+                    mediaId: firstImage ? firstImage.mediaId : '',
+                    mediaUrl: firstImage ? firstImage.mediaUrl : '',
+                    name: (this.state.current.name || '') + ' ' + optionCombinations.map(this.getItemValue).join(' '),
                     normalizedName: optionCombinations.map(this.getItemValue).join('-'),
                     optionCombinations: optionCombinations,
-                    price: '0', //vm.product.price,
-                    oldPrice: '0' //vm.product.oldPrice
+                    price: this.state.current.price || 0,
+                    oldPrice: this.state.current.oldPrice || 0
                 };
                 skus.push(variation);
             } else {
@@ -918,12 +1063,18 @@ class ProductAdd extends PureComponent {
         }).then(res => {
             this.setState({ uploadLoading: false });
             if (res.success === true) {
+                let obj = this.state.fileList.find(c => c.mediaId == res.data.id);
+                if (obj) {
+                    notification.info({
+                        message: '图片已存在',
+                    });
+                    return;
+                }
+
                 file.url = res.data.url;
                 file.mediaId = res.data.id;
                 this.setState({
                     fileList: [...this.state.fileList, file]
-                }, () => {
-                    console.log(this.state.fileList);
                 });
             } else {
                 notification.error({
@@ -1014,12 +1165,6 @@ class ProductAdd extends PureComponent {
             'list-ul', 'list-ol', 'separator',
             'remove-styles'
         ];
-
-        const formLayout = {
-            labelCol: { span: 7 },
-            wrapperCol: { span: 13 },
-        };
-        const modalFooter = { okText: '保存', onOk: this.handleOptionSettingSubmit, onCancel: this.handleOptionSettingCancel };
         return (
             <PageHeaderWrapper title="新增商品" action={rollback}>
                 <Spin spinning={this.state.loading}>
@@ -1266,12 +1411,13 @@ class ProductAdd extends PureComponent {
                                         {...formItemLayout}
                                         label={<span>产品规格</span>}>
                                         <Table bordered={false}
-                                            rowKey={record => record.id}
+                                            // rowKey={record => record.id}
+                                            rowKey={(record, index) => `sku_${record.id}_i_${index}`} //{record => record.id}
                                             pagination={false}
                                             loading={this.state.productSkuLoading}
                                             dataSource={this.state.productSku}
                                             columns={this.columnsSku}
-                                            scroll={{ x: 900 }}
+                                            scroll={{ x: 960 }}
                                         />
                                     </FormItem>
                                 </TabPane>
@@ -1380,10 +1526,13 @@ class ProductAdd extends PureComponent {
                     </Card>
                 </Spin>
                 <Modal
+                    width={600}
                     title={`选项配置 - ${this.state.optionSettingCurrent.name}`}
                     destroyOnClose
                     visible={this.state.visibleOptionSetting}
-                    {...modalFooter}>
+                    footer={null}
+                    onCancel={this.handleOptionSettingCancel}
+                >
                     <Table bordered={false}
                         rowKey={(record, index) => `option_${record.id}_v_${index}`} //{record => record.id}
                         pagination={false}
