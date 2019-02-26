@@ -615,8 +615,8 @@ class ProductAdd extends PureComponent {
                 params.variations = this.state.productSku
             }
 
-            console.log(params);
-            return;
+            // console.log(params);
+            // return;
 
             if (this.state.submitting === true)
                 return;
@@ -624,7 +624,7 @@ class ProductAdd extends PureComponent {
             this.setState({ submitting: true });
             new Promise(resolve => {
                 dispatch({
-                    type: 'product/edit',
+                    type: 'product/add',
                     payload: {
                         resolve,
                         params
@@ -642,7 +642,6 @@ class ProductAdd extends PureComponent {
             });
         });
     };
-
 
     showOptionSettingModal = item => {
         this.setState({
@@ -812,7 +811,11 @@ class ProductAdd extends PureComponent {
     }
 
     addProductOption = (id, name) => {
-        let p = { id, name, values: [] };
+        let obj = this.state.options.find(c => c.id == id);
+        if (obj == undefined) {
+            return;
+        }
+        let p = { id, name, displayType: obj.displayType, values: [] };
         let any = this.state.productOptionData.findIndex(c => c.id == p.id) >= 0;
         if (any) return;
         this.setState({
@@ -1179,7 +1182,13 @@ class ProductAdd extends PureComponent {
                                             initialValue: this.state.current.name || '',
                                             rules: [{ required: true, message: '请输入产品名称' }],
                                         })(
-                                            <Input placeholder="名称" />)}
+                                            <Input onChange={(e) => {
+                                                this.setState({
+                                                    current: Object.assign({},
+                                                        this.state.current,
+                                                        { name: e.target.value })
+                                                });
+                                            }} placeholder="名称" />)}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
@@ -1301,11 +1310,10 @@ class ProductAdd extends PureComponent {
                                         {...formItemLayout}
                                         label={<span>特价时间</span>}>
                                         {getFieldDecorator('specialPriceRangePicker', {
-                                            initialValue: [
-                                                moment(this.state.current.specialPriceStart || '',
-                                                    "YYYY/MM/DD HH:mm:ss"),
-                                                moment(this.state.current.specialPriceEnd || '',
-                                                    "YYYY/MM/DD HH:mm:ss")]
+                                            initialValue: this.state.current.specialPriceStart && this.state.current.specialPriceEnd ? [
+                                                moment(this.state.current.specialPriceStart, "YYYY/MM/DD HH:mm:ss"),
+                                                moment(this.state.current.specialPriceEnd, "YYYY/MM/DD HH:mm:ss")
+                                            ] : []
                                         })(
                                             <RangePicker
                                                 ranges={{ Today: [moment(), moment()], 'This Month': [moment().startOf('month'), moment().endOf('month')] }}
