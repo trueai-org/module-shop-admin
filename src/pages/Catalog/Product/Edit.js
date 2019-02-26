@@ -42,7 +42,6 @@ const rollback = (
     </Fragment>
 );
 
-
 @connect()
 @Form.create()
 class ProductAdd extends PureComponent {
@@ -56,6 +55,7 @@ class ProductAdd extends PureComponent {
             submitting: false, //数据保存中
 
             uploadLoading: false,
+            uploadMainLoading: false,
             previewVisible: false,
             previewImage: '',
             fileList: [],
@@ -374,10 +374,18 @@ class ProductAdd extends PureComponent {
                                                 }
                                             }}
                                         >
-                                            <Radio value={''}>无</Radio>
+                                            <Radio
+                                                style={{
+                                                    width: 80
+                                                }}
+                                                value={''}>无</Radio>
                                             {
                                                 this.state.fileList.map(x => {
-                                                    return <Radio key={x.mediaId} value={x.mediaId}>
+                                                    return <Radio
+                                                        style={{
+                                                            width: 80
+                                                        }}
+                                                        key={x.mediaId} value={x.mediaId}>
                                                         <Avatar shape="square" size={48} src={x.url} />
                                                     </Radio>;
                                                 })
@@ -516,10 +524,18 @@ class ProductAdd extends PureComponent {
                                                 this.setState({ productSku: list });
                                             }}
                                         >
-                                            <Radio value={''}>无</Radio>
+                                            <Radio
+                                                style={{
+                                                    width: 80
+                                                }}
+                                                value={''}>无</Radio>
                                             {
                                                 this.state.fileList.map(x => {
-                                                    return <Radio key={x.mediaId} value={x.mediaId}>
+                                                    return <Radio
+                                                        style={{
+                                                            width: 80
+                                                        }}
+                                                        key={x.mediaId} value={x.mediaId}>
                                                         <Avatar shape="square" size={48} src={x.url} />
                                                     </Radio>;
                                                 })
@@ -563,6 +579,7 @@ class ProductAdd extends PureComponent {
 
             var params = {
                 id: this.state.id,
+                thumbnailImageUrlId: this.state.current.mediaId || '',
                 ...values
             };
 
@@ -1087,6 +1104,33 @@ class ProductAdd extends PureComponent {
         });
     }
 
+    handleUploadMain = file => {
+        this.setState({ uploadMainLoading: true });
+        const { dispatch } = this.props;
+        const formData = new FormData();
+        formData.append('file', file);
+        new Promise(resolve => {
+            dispatch({
+                type: 'upload/uploadImage',
+                payload: {
+                    resolve,
+                    params: formData
+                },
+            });
+        }).then(res => {
+            this.setState({ uploadMainLoading: false });
+            if (res.success === true) {
+                this.setState({
+                    current: Object.assign({},
+                        this.state.current,
+                        { mediaId: res.data.id, mediaUrl: res.data.url })
+                });
+            } else {
+                notification.error({ message: res.message });
+            }
+        });
+    }
+
     handleRemove = (file) => {
         this.setState(({ fileList }) => {
             const index = fileList.indexOf(file);
@@ -1102,7 +1146,7 @@ class ProductAdd extends PureComponent {
 
     handlePreview = (file) => {
         this.setState({
-            previewImage: file.url || file.thumbUrl,
+            previewImage: file.url || file.thumbUrl || file.mediaUrl,
             previewVisible: true,
         });
     }
@@ -1151,7 +1195,6 @@ class ProductAdd extends PureComponent {
                 <div className="ant-upload-text">上传</div>
             </div>
         );
-
         const controls = [
             'headings', 'font-size', 'separator',
             'bold', 'italic', 'underline', 'text-color', 'strike-through', 'emoji', 'media', 'separator',
@@ -1168,6 +1211,7 @@ class ProductAdd extends PureComponent {
             'list-ul', 'list-ol', 'separator',
             'remove-styles'
         ];
+
         return (
             <PageHeaderWrapper title="新增商品" action={rollback}>
                 <Spin spinning={this.state.loading}>
@@ -1343,55 +1387,40 @@ class ProductAdd extends PureComponent {
                                             {uploadButton}
                                         </Upload>
                                         <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
-                                            <img alt="example" style={{ width: '100%' }} src={previewImage} />
+                                            <img alt="image" style={{ width: '100%' }} src={previewImage} />
                                         </Modal>
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>产品主图</span>}>
-                                        <Avatar
-                                            onClick={
-                                                () => {
-                                                    Modal.info({
-                                                        title: '选择图片',
-                                                        content: (
-                                                            <Radio.Group
-                                                                defaultValue={this.state.current.mediaId || ''}
-                                                                onChange={(e) => {
-                                                                    let obj = {};
-                                                                    obj.mediaId = '';
-                                                                    obj.mediaUrl = '';
-                                                                    if (e.target.value) {
-                                                                        let first = this.state.fileList.find(c => c.mediaId == e.target.value);
-                                                                        if (first) {
-                                                                            obj.mediaId = first.mediaId;
-                                                                            obj.mediaUrl = first.url;
-                                                                        }
-                                                                    }
-                                                                    this.setState({
-                                                                        current: Object.assign({},
-                                                                            this.state.current,
-                                                                            { mediaId: obj.mediaId, mediaUrl: obj.mediaUrl })
-                                                                    });
-                                                                }}
-                                                            >
-                                                                <Radio value={''}>无</Radio>
-                                                                {
-                                                                    this.state.fileList.map(x => {
-                                                                        return <Radio key={x.mediaId} value={x.mediaId}>
-                                                                            <Avatar shape="square" size={48} src={x.url} />
-                                                                        </Radio>;
-                                                                    })
-                                                                }
-                                                            </Radio.Group>
-                                                        ),
-                                                        okText: '关闭'
-                                                    })
+                                        <Upload
+                                            action={this.handleUploadMain}
+                                            listType="picture-card"
+                                            showUploadList={false}
+                                        // onChange={this.handleChange}
+                                        // onPreview={this.handlePreview}
+                                        >
+                                            <Spin spinning={this.state.uploadMainLoading}>
+                                                {this.state.current.mediaId ? <img height={102} src={this.state.current.mediaUrl} />
+                                                    :
+                                                    <div>
+                                                        <Icon type={this.state.uploadMainLoading ? 'loading' : 'plus'} />
+                                                        <div className="ant-upload-text">上传</div>
+                                                    </div>
                                                 }
+                                            </Spin>
+                                        </Upload>
+                                        {this.state.current.mediaId ? <Button onClick={
+                                            () => {
+                                                this.setState({
+                                                    current: Object.assign({},
+                                                        this.state.current,
+                                                        { mediaId: '', mediaUrl: '' })
+                                                });
                                             }
-                                            shape="square"
-                                            size={102}
-                                            src={this.state.current.mediaUrl} />
+                                        } icon="close" size="small"></Button>
+                                            : null
+                                        }
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
