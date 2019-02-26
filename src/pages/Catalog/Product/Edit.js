@@ -1068,7 +1068,7 @@ class ProductAdd extends PureComponent {
             if (res.success === true) {
                 let obj = this.state.fileList.find(c => c.mediaId == res.data.id);
                 if (obj) {
-                    notification.info({
+                    notification.warning({
                         message: '图片已存在',
                     });
                     return;
@@ -1182,13 +1182,15 @@ class ProductAdd extends PureComponent {
                                             initialValue: this.state.current.name || '',
                                             rules: [{ required: true, message: '请输入产品名称' }],
                                         })(
-                                            <Input onChange={(e) => {
-                                                this.setState({
-                                                    current: Object.assign({},
-                                                        this.state.current,
-                                                        { name: e.target.value })
-                                                });
-                                            }} placeholder="名称" />)}
+                                            <Input
+                                                onChange={(e) => {
+                                                    this.setState({
+                                                        current: Object.assign({},
+                                                            this.state.current,
+                                                            { name: e.target.value })
+                                                    });
+                                                }}
+                                                placeholder="名称" />)}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
@@ -1217,36 +1219,19 @@ class ProductAdd extends PureComponent {
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>简短描述</span>}>
-                                        {getFieldDecorator('shortDescription',
-                                            {
-                                                // initialValue: this.state.editorState
-                                                // initialValue: '123',//BraftEditor.createEditorState(this.state.current.shortDescription || '')
-                                                // valuePropName: 'defaultValue'
-                                            })(
-                                                <BraftEditor
-                                                    className={styles.myEditor}
-                                                    controls={controlsEasy}
-                                                    placeholder=""
-                                                    contentStyle={{ height: 120 }}
-                                                />
-                                                // <Editor
-                                                //     toolbar={{
-                                                //         inline: { inDropdown: true },
-                                                //         list: { inDropdown: true },
-                                                //         textAlign: { inDropdown: true },
-                                                //         link: { inDropdown: true },
-                                                //         history: { inDropdown: true },
-                                                //     }}
-                                                //     editorClassName="editor-class"
-                                                // // editorStyle={{ border: '1px solid black' }}
-                                                // />
-                                            )}
+                                        {getFieldDecorator('shortDescription')(
+                                            <BraftEditor
+                                                className={styles.myEditor}
+                                                controls={controlsEasy}
+                                                placeholder=""
+                                                contentStyle={{ height: 120 }}
+                                            />
+                                        )}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>描述</span>}>
                                         {getFieldDecorator('description')(
-                                            // <Editor />
                                             <BraftEditor
                                                 className={styles.myEditor}
                                                 controls={controls}
@@ -1259,7 +1244,6 @@ class ProductAdd extends PureComponent {
                                         {...formItemLayout}
                                         label={<span>规格</span>}>
                                         {getFieldDecorator('specification')(
-                                            // <Editor />
                                             <BraftEditor
                                                 className={styles.myEditor}
                                                 controls={controls}
@@ -1279,7 +1263,15 @@ class ProductAdd extends PureComponent {
                                         {...formItemLayout}
                                         label={<span>GTIN</span>}>
                                         {getFieldDecorator('gtin', { initialValue: this.state.current.gtin || '' })(
-                                            <Input placeholder="GTIN" />
+                                            <Input
+                                                onChange={(e) => {
+                                                    this.setState({
+                                                        current: Object.assign({},
+                                                            this.state.current,
+                                                            { gtin: e.target.value })
+                                                    });
+                                                }}
+                                                placeholder="GTIN" />
                                         )}
                                     </FormItem>
                                     <FormItem
@@ -1289,14 +1281,30 @@ class ProductAdd extends PureComponent {
                                             rules: [{ required: true, message: '请输入产品价格' }],
                                             initialValue: this.state.current.price || 0
                                         })(
-                                            <InputNumber style={{ width: '100%' }} placeholder="价格" />
+                                            <InputNumber
+                                                onChange={(e) => {
+                                                    this.setState({
+                                                        current: Object.assign({},
+                                                            this.state.current,
+                                                            { price: e })
+                                                    });
+                                                }}
+                                                style={{ width: '100%' }} placeholder="价格" />
                                         )}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>原价</span>}>
                                         {getFieldDecorator('oldPrice', { initialValue: this.state.current.oldPrice || 0 })(
-                                            <InputNumber style={{ width: '100%' }} placeholder="原价" />
+                                            <InputNumber
+                                                onChange={(e) => {
+                                                    this.setState({
+                                                        current: Object.assign({},
+                                                            this.state.current,
+                                                            { oldPrice: e })
+                                                    });
+                                                }}
+                                                style={{ width: '100%' }} placeholder="原价" />
                                         )}
                                     </FormItem>
                                     <FormItem
@@ -1337,6 +1345,53 @@ class ProductAdd extends PureComponent {
                                         <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
                                             <img alt="example" style={{ width: '100%' }} src={previewImage} />
                                         </Modal>
+                                    </FormItem>
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label={<span>产品主图</span>}>
+                                        <Avatar
+                                            onClick={
+                                                () => {
+                                                    Modal.info({
+                                                        title: '选择图片',
+                                                        content: (
+                                                            <Radio.Group
+                                                                defaultValue={this.state.current.mediaId || ''}
+                                                                onChange={(e) => {
+                                                                    let obj = {};
+                                                                    obj.mediaId = '';
+                                                                    obj.mediaUrl = '';
+                                                                    if (e.target.value) {
+                                                                        let first = this.state.fileList.find(c => c.mediaId == e.target.value);
+                                                                        if (first) {
+                                                                            obj.mediaId = first.mediaId;
+                                                                            obj.mediaUrl = first.url;
+                                                                        }
+                                                                    }
+                                                                    this.setState({
+                                                                        current: Object.assign({},
+                                                                            this.state.current,
+                                                                            { mediaId: obj.mediaId, mediaUrl: obj.mediaUrl })
+                                                                    });
+                                                                }}
+                                                            >
+                                                                <Radio value={''}>无</Radio>
+                                                                {
+                                                                    this.state.fileList.map(x => {
+                                                                        return <Radio key={x.mediaId} value={x.mediaId}>
+                                                                            <Avatar shape="square" size={48} src={x.url} />
+                                                                        </Radio>;
+                                                                    })
+                                                                }
+                                                            </Radio.Group>
+                                                        ),
+                                                        okText: '关闭'
+                                                    })
+                                                }
+                                            }
+                                            shape="square"
+                                            size={102}
+                                            src={this.state.current.mediaUrl} />
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
@@ -1417,9 +1472,8 @@ class ProductAdd extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>产品规格</span>}>
+                                        label={<span>产品组合</span>}>
                                         <Table bordered={false}
-                                            // rowKey={record => record.id}
                                             rowKey={(record, index) => `sku_${record.id}_i_${index}`} //{record => record.id}
                                             pagination={false}
                                             loading={this.state.productSkuLoading}
