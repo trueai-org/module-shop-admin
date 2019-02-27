@@ -590,7 +590,7 @@ class ProductAdd extends PureComponent {
             params.specification = params.specification.toHTML(); //draftToHtml(params.specification);
 
             //特价时间处理
-            if (params.specialPriceRangePicker) {
+            if (params.specialPriceRangePicker && params.specialPriceRangePicker.length == 2) {
                 params.specialPriceStart = params.specialPriceRangePicker[0].format('YYYY-MM-DD HH:mm:ss');
                 params.specialPriceEnd = params.specialPriceRangePicker[1].format('YYYY-MM-DD HH:mm:ss');
                 params.specialPriceRangePicker = {};
@@ -638,17 +638,17 @@ class ProductAdd extends PureComponent {
             if (this.state.submitting === true)
                 return;
 
-            this.setState({ submitting: true });
+            this.setState({ submitting: true, loading: true });
             new Promise(resolve => {
                 dispatch({
-                    type: 'product/add',
+                    type: 'product/edit',
                     payload: {
                         resolve,
                         params
                     },
                 });
             }).then(res => {
-                this.setState({ submitting: false });
+                this.setState({ submitting: false, loading: false });
                 if (res.success === true) {
                     router.push('./list');
                 } else {
@@ -703,7 +703,7 @@ class ProductAdd extends PureComponent {
             if (optionIndex === maxIndexOption) {
                 let firstImage = optionCombinations.find(c => c.mediaId && c.mediaId != '');
                 variation = {
-                    id: optionCombinations.map(this.getItemValue).join('-'),
+                    id: 0,
                     sku: '',
                     gtin: this.state.current.gtin || '',
                     mediaId: firstImage ? firstImage.mediaId : '',
@@ -1376,22 +1376,6 @@ class ProductAdd extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>产品图片</span>}>
-                                        <Upload action={this.handleUpload}
-                                            listType="picture-card"
-                                            fileList={this.state.fileList}
-                                            onRemove={this.handleRemove}
-                                            onPreview={this.handlePreview}
-                                        // onChange={this.handleUploadChange}
-                                        >
-                                            {uploadButton}
-                                        </Upload>
-                                        <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
-                                            <img alt="image" style={{ width: '100%' }} src={previewImage} />
-                                        </Modal>
-                                    </FormItem>
-                                    <FormItem
-                                        {...formItemLayout}
                                         label={<span>产品主图</span>}>
                                         <Upload
                                             action={this.handleUploadMain}
@@ -1421,6 +1405,22 @@ class ProductAdd extends PureComponent {
                                         } icon="close" size="small"></Button>
                                             : null
                                         }
+                                    </FormItem>
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label={<span>产品图片</span>}>
+                                        <Upload action={this.handleUpload}
+                                            listType="picture-card"
+                                            fileList={this.state.fileList}
+                                            onRemove={this.handleRemove}
+                                            onPreview={this.handlePreview}
+                                        // onChange={this.handleUploadChange}
+                                        >
+                                            {uploadButton}
+                                        </Upload>
+                                        <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
+                                            <img alt="image" style={{ width: '100%' }} src={previewImage} />
+                                        </Modal>
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
