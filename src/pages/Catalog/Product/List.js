@@ -15,8 +15,6 @@ import Link from 'umi/link';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-//queryProductGrid, addProduct, editProduct, deleteProduct
-
 @connect()
 @Form.create()
 class ProductList extends PureComponent {
