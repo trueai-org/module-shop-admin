@@ -100,6 +100,10 @@ class ProductAdd extends PureComponent {
             visibleOptionSetting: false,
             currentColor: '',
 
+            //添加选项组合
+            visibleOptionAdd: false,
+            addOptionCombination: [],
+
             optionSettingCurrent: {}
         };
     }
@@ -674,6 +678,99 @@ class ProductAdd extends PureComponent {
         });
     };
 
+    handleAddOptionCombination = () => {
+        this.setState({
+            visibleOptionAdd: true,
+            addOptionCombination: this.state.productOptionData.map(c => {
+                return {
+                    id: c.id,
+                    value: ''
+                };
+            })
+        });
+    }
+
+    handleAddOptionCombinationOk = () => {
+        if (this.state.addOptionCombination.find(c => !c.value)) {
+            notification.warning({ message: '请选择选项' });
+            return;
+        }
+
+        let variation, optionCombinations = [];
+        this.state.addOptionCombination.forEach((c, index) => {
+            let option = this.state.productOptionData.find(x => x.id == c.id);
+            if (option) {
+                let ov = option.values.find(x => x.value == c.value);
+                if (ov) {
+                    let optionValue = {
+                        optionName: option.name,
+                        optionId: option.id,
+                        value: c.value,
+                        displayOrder: index,
+                        mediaId: ov.mediaId || '',
+                        mediaUrl: ov.mediaUrl || ''
+                    };
+                    optionCombinations.push(optionValue);
+                }
+            }
+        });
+
+        let firstImage = optionCombinations.find(c => c.mediaId && c.mediaId != '');
+        variation = {
+            id: 0,
+            sku: '',
+            gtin: this.state.current.gtin || '',
+            mediaId: firstImage ? firstImage.mediaId : '',
+            mediaUrl: firstImage ? firstImage.mediaUrl : '',
+            name: (this.state.current.name || '') + ' ' + optionCombinations.map(this.getItemValue).join(' '),
+            normalizedName: optionCombinations.map(this.getItemValue).join('-'),
+            optionCombinations: optionCombinations,
+            price: this.state.current.price || 0,
+            oldPrice: this.state.current.oldPrice || 0
+        };
+
+        if (!this.state.productSku.find(c => c.name == variation.name)) {
+            this.setState({
+                productSku: [...this.state.productSku, variation]
+            });
+        } else {
+            notification.warning({ message: '产品组合已存在' });
+            return;
+        }
+
+        this.setState({ visibleOptionAdd: false });
+    }
+
+    handleAddOptionCombinationCancel = () => {
+        this.setState({
+            visibleOptionAdd: false,
+            addOptionCombination: []
+        });
+    }
+
+    handleAddOptionCombinationGet() {
+        return this.state.productOptionData.map(c => {
+            return <div><Select
+                onChange={
+                    (v) => {
+                        let obj = this.state.addOptionCombination.find(x => x.id == c.id);
+                        if (obj) {
+                            obj.value = v;
+                        }
+                    }
+                }
+                key={c.name}
+                style={{ width: '60%', marginBottom: 10 }}
+                placeholder={c.name}>
+                {
+                    c.values.map(x => {
+                        return <Option key={x.value}>{x.value}</Option>;
+                    })
+                }
+            </Select><br /></div>;
+        })
+    }
+
     handleGenerateOptionCombination = () => {
         var optionDatas = this.state.productOptionData;
         if (!optionDatas || optionDatas.length <= 0)
@@ -1213,7 +1310,7 @@ class ProductAdd extends PureComponent {
         ];
 
         return (
-            <PageHeaderWrapper title="新增商品" action={rollback}>
+            <PageHeaderWrapper title="编辑商品" action={rollback}>
                 <Spin spinning={this.state.loading}>
                     <Card bordered={false}>
                         <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
@@ -1510,6 +1607,7 @@ class ProductAdd extends PureComponent {
                                             columns={this.columnsSku}
                                             scroll={{ x: 960 }}
                                         />
+                                        <Button onClick={this.handleAddOptionCombination}>添加组合</Button>
                                     </FormItem>
                                 </TabPane>
                                 <TabPane tab="产品属性" key="3">
@@ -1630,6 +1728,17 @@ class ProductAdd extends PureComponent {
                         dataSource={this.state.optionSettingCurrent.values}
                         columns={this.columnsOptionSetting}
                     />
+                </Modal>
+                <Modal
+                    title={`添加组合`}
+                    destroyOnClose
+                    visible={this.state.visibleOptionAdd}
+                    onCancel={this.handleAddOptionCombinationCancel}
+                    onOk={this.handleAddOptionCombinationOk}
+                >
+                    {
+                        this.state.visibleOptionAdd ? this.handleAddOptionCombinationGet() : null
+                    }
                 </Modal>
             </PageHeaderWrapper>
         );

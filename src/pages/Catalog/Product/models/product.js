@@ -1,5 +1,7 @@
 import {
     queryProductFirst, queryProductGrid, addProduct, editProduct, deleteProduct,
+    publishProduct, unpublishProduct
+
 } from '@/services/api';
 
 export default {
@@ -34,6 +36,18 @@ export default {
         *delete({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(deleteProduct, params);
+            !!resolve && resolve(response);
+        },
+
+        *publish({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(publishProduct, params);
+            !!resolve && resolve(response);
+        },
+
+        *unpublish({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(unpublishProduct, params);
             !!resolve && resolve(response);
         },
 

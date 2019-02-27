@@ -429,6 +429,20 @@ export async function deleteProduct(params) {
   });
 }
 
+export async function publishProduct(params) {
+  return request(`/api/products/${params.id}/publish`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function unpublishProduct(params) {
+  return request(`/api/products/${params.id}/unpublish`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
 
 // 产品属性模板
 

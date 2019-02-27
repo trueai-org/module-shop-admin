@@ -54,7 +54,8 @@ class ProductList extends PureComponent {
                     <Button.Group>
                         {/* //#f5222d */}
                         <Button icon="edit" size="small" onClick={() => this.handleEdit(record.id)}></Button>
-                        <Button style={{ color: record.isPublished == true ? "#1890ff" : "" }} icon={record.isPublished == true ? "pause-circle" : "play-circle"} size="small" onClick={() => this.showEditModal(record)}></Button>
+                        <Button style={{ color: record.isPublished == true ? "#1890ff" : "" }} icon={record.isPublished == true ? "pause-circle" : "play-circle"} size="small"
+                            onClick={() => this.handlePublish(record.id, !record.isPublished)}></Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
                             <Button icon="delete" type="danger" size="small"></Button>
                             {/* <a href="javascript:;">删除</a> */}
@@ -232,6 +233,34 @@ class ProductList extends PureComponent {
         new Promise(resolve => {
             dispatch({
                 type: 'product/delete',
+                payload: {
+                    resolve,
+                    params,
+                },
+            });
+        }).then(res => {
+            this.setState({
+                loading: false,
+            });
+            if (res.success === true) {
+                this.handleSearch();
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
+    };
+
+    handlePublish = (id, isPublish) => {
+        this.setState({
+            loading: true,
+        });
+        const { dispatch } = this.props;
+        const params = { id };
+        new Promise(resolve => {
+            dispatch({
+                type: isPublish ? 'product/publish' : 'product/unpublish',
                 payload: {
                     resolve,
                     params,
