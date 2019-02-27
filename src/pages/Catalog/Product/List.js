@@ -149,81 +149,6 @@ class ProductList extends PureComponent {
         this.handleSearchFirst();
     }
 
-    showModal = () => {
-        this.setState({
-            visible: true,
-            current: {},
-        });
-    };
-
-    showEditModal = item => {
-        this.setState({
-            visible: true,
-            current: item,
-        });
-    };
-
-    handleCancel = () => {
-        this.setState({
-            visible: false,
-        });
-    };
-
-    handleData = (text, record) => {
-        router.push({
-            pathname: './data',
-            query: {
-                id: record.id,
-            },
-        });
-    }
-
-    handleSubmit = e => {
-        e.preventDefault();
-        const { dispatch, form } = this.props;
-        const id = this.state.current ? this.state.current.id : '';
-
-        form.validateFields((err, values) => {
-            if (err) return;
-
-            var params = {
-                ...values
-            };
-
-            let bt = 'product/addProductOption';
-            if (id) {
-                params.id = id;
-                bt = 'product/editProductOption';
-            }
-
-            // console.log(params);
-
-            if (this.state.submitting === true)
-                return;
-            this.setState({ submitting: true });
-            new Promise(resolve => {
-                dispatch({
-                    type: bt,
-                    payload: {
-                        resolve,
-                        params
-                    },
-                });
-            }).then(res => {
-                this.setState({ submitting: false });
-                if (res.success === true) {
-                    form.resetFields();
-                    this.setState({ visible: false });
-                    this.handleSearch();
-                } else {
-                    notification.error({
-                        message: res.message,
-                    });
-                }
-            });
-        });
-    };
-
     deleteItem = id => {
         this.setState({
             loading: true,
@@ -376,21 +301,6 @@ class ProductList extends PureComponent {
     }
 
     render() {
-        const { form: { getFieldDecorator }, } = this.props;
-        const modalFooter = { okText: '保存', onOk: this.handleSubmit, onCancel: this.handleCancel };
-        const extraContent = (
-            <div>
-                <Button
-                    onClick={this.handleAdd}
-                    type="primary"
-                    icon="plus">
-                    新增</Button>
-            </div>
-        );
-        const formLayout = {
-            labelCol: { span: 7 },
-            wrapperCol: { span: 13 },
-        };
         const pagination = {
             showQuickJumper: true,
             showSizeChanger: true,
@@ -404,18 +314,6 @@ class ProductList extends PureComponent {
                 return `${range[0]}-${range[1]} 条 , 共 ${total} 条`;
             }
         };
-        const getModalContent = () => {
-            return (
-                <Form onSubmit={this.handleSubmit}>
-                    <FormItem label="名称" {...formLayout}>
-                        {getFieldDecorator('name', {
-                            rules: [{ required: true, message: '请输入选项名称' }],
-                            initialValue: this.state.current.name || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                </Form>
-            );
-        };
         const action = (
             <Fragment>
                 <Button
@@ -427,9 +325,7 @@ class ProductList extends PureComponent {
         return (
             <PageHeaderWrapper title="商品 - 列表">
                 <div>
-                    <Card bordered={false}
-                    // extra={extraContent}
-                    >
+                    <Card bordered={false}>
                         <div style={{ marginBottom: '20px' }} >
                             {action}
                         </div>
@@ -445,13 +341,6 @@ class ProductList extends PureComponent {
                         />
                     </Card>
                 </div>
-                <Modal
-                    title={`商品选项 - ${this.state.current.id ? '编辑' : '新增'}`}
-                    destroyOnClose
-                    visible={this.state.visible}
-                    {...modalFooter}>
-                    {getModalContent()}
-                </Modal>
             </PageHeaderWrapper>
         );
     }
