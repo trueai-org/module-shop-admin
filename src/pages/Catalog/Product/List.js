@@ -42,7 +42,7 @@ class ProductList extends PureComponent {
             },
 
             expandForm: false,
-            param: {},
+            queryParam: {},
 
             categoryLoading: false, //类别加载中
             categories: [],
@@ -181,7 +181,7 @@ class ProductList extends PureComponent {
             }
         });
 
-        this.handleSearchFirst();
+        this.queryData(this.state.queryParam);
     }
 
     deleteItem = id => {
@@ -203,7 +203,7 @@ class ProductList extends PureComponent {
                 loading: false,
             });
             if (res.success === true) {
-                this.handleSearch();
+                this.queryData();
             } else {
                 notification.error({
                     message: res.message,
@@ -231,7 +231,7 @@ class ProductList extends PureComponent {
                 loading: false,
             });
             if (res.success === true) {
-                this.handleSearch();
+                this.queryData();
             } else {
                 notification.error({
                     message: res.message,
@@ -250,30 +250,28 @@ class ProductList extends PureComponent {
         });
     };
 
-    handleSearch = e => {
-        if (e) {
-            e.preventDefault();
-        }
+    queryDataFirst = () => {
+        this.setState({
+            pageNum: 1
+        }, () => {
+            this.queryData();
+        });
+    }
 
-        const { form } = this.props;
-        let search = this.state.param;
+    queryData = () => {
+        this.setState({ loading: true });
+        const { dispatch, form } = this.props;
 
+        let search = this.state.queryParam;
         form.validateFields((err, fieldsValue) => {
             if (err) return;
             search = {
                 ...fieldsValue,
-                // updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
             };
+            this.setState({ queryParam: search });
         });
-        console.log(form);
 
-        // return;
-        this.setState({
-            loading: true,
-        });
-        const { dispatch } = this.props;
-        const params =
-        {
+        let params = {
             search: search,
             pagination: {
                 current: this.state.pageNum,
@@ -305,15 +303,21 @@ class ProductList extends PureComponent {
                 });
             }
         });
-    };
-
-    handleSearchFirst = () => {
-        this.setState({
-            pageNum: 1
-        }, () => {
-            this.handleSearch();
-        });
     }
+
+    handleSearch = e => {
+        const { form } = this.props;
+        e.preventDefault();
+        form.validateFields((err, fieldsValue) => {
+            if (err) return;
+            let search = {
+                ...fieldsValue,
+            };
+            this.setState({ queryParam: search }, () => {
+                this.queryData();
+            });
+        });
+    };
 
     handleStandardTableChange = (pagination, filtersArg, sorter) => {
         var firstPage = sorter.field != this.state.predicate;
@@ -327,15 +331,15 @@ class ProductList extends PureComponent {
                     reverse: sorter.order == 'descend'
                 }, () => {
                     if (firstPage)
-                        this.handleSearchFirst();
+                        this.queryDataFirst();
                     else
-                        this.handleSearch();
+                        this.queryData();
                 });
             } else {
                 if (firstPage)
-                    this.handleSearchFirst();
+                    this.queryDataFirst();
                 else
-                    this.handleSearch();
+                    this.queryData();
             }
         });
     };
@@ -360,7 +364,9 @@ class ProductList extends PureComponent {
                 <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
                     <Col md={8} sm={24}>
                         <FormItem label="商品名称">
-                            {getFieldDecorator('name')(<Input placeholder="商品名称" />)}
+                            {getFieldDecorator('name')(<Input
+                                allowClear
+                                placeholder="商品名称" />)}
                         </FormItem>
                     </Col>
                     <Col md={8} sm={24}>
@@ -369,8 +375,8 @@ class ProductList extends PureComponent {
                                 <Select
                                     allowClear
                                     placeholder="是否发布">
-                                    <Option value={false}>否</Option>
-                                    <Option value={true}>是</Option>
+                                    <Option value={'false'}>否</Option>
+                                    <Option value={'true'}>是</Option>
                                 </Select>
                             )}
                         </FormItem>
@@ -381,8 +387,8 @@ class ProductList extends PureComponent {
                                 <Select
                                     allowClear
                                     placeholder="有选项">
-                                    <Option value={false}>否</Option>
-                                    <Option value={true}>是</Option>
+                                    <Option value={'false'}>否</Option>
+                                    <Option value={'true'}>是</Option>
                                 </Select>
                             )}
                         </FormItem>
@@ -402,11 +408,6 @@ class ProductList extends PureComponent {
                     </Col>
                     {/* <Col span={12} style={{ textAlign: 'right' }}>
                         <span >
-                            <Button
-                                onClick={this.handleAdd}
-                                type="primary"
-                            // icon="plus"
-                            >添加</Button>
                         </span>
                     </Col> */}
                 </Row>
@@ -426,8 +427,8 @@ class ProductList extends PureComponent {
                                 <Select
                                     allowClear
                                     placeholder="单独可见">
-                                    <Option value={false}>否</Option>
-                                    <Option value={true}>是</Option>
+                                    <Option value={'false'}>否</Option>
+                                    <Option value={'true'}>是</Option>
                                 </Select>
                             )}
                         </FormItem>
@@ -438,15 +439,17 @@ class ProductList extends PureComponent {
                                 <Select
                                     allowClear
                                     placeholder="允许订购">
-                                    <Option value={false}>否</Option>
-                                    <Option value={true}>是</Option>
+                                    <Option value={'false'}>否</Option>
+                                    <Option value={'true'}>是</Option>
                                 </Select>
                             )}
                         </FormItem>
                     </Col>
                     <Col md={8} sm={24}>
                         <FormItem label="SKU">
-                            {getFieldDecorator('sku')(<Input placeholder="SKU" />)}
+                            {getFieldDecorator('sku')(<Input
+                                allowClear
+                                placeholder="SKU" />)}
                         </FormItem>
                     </Col>
                 </Row>
