@@ -714,6 +714,9 @@ class ProductAdd extends PureComponent {
                 }
             }
         });
+        if (optionCombinations.length <= 0) {
+            return;
+        }
 
         let firstImage = optionCombinations.find(c => c.mediaId && c.mediaId != '');
         variation = {
@@ -746,29 +749,6 @@ class ProductAdd extends PureComponent {
             visibleOptionAdd: false,
             addOptionCombination: []
         });
-    }
-
-    handleAddOptionCombinationGet() {
-        return this.state.productOptionData.map(c => {
-            return <div><Select
-                onChange={
-                    (v) => {
-                        let obj = this.state.addOptionCombination.find(x => x.id == c.id);
-                        if (obj) {
-                            obj.value = v;
-                        }
-                    }
-                }
-                key={c.name}
-                style={{ width: '60%', marginBottom: 10 }}
-                placeholder={c.name}>
-                {
-                    c.values.map(x => {
-                        return <Option key={x.value}>{x.value}</Option>;
-                    })
-                }
-            </Select><br /></div>;
-        })
     }
 
     handleGenerateOptionCombination = () => {
@@ -1737,7 +1717,28 @@ class ProductAdd extends PureComponent {
                     onOk={this.handleAddOptionCombinationOk}
                 >
                     {
-                        this.state.visibleOptionAdd ? this.handleAddOptionCombinationGet() : null
+                        this.state.visibleOptionAdd ?
+                            this.state.productOptionData.map(c => {
+                                return <Select
+                                    onChange={
+                                        (v) => {
+                                            let obj = this.state.addOptionCombination.find(x => x.id == c.id);
+                                            if (obj) {
+                                                obj.value = v;
+                                            }
+                                        }
+                                    }
+                                    key={c.name}
+                                    style={{ width: '60%', marginBottom: 10 }}
+                                    placeholder={c.name}>
+                                    {
+                                        c.values.map(x => {
+                                            return <Option key={x.value}>{x.value}</Option>;
+                                        })
+                                    }
+                                </Select>;
+                            })
+                            : null
                     }
                 </Modal>
             </PageHeaderWrapper>

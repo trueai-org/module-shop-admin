@@ -3,7 +3,8 @@ import { connect } from 'dva';
 import moment from 'moment';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown, Switch
+    Redio, Menu, Dropdown, Switch,
+    Row, Col, InputNumber, DatePicker, Checkbox
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -11,6 +12,8 @@ import StandardTable from '@/components/StandardTable';
 
 import router from 'umi/router';
 import Link from 'umi/link';
+
+import styles from './List.less';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -30,13 +33,19 @@ class ProductList extends PureComponent {
             children: [],
 
             pageNum: 1,
-            pageSize: 5,
+            pageSize: 10,
             predicate: 'id',
             reverse: true,
             pageData: {
                 list: [],
                 pagination: {}
             },
+
+            expandForm: false,
+            param: {},
+
+            categoryLoading: false, //类别加载中
+            categories: [],
         };
     }
 
@@ -46,17 +55,15 @@ class ProductList extends PureComponent {
             key: 'operation',
             fixed: 'left',
             align: 'center',
-            width: 180,
+            width: 135,
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
-                        {/* //#f5222d */}
                         <Button icon="edit" size="small" onClick={() => this.handleEdit(record.id)}></Button>
-                        <Button style={{ color: record.isPublished == true ? "#1890ff" : "" }} icon={record.isPublished == true ? "pause-circle" : "play-circle"} size="small"
+                        <Button style={{ color: record.isPublished == true ? "#f5222d" : "#1890ff" }} icon={record.isPublished == true ? "pause-circle" : "play-circle"} size="small"
                             onClick={() => this.handlePublish(record.id, !record.isPublished)}></Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
                             <Button icon="delete" type="danger" size="small"></Button>
-                            {/* <a href="javascript:;">删除</a> */}
                         </Popconfirm>
                     </Button.Group>
                 </Fragment>
@@ -74,10 +81,16 @@ class ProductList extends PureComponent {
             title: '名称',
             dataIndex: 'name',
             sorter: true,
+            // render: (text, record) => (
+            //     <Fragment>
+            //         {text}
+            //         {record.isFeatured ? <Tag color="red">精品</Tag> : null}
+            //     </Fragment>
+            // )
             // width: 260,
         },
         {
-            title: '价格',
+            title: '价格/￥',
             dataIndex: 'price',
             sorter: true,
             width: 120,
@@ -93,33 +106,40 @@ class ProductList extends PureComponent {
             // render: (val) => <Icon type={val == true ? "check-square" : "close-square"} />
         },
         {
+            title: '允许订购',
+            dataIndex: 'isAllowToOrder',
+            sorter: true,
+            width: 120,
+            align: 'center',
+            // render: (val) => <Switch checked={val} disabled />,
+            render: (val) => <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />
+        },
+        {
             title: '有选项',
             dataIndex: 'hasOptions',
             sorter: true,
             width: 120,
             align: 'center',
-            render: (val) => <Switch checked={val} disabled />,
+            // render: (val) => <Switch checked={val} disabled />,
+            render: (val) => <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />
         },
         {
             title: '单独可见',
             dataIndex: 'isVisibleIndividually',
             sorter: true,
             width: 120,
-            render: (val) => <Switch checked={val} disabled />,
+            align: 'center',
+            // render: (val) => <Switch checked={val} disabled />,
+            render: (val) => <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />
         },
         {
             title: '精品',
             dataIndex: 'isFeatured',
             sorter: true,
             width: 120,
-            render: (val) => <Switch checked={val} disabled />,
-        },
-        {
-            title: '允许订购',
-            dataIndex: 'isAllowToOrder',
-            sorter: true,
-            width: 120,
-            render: (val) => <Switch checked={val} disabled />,
+            align: 'center',
+            // render: (val) => <Switch checked={val} disabled />,
+            render: (val) => <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />
         },
         {
             title: '库存',
@@ -144,6 +164,23 @@ class ProductList extends PureComponent {
     ];
 
     componentDidMount() {
+        const { dispatch } = this.props;
+        new Promise(resolve => {
+            dispatch({
+                type: 'catalog/categories',
+                payload: {
+                    resolve,
+                },
+            });
+        }).then(res => {
+            this.setState({ categoryLoading: false });
+            if (res.success === true) {
+                this.setState({ categories: res.data });
+            } else {
+                notification.error({ message: res.message });
+            }
+        });
+
         this.handleSearchFirst();
     }
 
@@ -213,13 +250,31 @@ class ProductList extends PureComponent {
         });
     };
 
-    handleSearch = () => {
+    handleSearch = e => {
+        if (e) {
+            e.preventDefault();
+        }
+
+        const { form } = this.props;
+        let search = this.state.param;
+
+        form.validateFields((err, fieldsValue) => {
+            if (err) return;
+            search = {
+                ...fieldsValue,
+                // updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
+            };
+        });
+        console.log(form);
+
+        // return;
         this.setState({
             loading: true,
         });
         const { dispatch } = this.props;
         const params =
         {
+            search: search,
             pagination: {
                 current: this.state.pageNum,
                 pageSize: this.state.pageSize
@@ -239,9 +294,9 @@ class ProductList extends PureComponent {
                 },
             });
         }).then(res => {
+            this.setState({ loading: false });
             if (res.success === true) {
                 this.setState({
-                    loading: false,
                     pageData: res.data
                 });
             } else {
@@ -298,6 +353,145 @@ class ProductList extends PureComponent {
         });
     }
 
+    renderForm() {
+        const { form: { getFieldDecorator }, } = this.props;
+        return (
+            <Form onSubmit={this.handleSearch} layout="inline">
+                <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                    <Col md={8} sm={24}>
+                        <FormItem label="商品名称">
+                            {getFieldDecorator('name')(<Input placeholder="商品名称" />)}
+                        </FormItem>
+                    </Col>
+                    <Col md={8} sm={24}>
+                        <FormItem label="是否发布">
+                            {getFieldDecorator('isPublished')(
+                                <Select
+                                    allowClear
+                                    placeholder="是否发布">
+                                    <Option value={false}>否</Option>
+                                    <Option value={true}>是</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    </Col>
+                    <Col md={8} sm={24}>
+                        <FormItem label="有选项">
+                            {getFieldDecorator('hasOptions')(
+                                <Select
+                                    allowClear
+                                    placeholder="有选项">
+                                    <Option value={false}>否</Option>
+                                    <Option value={true}>是</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    </Col>
+                </Row>
+                {this.state.expandForm ? this.getAdvancedFields() : null}
+                <Row>
+                    <Col span={12} >
+                        <span className={styles.submitButtons}>
+                            <Button type="primary" htmlType="submit" icon="search">查询</Button>
+                            <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset} icon="undo">重置</Button>
+                            <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
+                                {this.state.expandForm ? '收起' : '展开'}
+                                <Icon type={this.state.expandForm ? 'up' : 'down'} />
+                            </a>
+                        </span>
+                    </Col>
+                    {/* <Col span={12} style={{ textAlign: 'right' }}>
+                        <span >
+                            <Button
+                                onClick={this.handleAdd}
+                                type="primary"
+                            // icon="plus"
+                            >添加</Button>
+                        </span>
+                    </Col> */}
+                </Row>
+
+            </Form>
+        );
+    }
+
+    getAdvancedFields() {
+        const { form: { getFieldDecorator }, } = this.props;
+        return (
+            <Fragment>
+                <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                    <Col md={8} sm={24}>
+                        <FormItem label="单独可见">
+                            {getFieldDecorator('isVisibleIndividually')(
+                                <Select
+                                    allowClear
+                                    placeholder="单独可见">
+                                    <Option value={false}>否</Option>
+                                    <Option value={true}>是</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    </Col>
+                    <Col md={8} sm={24}>
+                        <FormItem label="允许订购">
+                            {getFieldDecorator('isAllowToOrder')(
+                                <Select
+                                    allowClear
+                                    placeholder="允许订购">
+                                    <Option value={false}>否</Option>
+                                    <Option value={true}>是</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    </Col>
+                    <Col md={8} sm={24}>
+                        <FormItem label="SKU">
+                            {getFieldDecorator('sku')(<Input placeholder="SKU" />)}
+                        </FormItem>
+                    </Col>
+                </Row>
+                <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                    <Col md={16} sm={24}>
+                        <FormItem
+                            label={<span>产品分类</span>}>
+                            {getFieldDecorator('categoryIds')
+                                (<Select
+                                    mode="multiple"
+                                    placeholder="请选择产品分类"
+                                    allowClear={true}>
+                                    {
+                                        this.state.categories.map(c => {
+                                            return <Option value={c.id} key={c.id}>{c.name}</Option>;
+                                        })
+                                    }
+                                </Select>)}
+                        </FormItem>
+                    </Col>
+                    <Col md={8} sm={24}>
+                        <FormItem >
+                            {getFieldDecorator('includeSubCategories')(<Checkbox>自动搜索子类别</Checkbox>)}
+                        </FormItem>
+                    </Col>
+                </Row>
+            </Fragment>
+        );
+    }
+
+    handleFormReset = () => {
+        const { form, dispatch } = this.props;
+        form.resetFields();
+        this.setState({
+            formValues: {},
+        });
+    };
+
+    toggleForm = () => {
+        const { expandForm } = this.state;
+        this.setState({
+            expandForm: !expandForm,
+        });
+    };
+
     render() {
         const pagination = {
             showQuickJumper: true,
@@ -314,19 +508,25 @@ class ProductList extends PureComponent {
         };
         const action = (
             <Fragment>
-                <Button
-                    onClick={this.handleAdd}
+                <Button onClick={this.handleAdd}
                     type="primary"
                     icon="plus">新增</Button>
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="商品 - 列表">
+            <PageHeaderWrapper title="商品 - 列表" action={
+                <Button
+                    onClick={this.handleAdd}
+                    type="primary"
+                    icon="plus"
+                >添加</Button>
+            }>
                 <div>
                     <Card bordered={false}>
-                        <div style={{ marginBottom: '20px' }} >
+                        <div className={styles.tableListForm}>{this.renderForm()}</div>
+                        {/* <div style={{ marginBottom: '20px' }} >
                             {action}
-                        </div>
+                        </div> */}
                         <StandardTable
                             pagination={pagination}
                             loading={this.state.loading}
