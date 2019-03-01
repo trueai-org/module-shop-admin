@@ -455,11 +455,11 @@ class ProductList extends PureComponent {
                 <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
                     <Col md={16} sm={24}>
                         <FormItem
-                            label={<span>产品分类</span>}>
+                            label={<span>商品分类</span>}>
                             {getFieldDecorator('categoryIds')
                                 (<Select
                                     mode="multiple"
-                                    placeholder="请选择产品分类"
+                                    placeholder="请选择商品分类"
                                     allowClear={true}>
                                     {
                                         this.state.categories.map(c => {

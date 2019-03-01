@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input, Modal, Checkbox, Form, Button, } from 'antd';
+import { Input, Modal, Checkbox, Form, Button, Alert } from 'antd';
 
 const FormItem = Form.Item;
 
@@ -37,6 +37,8 @@ class CopyCommponent extends React.Component {
                         </Button>,
                     ]}
                 >
+                    <Alert style={{ marginBottom: 24 }}
+                        message="提示：不复制商品组合" type="info" showIcon />
                     {
                         <Form>
                             <FormItem
@@ -44,7 +46,7 @@ class CopyCommponent extends React.Component {
                                 label={<span>名称</span>}>
                                 {getFieldDecorator('name', {
                                     initialValue: this.props.current.name || '',
-                                    rules: [{ required: true, message: '请输入产品名称' }],
+                                    rules: [{ required: true, message: '请输入商品名称' }],
                                 })(
                                     <Input placeholder="名称" />)}
                             </FormItem>

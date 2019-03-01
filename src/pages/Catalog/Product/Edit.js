@@ -40,9 +40,9 @@ class ProductAdd extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            id: props.location.query.id, //产品id
-            current: {}, //产品数据
-            loading: false, //产品数据加载中
+            id: props.location.query.id, //商品id
+            current: {}, //商品数据
+            loading: false, //商品数据加载中
 
             submitting: false, //数据保存中
 
@@ -65,26 +65,26 @@ class ProductAdd extends PureComponent {
             templateLoading: false, //属性模板加载中
             templates: [],
             templateCurrent: undefined,
-            //应用产品属性模板
+            //应用商品属性模板
             applyLoading: false,
 
             attributeLoading: false, //属性加载中
             attributes: [],
             attributeCurrent: undefined,
 
-            //产品属性列表
+            //商品属性列表
             productAttributeLoading: false,
             productAttributeData: [],
             //属性值
             attributeData: [],
 
-            //产品选项列表
+            //商品选项列表
             productOptionDataLoading: false,
             productOptionData: [],
             //选项值
             optionData: [],
 
-            //产品规格列表
+            //商品规格列表
             productSkuLoading: false,
             productSku: [],
 
@@ -98,7 +98,7 @@ class ProductAdd extends PureComponent {
 
             optionSettingCurrent: {},
 
-            //辅助产品
+            //辅助商品
             visibleCopy: false,
             copyProduct: {},
             copySubmitting: false
@@ -605,7 +605,7 @@ class ProductAdd extends PureComponent {
                 }
             });
 
-            //产品属性
+            //商品属性
             params.attributes = [];
             if (this.state.productAttributeData) {
                 this.state.productAttributeData.forEach(x => {
@@ -616,7 +616,7 @@ class ProductAdd extends PureComponent {
                 });
             }
 
-            //产品选项
+            //商品选项
             params.options = [];
             this.state.productOptionData.forEach(c => {
                 if (c.values && c.values.length > 0) {
@@ -627,7 +627,7 @@ class ProductAdd extends PureComponent {
                 }
             });
 
-            //产品选项组合
+            //商品选项组合
             params.variations = [];
             if (this.state.productSku && this.state.productSku.length > 0) {
                 params.variations = this.state.productSku
@@ -822,7 +822,7 @@ class ProductAdd extends PureComponent {
                 productSku: [...this.state.productSku, variation]
             });
         } else {
-            notification.warning({ message: '产品组合已存在' });
+            notification.warning({ message: '商品组合已存在' });
             return;
         }
 
@@ -1402,7 +1402,7 @@ class ProductAdd extends PureComponent {
                                         label={<span>名称</span>}>
                                         {getFieldDecorator('name', {
                                             initialValue: this.state.current.name || '',
-                                            rules: [{ required: true, message: '请输入产品名称' }],
+                                            rules: [{ required: true, message: '请输入商品名称' }],
                                         })(
                                             <Input
                                                 onChange={(e) => {
@@ -1500,7 +1500,7 @@ class ProductAdd extends PureComponent {
                                         {...formItemLayout}
                                         label={<span>价格</span>}>
                                         {getFieldDecorator('price', {
-                                            rules: [{ required: true, message: '请输入产品价格' }],
+                                            rules: [{ required: true, message: '请输入商品价格' }],
                                             initialValue: this.state.current.price || 0
                                         })(
                                             <InputNumber
@@ -1554,7 +1554,7 @@ class ProductAdd extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>产品主图</span>}>
+                                        label={<span>商品主图</span>}>
                                         <Upload
                                             action={this.handleUploadMain}
                                             listType="picture-card"
@@ -1586,7 +1586,7 @@ class ProductAdd extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>产品图片</span>}>
+                                        label={<span>商品图片</span>}>
                                         <Upload action={this.handleUpload}
                                             listType="picture-card"
                                             fileList={this.state.fileList}
@@ -1646,7 +1646,7 @@ class ProductAdd extends PureComponent {
                                         }
                                     </FormItem>
                                 </TabPane>
-                                <TabPane tab="产品选项"
+                                <TabPane tab="商品选项"
                                     disabled={(this.state.current.parentGroupedProductId || 0) > 0}
                                     key="2">
                                     <FormItem
@@ -1667,7 +1667,7 @@ class ProductAdd extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>产品选项</span>}>
+                                        label={<span>商品选项</span>}>
                                         <Table bordered={false}
                                             rowKey={record => record.id}
                                             pagination={false}
@@ -1679,7 +1679,7 @@ class ProductAdd extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>产品组合</span>}>
+                                        label={<span>商品组合</span>}>
                                         <Table bordered={false}
                                             rowKey={(record, index) => `sku_${record.id}_i_${index}`} //{record => record.id}
                                             pagination={false}
@@ -1691,7 +1691,7 @@ class ProductAdd extends PureComponent {
                                         <Button onClick={this.handleAddOptionCombination}>添加组合</Button>
                                     </FormItem>
                                 </TabPane>
-                                <TabPane tab="产品属性" key="3">
+                                <TabPane tab="商品属性" key="3">
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>属性模板</span>}>
@@ -1731,7 +1731,7 @@ class ProductAdd extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>产品属性</span>}>
+                                        label={<span>商品属性</span>}>
                                         <Table bordered={false}
                                             rowKey={record => record.id}
                                             pagination={false}
@@ -1741,15 +1741,15 @@ class ProductAdd extends PureComponent {
                                         />
                                     </FormItem>
                                 </TabPane>
-                                <TabPane tab="产品类别" key="4">
+                                <TabPane tab="商品类别" key="4">
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>产品类别映射</span>}>
+                                        label={<span>商品类别映射</span>}>
                                         {getFieldDecorator('categoryIds',
                                             { initialValue: this.state.current.categoryIds || [], valuePropName: 'value' })
                                             (<Select
                                                 mode="multiple"
-                                                placeholder="请选择产品类别"
+                                                placeholder="请选择商品类别"
                                                 allowClear={true}>
                                                 {
                                                     this.state.categories.map(c => {
