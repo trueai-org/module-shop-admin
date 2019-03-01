@@ -1213,7 +1213,7 @@ class ProductAdd extends PureComponent {
         ];
 
         return (
-            <PageHeaderWrapper title="新增商品" action={rollback}>
+            <PageHeaderWrapper title="添加商品" action={rollback}>
                 <Spin spinning={this.state.loading}>
                     <Card bordered={false}>
                         <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>

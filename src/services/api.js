@@ -443,6 +443,13 @@ export async function unpublishProduct(params) {
   });
 }
 
+export async function copyProduct(params) {
+  return request(`/api/products/${params.id}/clone`, {
+    method: 'POST',
+    body: params
+  });
+}
+
 
 // 产品属性模板
 

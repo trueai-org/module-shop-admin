@@ -1,6 +1,6 @@
 import {
     queryProductFirst, queryProductGrid, addProduct, editProduct, deleteProduct,
-    publishProduct, unpublishProduct
+    publishProduct, unpublishProduct, copyProduct
 
 } from '@/services/api';
 
@@ -51,6 +51,11 @@ export default {
             !!resolve && resolve(response);
         },
 
+        *copy({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(copyProduct, params);
+            !!resolve && resolve(response);
+        },
     },
     reducers: {
     },

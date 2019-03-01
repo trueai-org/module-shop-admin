@@ -26,21 +26,13 @@ import BraftEditor from 'braft-editor';
 
 import styles from './Edit.less';
 
+import CopyCommponent from './CopyCommponent';
+
 const RangePicker = DatePicker.RangePicker;
 const FormItem = Form.Item;
 const { Option, OptGroup } = Select;
 const TabPane = Tabs.TabPane;
 const { TextArea } = Input;
-
-const rollback = (
-    <Fragment>
-        <Link to="./list">
-            <Button>
-                <Icon type="rollback" />
-            </Button>
-        </Link>
-    </Fragment>
-);
 
 @connect()
 @Form.create()
@@ -104,7 +96,12 @@ class ProductAdd extends PureComponent {
             visibleOptionAdd: false,
             addOptionCombination: [],
 
-            optionSettingCurrent: {}
+            optionSettingCurrent: {},
+
+            //辅助产品
+            visibleCopy: false,
+            copyProduct: {},
+            copySubmitting: false
         };
     }
 
@@ -661,6 +658,94 @@ class ProductAdd extends PureComponent {
                     });
                 }
             });
+        });
+    };
+
+    showCopyModal = () => {
+        this.setState({ visibleCopy: true });
+    }
+
+    handleCopyCancel = () => {
+        this.setState({ visibleCopy: false });
+    }
+
+    saveFormRef = (formRef) => {
+        this.formRef = formRef;
+    }
+
+    handleCopySubmit = () => {
+        const { dispatch } = this.props;
+        const form = this.formRef.props.form;
+        form.validateFields((err, values) => {
+            if (err) {
+                return;
+            }
+            var params = {
+                ...values,
+                id: this.state.id
+            };
+
+            if (this.state.copySubmitting === true)
+                return;
+            this.setState({ copySubmitting: true });
+            new Promise(resolve => {
+                dispatch({
+                    type: 'product/copy',
+                    payload: {
+                        resolve,
+                        params
+                    },
+                });
+            }).then(res => {
+                this.setState({ copySubmitting: false });
+                if (res.success === true) {
+                    form.resetFields();
+                    this.setState({ visibleCopy: false });
+
+                    router.push({
+                        pathname: './edit',
+                        query: {
+                            id: res.data,
+                        },
+                    });
+
+                    router.go(0);
+                } else {
+                    notification.error({ message: res.message, });
+                }
+            });
+        });
+    }
+
+    showDeleteModal = () => {
+        Modal.confirm({
+            title: '删除商品',
+            content: '确定删除该商品吗？',
+            okText: '确认',
+            cancelText: '取消',
+            onOk: () => this.deleteItem(this.state.id),
+        });
+    };
+
+    deleteItem = id => {
+        this.setState({ loading: true, });
+        const { dispatch } = this.props;
+        const params = { id };
+        new Promise(resolve => {
+            dispatch({
+                type: 'product/delete',
+                payload: {
+                    resolve,
+                    params,
+                },
+            });
+        }).then(res => {
+            this.setState({ loading: false, });
+            if (res.success === true) {
+                router.push('./list');
+            } else {
+                notification.error({ message: res.message });
+            }
         });
     };
 
@@ -1289,6 +1374,22 @@ class ProductAdd extends PureComponent {
             'remove-styles'
         ];
 
+        const rollback = (
+            <Fragment>
+                <Button type="primary" icon="copy" onClick={this.showCopyModal}>
+                    复制商品
+                </Button>
+                <Button type="danger" icon="delete" onClick={this.showDeleteModal}>
+                    删除
+                </Button>
+                <Link to="./list">
+                    <Button>
+                        <Icon type="rollback" />
+                    </Button>
+                </Link>
+            </Fragment>
+        );
+
         return (
             <PageHeaderWrapper title="编辑商品" action={rollback}>
                 <Spin spinning={this.state.loading}>
@@ -1741,6 +1842,14 @@ class ProductAdd extends PureComponent {
                             : null
                     }
                 </Modal>
+                <CopyCommponent
+                    visible={this.state.visibleCopy}
+                    current={this.state.current}
+                    wrappedComponentRef={this.saveFormRef}
+                    onCancel={this.handleCopyCancel}
+                    onOk={this.handleCopySubmit}
+                    copySubmitting={this.state.copySubmitting}
+                />
             </PageHeaderWrapper>
         );
     }
