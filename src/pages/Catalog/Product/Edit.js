@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
     Menu, Dropdown, Checkbox, Switch, Tabs, InputNumber, Upload, DatePicker,
-    Avatar, Spin, Radio
+    Avatar, Spin, Radio, Tooltip
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -1464,7 +1464,11 @@ class ProductAdd extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>规格</span>}>
+                                        label={<span>规格描述
+                                            <Tooltip placement="topLeft" title="规格是商品的非销售属性，例如：屏幕尺寸，USB端口数量。">
+                                                <Icon type="question-circle" theme="filled" />
+                                            </Tooltip>
+                                        </span>}>
                                         {getFieldDecorator('specification')(
                                             <BraftEditor
                                                 className={styles.myEditor}
@@ -1646,7 +1650,13 @@ class ProductAdd extends PureComponent {
                                         }
                                     </FormItem>
                                 </TabPane>
-                                <TabPane tab="商品选项"
+                                <TabPane
+                                    tab="商品选项"
+                                    // tab={<span>商品选项
+                                    //         <Tooltip placement="topLeft" title="销售属性，例如：尺码，颜色。">
+                                    //         <Icon type="question-circle" theme="filled" />
+                                    //     </Tooltip>
+                                    // </span>}
                                     disabled={(this.state.current.parentGroupedProductId || 0) > 0}
                                     key="2">
                                     <FormItem
@@ -1691,7 +1701,14 @@ class ProductAdd extends PureComponent {
                                         <Button onClick={this.handleAddOptionCombination}>添加组合</Button>
                                     </FormItem>
                                 </TabPane>
-                                <TabPane tab="商品属性" key="3">
+                                <TabPane
+                                    tab="商品属性"
+                                    // tab={<span>商品属性
+                                    // <Tooltip placement="topLeft" title="非销售属性，例如：材质，季节。">
+                                    //         <Icon type="question-circle" theme="filled" />
+                                    //     </Tooltip>
+                                    // </span>}
+                                    key="3">
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>属性模板</span>}>

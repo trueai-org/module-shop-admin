@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
     Menu, Dropdown, Checkbox, Switch, Tabs, InputNumber, Upload, DatePicker,
-    Avatar, Spin, Radio
+    Avatar, Spin, Radio, Tooltip
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -1286,7 +1286,11 @@ class ProductAdd extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>规格</span>}>
+                                        label={<span>规格描述
+                                            <Tooltip placement="topLeft" title="规格是商品的非销售属性，例如：屏幕尺寸，USB端口数量。">
+                                                <Icon type="question-circle" theme="filled" />
+                                            </Tooltip>
+                                        </span>}>
                                         {getFieldDecorator('specification')(
                                             <BraftEditor
                                                 className={styles.myEditor}
