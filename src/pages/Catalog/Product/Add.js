@@ -1029,7 +1029,7 @@ class ProductAdd extends PureComponent {
                 },
             });
         }).then(res => {
-            this.setState({ optionLoading: false });
+            this.setState({ templateLoading: false });
             if (res.success === true) {
                 this.setState({ templates: res.data });
             } else {
@@ -1045,7 +1045,7 @@ class ProductAdd extends PureComponent {
                 },
             });
         }).then(res => {
-            this.setState({ optionLoading: false });
+            this.setState({ attributeLoading: false });
             if (res.success === true) {
                 this.setState({ attributes: res.data });
             } else {

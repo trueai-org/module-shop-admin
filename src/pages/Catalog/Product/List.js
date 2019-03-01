@@ -87,7 +87,6 @@ class ProductList extends PureComponent {
             //         {record.isFeatured ? <Tag color="red">精品</Tag> : null}
             //     </Fragment>
             // )
-            // width: 260,
         },
         {
             title: '价格/￥',
@@ -101,9 +100,7 @@ class ProductList extends PureComponent {
             sorter: true,
             width: 120,
             align: 'center',
-            // render: (val) => <Switch checked={val} disabled />
-            render: (val) => <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />
-            // render: (val) => <Icon type={val == true ? "check-square" : "close-square"} />
+            render: (val) => this.boolFormat(val)
         },
         {
             title: '允许订购',
@@ -111,8 +108,7 @@ class ProductList extends PureComponent {
             sorter: true,
             width: 120,
             align: 'center',
-            // render: (val) => <Switch checked={val} disabled />,
-            render: (val) => <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />
+            render: (val) => this.boolFormat(val)
         },
         {
             title: '有选项',
@@ -120,8 +116,7 @@ class ProductList extends PureComponent {
             sorter: true,
             width: 120,
             align: 'center',
-            // render: (val) => <Switch checked={val} disabled />,
-            render: (val) => <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />
+            render: (val) => this.boolFormat(val)
         },
         {
             title: '单独可见',
@@ -129,8 +124,7 @@ class ProductList extends PureComponent {
             sorter: true,
             width: 120,
             align: 'center',
-            // render: (val) => <Switch checked={val} disabled />,
-            render: (val) => <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />
+            render: (val) => this.boolFormat(val)
         },
         {
             title: '精品',
@@ -138,8 +132,7 @@ class ProductList extends PureComponent {
             sorter: true,
             width: 120,
             align: 'center',
-            // render: (val) => <Switch checked={val} disabled />,
-            render: (val) => <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />
+            render: (val) => this.boolFormat(val)
         },
         {
             title: '库存',
@@ -162,6 +155,12 @@ class ProductList extends PureComponent {
             render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
         }
     ];
+
+
+    boolFormat(val) {
+        //(val) => <Switch checked={val} disabled />,
+        return <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />;
+    }
 
     componentDidMount() {
         const { dispatch } = this.props;
