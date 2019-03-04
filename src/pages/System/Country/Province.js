@@ -2,167 +2,165 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown, Tooltip
+    Menu, Dropdown, Checkbox, Switch, Badge, Tooltip
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
-
 import router from 'umi/router';
 import Link from 'umi/link';
+import { SketchPicker } from 'react-color'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
+const rollback = (
+    <Fragment>
+        <Link to="./list">
+            <Button>
+                <Icon type="rollback" />
+            </Button>
+        </Link>
+    </Fragment>
+);
 
 @connect()
 @Form.create()
-class CountryList extends PureComponent {
-    state = {
-        loading: false,
-        visible: false,
-        data: [],
-        current: {},
-        submitting: false,
-        selectLoading: false,
-        children: [],
+class ProvinceList extends PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {
+            loading: false,
+            visible: false,
+            data: [],
+            current: {},
+            submitting: false,
+            selectLoading: false,
+            children: [],
 
-        pageNum: 1,
-        pageSize: 5,
-        predicate: 'id',
-        reverse: true,
-        pageData: {
-            list: [],
-            pagination: {}
-        },
-    };
+            pageNum: 1,
+            pageSize: 5,
+            predicate: 'id',
+            reverse: true,
+            pageData: {
+                list: [],
+                pagination: {}
+            },
+
+            option: {},
+            countryId: props.location.query.id,
+
+            displayColorPicker: false,
+            color: '',
+        };
+    }
+
     columns = [
         {
             title: '操作',
             align: 'center',
             key: 'operation',
-            width: 130,
+            width: 150,
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
-                        <Tooltip title="省市区">
-                            <Button icon="eye" size="small" onClick={() => this.handleData(text, record)}></Button>
-                        </Tooltip>
-                        <Button icon="edit" size="small" onClick={() => this.handleEdit(record.id)}></Button>
+                        <Button size="small" onClick={() => this.showEditModal(record)}>编辑</Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
-                            <Button icon="delete" type="danger" size="small"></Button>
+                            <Button type="danger" size="small">删除</Button>
+                            {/* <a href="javascript:;">删除</a> */}
                         </Popconfirm>
+                        {/* <Button size="small" onClick={() => this.deleteItem(record.id)}>删除</Button> */}
                     </Button.Group>
-                    {/* <Dropdown.Button size="small" overlay={
-                        <Menu>
-                            <Menu.Item onClick={() => this.handleEdit(record.id)}>编辑</Menu.Item>
-                            <Menu.Item onClick={() => this.showDeleteModal(record)}>删除</Menu.Item>
-                        </Menu>}>
-                        <a onClick={() => this.handleData(text, record)}>省市区</a>
-                    </Dropdown.Button> */}
                 </Fragment>
             )
         },
         {
             title: 'ID',
             dataIndex: 'id',
-            width: 100,
+            width: 120,
             sorter: true,
             defaultSortOrder: 'descend',
         },
         {
-            title: '名称',
-            dataIndex: 'name',
+            title: '值',
+            dataIndex: 'value',
             sorter: true,
         },
         {
-            title: 'ISO',
-            dataIndex: 'twoLetterIsoCode',
+            title: '显示',
+            dataIndex: 'display',
+            sorter: true,
             width: 120,
-            sorter: true,
-            render: (text, record) => (
-                <Fragment>
-                    <span>{text}, </span>
-                    <span>{record.threeLetterIsoCode}, </span>
-                    <span>{record.numericIsoCode}</span>
-                </Fragment>
-            )
+            render: (text, record) => {
+                if (record.optionDisplayType == 1 && text) {
+                    return <Fragment>
+                        <Tooltip placement="topLeft" title={text}>
+                            <Tag style={{ backgroundColor: (record.optionDisplayType == 1 ? text : '') }}>
+                                {text}
+                            </Tag>
+                        </Tooltip>
+                    </Fragment>;
+                }
+                return text;
+            }
+
         },
         {
-            title: '已发布',
+            title: '描述',
+            dataIndex: 'description',
+            sorter: true,
+        },
+        {
+            title: '是否发布',
             dataIndex: 'isPublished',
-            width: 110,
             sorter: true,
-            render: (val) => this.boolFormat(val)
-        },
-        {
-            title: '省数量',
-            dataIndex: 'stateOrProvinceCount',
-            width: 110,
-            // sorter: true,
-        },
-        {
-            title: '显示顺序',
-            dataIndex: 'displayOrder',
-            width: 110,
-            sorter: true,
-        },
-        {
-            title: '允许账单',
-            dataIndex: 'isBillingEnabled',
-            width: 110,
-            sorter: true,
-            render: (val) => this.boolFormat(val)
-        },
-        {
-            title: '允许配送',
-            dataIndex: 'isShippingEnabled',
-            width: 110,
-            sorter: true,
-            render: (val) => this.boolFormat(val)
-        },
-        {
-            title: '启用市',
-            dataIndex: 'isCityEnabled',
-            width: 110,
-            sorter: true,
-            render: (val) => this.boolFormat(val)
-        },
-        {
-            title: '启用区',
-            dataIndex: 'isDistrictEnabled',
-            width: 110,
-            sorter: true,
-            render: (val) => this.boolFormat(val)
-        },
+            width: 120,
+            render: (val) => <Switch checked={val} disabled />
+        }
     ];
 
-    boolFormat(val) {
-        //(val) => <Switch checked={val} disabled />,
-        return <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />;
-    }
-
     componentDidMount() {
-        // this.handleInit();
+        // const { dispatch } = this.props;
+        // this.setState({ loading: true });
+        // new Promise(resolve => {
+        //     dispatch({
+        //         type: 'province/grid',
+        //         payload: {
+        //             resolve,
+        //             params: { countryId: this.state.countryId },
+        //         },
+        //     });
+        // }).then(res => {
+        //     this.setState({ loading: false });
+        //     if (res.success === true) {
+        //         this.setState({ option: res.data });
+        //     } else {
+        //         notification.error({ message: res.message, });
+        //     }
+        // });
+
         this.handleSearchFirst();
     }
 
-    handleAdd = () => {
-        router.push('./add');
-    }
+    handleClick = () => {
+        this.setState({ displayColorPicker: !this.state.displayColorPicker })
+    };
 
-    handleEdit = (id) => {
-        router.push({
-            pathname: './edit',
-            query: {
-                id: id,
-            },
-        });
-    }
+    handleClose = () => {
+        this.setState({ displayColorPicker: false })
+    };
+
+    handleChange = (color) => {
+        this.setState({
+            color: color.hex
+        })
+    };
 
     showModal = () => {
         this.setState({
             visible: true,
             current: {},
+            color: '',
+            displayColorPicker: false
         });
     };
 
@@ -170,23 +168,17 @@ class CountryList extends PureComponent {
         this.setState({
             visible: true,
             current: item,
+            color: item.display,
+            displayColorPicker: false
         });
     };
 
     handleCancel = () => {
         this.setState({
             visible: false,
+            displayColorPicker: false
         });
     };
-
-    handleData = (text, record) => {
-        router.push({
-            pathname: './province',
-            query: {
-                id: record.id,
-            },
-        });
-    }
 
     handleSubmit = e => {
         e.preventDefault();
@@ -197,13 +189,14 @@ class CountryList extends PureComponent {
             if (err) return;
 
             var params = {
-                ...values
+                ...values,
+                optionId: this.state.optionId
             };
 
-            let bt = 'attribute/addProductAttr';
+            let bt = 'option/addProductOptionData';
             if (id) {
                 params.id = id;
-                bt = 'attribute/editProductAttr';
+                bt = 'option/editProductOptionData';
             }
 
             // console.log(params);
@@ -223,8 +216,7 @@ class CountryList extends PureComponent {
                 this.setState({ submitting: false });
                 if (res.success === true) {
                     form.resetFields();
-                    this.setState({ visible: false });
-                    // this.handleInit();
+                    this.setState({ visible: false, displayColorPicker: false });
                     this.handleSearch();
                 } else {
                     notification.error({
@@ -243,7 +235,7 @@ class CountryList extends PureComponent {
         const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'country/delete',
+                type: 'option/deleteProductOptionData',
                 payload: {
                     resolve,
                     params,
@@ -265,65 +257,11 @@ class CountryList extends PureComponent {
 
     showDeleteModal = (item) => {
         Modal.confirm({
-            title: '删除国家',
-            content: '确定删除该国家吗？',
+            title: '删除选项值',
+            content: '确定删除该选项值吗？',
             okText: '确认',
             cancelText: '取消',
             onOk: () => this.deleteItem(item.id),
-        });
-    };
-
-    handleInit = () => {
-        const { dispatch } = this.props;
-        // this.setState({ loading: true });
-        // new Promise(resolve => {
-        //     dispatch({
-        //         type: 'attr/queryProductAttr',
-        //         payload: { resolve }
-        //     });
-        // }).then(res => {
-        //     this.setState({ loading: false });
-        //     if (res.success === true) {
-        //         if (res.data != null) {
-        //             this.setState({
-        //                 data: res.data
-        //             });
-        //         }
-        //     } else {
-        //         notification.error({
-        //             message: res.message,
-        //         });
-        //     }
-        // });
-
-        this.setState({
-            selectLoading: true
-        });
-
-        new Promise(resolve => {
-            dispatch({
-                type: 'group/queryProductAGS',
-                payload: {
-                    resolve,
-                },
-            });
-        }).then(res => {
-            if (res.success === true) {
-                this.setState({
-                    selectLoading: false,
-                });
-                let cs = [];
-                let list = [];
-                list = res.data;
-                list.forEach(c => {
-                    cs.push(<Option value={c.id} key={c.id}>{c.name}</Option>);
-                });
-                this.setState({ children: cs });
-            } else {
-                notification.error({
-                    message: res.message,
-                });
-            }
         });
     };
 
@@ -341,12 +279,13 @@ class CountryList extends PureComponent {
             sort: {
                 predicate: this.state.predicate,
                 reverse: this.state.reverse
-            }
+            },
+            countryId: this.state.countryId
         };
 
         new Promise(resolve => {
             dispatch({
-                type: 'country/grid',
+                type: 'province/grid',
                 payload: {
                     resolve,
                     params,
@@ -355,11 +294,9 @@ class CountryList extends PureComponent {
         }).then(res => {
             this.setState({ loading: false });
             if (res.success === true) {
-                this.setState({
-                    pageData: res.data
-                });
+                this.setState({ pageData: res.data });
             } else {
-                notification.error({ message: res.message, });
+                notification.error({ message: res.message });
             }
         });
     };
@@ -403,7 +340,7 @@ class CountryList extends PureComponent {
         const extraContent = (
             <div>
                 <Button
-                    onClick={this.handleAdd}
+                    onClick={this.showModal}
                     type="primary"
                     icon="plus">
                     新增</Button>
@@ -429,20 +366,38 @@ class CountryList extends PureComponent {
         const getModalContent = () => {
             return (
                 <Form onSubmit={this.handleSubmit}>
-                    <FormItem label="名称" {...formLayout}>
-                        {getFieldDecorator('name', {
-                            rules: [{ required: true, message: '请输入属性名称' }],
-                            initialValue: this.state.current.name || '',
+                    <FormItem label="选项值" {...formLayout}>
+                        {getFieldDecorator('value', {
+                            rules: [{ required: true, message: '请输入选项值' }],
+                            initialValue: this.state.current.value || '',
                         })(<Input placeholder="请输入" />)}
                     </FormItem>
-                    <FormItem label={<span>组</span>} {...formLayout}>
-                        {getFieldDecorator('groupId', {
-                            rules: [{ required: true, message: '请选择属性组' }],
-                            initialValue: this.state.current.groupId || '', valuePropName: 'value'
-                        })(
-                            <Select loading={this.state.selectLoading} allowClear={true}>
-                                {this.state.children}
-                            </Select>)}
+                    <FormItem label="显示" {...formLayout}>
+                        {getFieldDecorator('display', {
+                            initialValue: (this.state.option.displayType == 1) ? this.state.color || ''
+                                : this.state.current.display || '',
+                        })(<Input onClick={this.handleClick}
+                            style={{
+                                backgroundColor: this.state.color || ''
+                            }}
+                        />
+                        )}
+                        {
+                            (this.state.option.displayType == 1 && this.state.displayColorPicker) ? <div>
+                                <div onClick={this.handleClose} />
+                                <SketchPicker color={this.state.color} onChange={this.handleChange} />
+                            </div> : null
+                        }
+                    </FormItem>
+                    <FormItem label="描述" {...formLayout}>
+                        {getFieldDecorator('description', {
+                            initialValue: this.state.current.description || '',
+                        })(<Input placeholder="请输入" />)}
+                    </FormItem>
+                    <FormItem label="发布" {...formLayout}>
+                        {getFieldDecorator('isPublished', {
+                            initialValue: this.state.current.isPublished || false, valuePropName: 'checked'
+                        })(<Checkbox />)}
                     </FormItem>
                 </Form>
             );
@@ -450,13 +405,13 @@ class CountryList extends PureComponent {
         const action = (
             <Fragment>
                 <Button
-                    onClick={this.handleAdd}
+                    onClick={this.showModal}
                     type="primary"
                     icon="plus">新增</Button>
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="国家 - 列表">
+            <PageHeaderWrapper title="省市区" action={rollback}>
                 <div>
                     <Card bordered={false}
                     // extra={extraContent}
@@ -472,7 +427,7 @@ class CountryList extends PureComponent {
                             columns={this.columns}
                             bordered
                             onChange={this.handleStandardTableChange}
-                            scroll={{ x: 1300 }}
+                        // scroll={{ x: 800 }}
                         />
                         {/* <Table bordered
                             rowKey={record => record.id}
@@ -484,7 +439,7 @@ class CountryList extends PureComponent {
                     </Card>
                 </div>
                 <Modal
-                    title={`商品属性 - ${this.state.current.id ? '编辑' : '新增'}`}
+                    title={`选项值 - ${this.state.current.id ? '编辑' : '新增'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>
@@ -495,4 +450,4 @@ class CountryList extends PureComponent {
     }
 }
 
-export default CountryList;
+export default ProvinceList;

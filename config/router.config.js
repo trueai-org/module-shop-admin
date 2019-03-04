@@ -408,6 +408,11 @@ export default [
                 name: 'edit',
                 component: './System/Country/Edit'
               },
+              {
+                path: '/system/country/province',
+                name: 'province',
+                component: './System/Country/Province'
+              },
             ]
           },
         ],

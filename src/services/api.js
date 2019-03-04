@@ -526,3 +526,36 @@ export async function deleteCountry(params) {
     method: 'DELETE'
   });
 }
+
+// 省市区
+
+export async function firstProvince(params) {
+  return request(`/api/countries/provinces/${params.id}`);
+}
+
+export async function queryProvinceGrid(params) {
+  return request(`/api/countries/provinces/grid/${params.countryId}`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function addProvince(params) {
+  return request(`/api/countries/provinces/${params.countryId}`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editProvince(params) {
+  return request(`/api/countries/provinces/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function deleteProvince(params) {
+  return request(`/api/countries/provinces/${params.id}`, {
+    method: 'DELETE'
+  });
+}

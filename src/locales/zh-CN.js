@@ -313,4 +313,5 @@ export default {
   'menu.system.country.list': '列表',
   'menu.system.country.add': '新增',
   'menu.system.country.edit': '编辑',
+  'menu.system.country.province': '省市区',
 };
