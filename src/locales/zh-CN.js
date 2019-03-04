@@ -306,4 +306,9 @@ export default {
   'menu.catalog.product-attribute.list': '列表',
   'menu.catalog.product-attribute.data': '属性值',
   'menu.catalog.product-attribute-template': '商品属性模板',
+
+
+  'menu.system': '系统',
+  'menu.system.country': '国家',
+  'menu.system.country.list': '列表',
 };

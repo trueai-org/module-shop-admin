@@ -1,4 +1,4 @@
-import { uploadImage } from '@/services/api';
+import { uploadImage,uploadMultipleImage } from '@/services/api';
 
 export default {
     namespace: 'upload',
@@ -25,6 +25,12 @@ export default {
             // !!resolve && resolve(response);
             // console.log(response);
             // return response;
+        },
+
+        *uploadMultipleImage({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(uploadMultipleImage, params);
+            !!resolve && resolve(response);
         },
 
         *uploadImage({ payload }, { call, put }) {

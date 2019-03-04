@@ -377,6 +377,33 @@ export default [
         ],
       },
 
+
+      // 系统
+      {
+        name: 'system',
+        icon: 'table',
+        path: '/system',
+        routes: [
+          {
+            path: '/system/country',
+            name: 'country',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/system/country',
+                redirect: '/system/country/list',
+              },
+              {
+                path: '/system/country/list',
+                name: 'list',
+                component: './System/Country/List'
+              },
+
+            ]
+          },
+        ],
+      },
+
       // 所有页面配置要放到404之前，否则会报404
       {
         component: '404',

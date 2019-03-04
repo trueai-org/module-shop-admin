@@ -231,6 +231,13 @@ export async function uploadImage(params) {
   });
 }
 
+export async function uploadMultipleImage(params) {
+  return requestUpload(`/api/upload/multiple`, {
+    method: 'POST',
+    body: params
+  });
+}
+
 // 产品选项
 export async function firstProductOption(params) {
   return request(`/api/product-options/${params.id}`);
@@ -485,5 +492,37 @@ export async function editProductAttributeTemplate(params) {
   return request(`/api/product-attribute-templates/${params.id}`, {
     method: 'PUT',
     body: params
+  });
+}
+
+//国家、省市区、、、
+export async function firstCountry(params) {
+  return request(`/api/countries/${params.id}`);
+}
+
+export async function queryCountryGrid(params) {
+  return request(`/api/countries/grid`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function addCountry(params) {
+  return request(`/api/countries`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editCountry(params) {
+  return request(`/api/countries/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function deleteCountry(params) {
+  return request(`/api/countries/${params.id}`, {
+    method: 'DELETE'
   });
 }
