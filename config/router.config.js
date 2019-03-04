@@ -398,7 +398,16 @@ export default [
                 name: 'list',
                 component: './System/Country/List'
               },
-
+              {
+                path: '/system/country/add',
+                name: 'add',
+                component: './System/Country/Add'
+              },
+              {
+                path: '/system/country/edit',
+                name: 'edit',
+                component: './System/Country/Edit'
+              },
             ]
           },
         ],

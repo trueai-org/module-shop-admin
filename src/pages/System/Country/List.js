@@ -44,7 +44,7 @@ class CountryList extends PureComponent {
             render: (text, record) => (
                 <Fragment>
                     <Dropdown.Button size="small" overlay={<Menu>
-                        <Menu.Item onClick={() => this.showEditModal(record)}>编辑</Menu.Item>
+                        <Menu.Item onClick={() => this.handleEdit(record.id)}>编辑</Menu.Item>
                         <Menu.Item onClick={() => this.showDeleteModal(record)}>删除</Menu.Item>
                         {/* <Menu.Item>
                             <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
@@ -52,18 +52,8 @@ class CountryList extends PureComponent {
                             </Popconfirm>
                         </Menu.Item> */}
                     </Menu>}>
-                        <a onClick={() => this.handleData(text, record)}>省市区..</a>
+                        <a onClick={() => this.handleData(text, record)}>省市区</a>
                     </Dropdown.Button>
-                    {/* <Button type="primary" size="small" onClick={() => this.showEditModal(record)}>编辑</Button> */}
-                    {/* <Tag color="blue"><a onClick={() => this.showEditModal(record)}>编辑</a></Tag> */}
-                    {/* <Divider type="vertical" /> */}
-                    {/* <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
-                        <Button type="danger" size="small">删除</Button>
-                        <Tag color="red"><a href="javascript:;">删除</a></Tag>
-                    </Popconfirm> */}
-                    {/* <Divider type="vertical" /> */}
-                    {/* <Button size="small" onClick={() => this.showEditModal(record)}>数据</Button> */}
-                    {/* <Tag color="green"><a onClick={() => this.showEditModal(record)}>数据</a></Tag> */}
                 </Fragment>
             )
         },
@@ -100,10 +90,10 @@ class CountryList extends PureComponent {
             render: (val) => this.boolFormat(val)
         },
         {
-            title: '省/州总数',
+            title: '省数量',
             dataIndex: 'stateOrProvinceCount',
             width: 110,
-            sorter: true,
+            // sorter: true,
         },
         {
             title: '显示顺序',
@@ -126,14 +116,14 @@ class CountryList extends PureComponent {
             render: (val) => this.boolFormat(val)
         },
         {
-            title: '启用城市',
+            title: '启用市',
             dataIndex: 'isCityEnabled',
             width: 110,
             sorter: true,
             render: (val) => this.boolFormat(val)
         },
         {
-            title: '启用地区',
+            title: '启用区',
             dataIndex: 'isDistrictEnabled',
             width: 110,
             sorter: true,
@@ -149,6 +139,19 @@ class CountryList extends PureComponent {
     componentDidMount() {
         // this.handleInit();
         this.handleSearchFirst();
+    }
+
+    handleAdd = () => {
+        router.push('./add');
+    }
+
+    handleEdit = (id) => {
+        router.push({
+            pathname: './edit',
+            query: {
+                id: id,
+            },
+        });
     }
 
     showModal = () => {
@@ -235,7 +238,7 @@ class CountryList extends PureComponent {
         const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'attribute/deleteProductAttr',
+                type: 'country/delete',
                 payload: {
                     resolve,
                     params,
@@ -246,7 +249,6 @@ class CountryList extends PureComponent {
                 loading: false,
             });
             if (res.success === true) {
-                // this.handleInit();
                 this.handleSearch();
             } else {
                 notification.error({
@@ -258,8 +260,8 @@ class CountryList extends PureComponent {
 
     showDeleteModal = (item) => {
         Modal.confirm({
-            title: '删除属性',
-            content: '确定删除该属性吗？',
+            title: '删除国家',
+            content: '确定删除该国家吗？',
             okText: '确认',
             cancelText: '取消',
             onOk: () => this.deleteItem(item.id),
@@ -346,7 +348,6 @@ class CountryList extends PureComponent {
                 },
             });
         }).then(res => {
-            console.log(res);
             this.setState({ loading: false });
             if (res.success === true) {
                 this.setState({
@@ -397,7 +398,7 @@ class CountryList extends PureComponent {
         const extraContent = (
             <div>
                 <Button
-                    onClick={this.showModal}
+                    onClick={this.handleAdd}
                     type="primary"
                     icon="plus">
                     新增</Button>
@@ -444,7 +445,7 @@ class CountryList extends PureComponent {
         const action = (
             <Fragment>
                 <Button
-                    onClick={this.showModal}
+                    onClick={this.handleAdd}
                     type="primary"
                     icon="plus">新增</Button>
             </Fragment>

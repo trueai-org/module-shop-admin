@@ -311,4 +311,6 @@ export default {
   'menu.system': '系统',
   'menu.system.country': '国家',
   'menu.system.country.list': '列表',
+  'menu.system.country.add': '新增',
+  'menu.system.country.edit': '编辑',
 };
