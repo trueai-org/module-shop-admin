@@ -563,3 +563,35 @@ export async function deleteProvince(params) {
     method: 'DELETE'
   });
 }
+
+//用户
+export async function firstUser(params) {
+  return request(`/api/users/${params.id}`);
+}
+
+export async function queryUserGrid(params) {
+  return request(`/api/users/grid`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function addUser(params) {
+  return request(`/api/users`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editUser(params) {
+  return request(`/api/users/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function deleteUser(params) {
+  return request(`/api/users/${params.id}`, {
+    method: 'DELETE'
+  });
+}

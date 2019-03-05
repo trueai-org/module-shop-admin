@@ -415,6 +415,24 @@ export default [
               },
             ]
           },
+
+          //用户
+          {
+            path: '/system/user',
+            name: 'user',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/system/user',
+                redirect: '/system/user/list',
+              },
+              {
+                path: '/system/user/list',
+                name: 'list',
+                component: './System/User/List'
+              }
+            ]
+          },
         ],
       },
 

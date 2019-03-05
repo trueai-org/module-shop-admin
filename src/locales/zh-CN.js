@@ -314,4 +314,6 @@ export default {
   'menu.system.country.add': '新增',
   'menu.system.country.edit': '编辑',
   'menu.system.country.province': '省市区',
+  'menu.system.user': '用户',
+  'menu.system.user.list': '列表',
 };

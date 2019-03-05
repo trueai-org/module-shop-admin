@@ -2,6 +2,7 @@ import moment from 'moment';
 import React from 'react';
 import nzh from 'nzh/cn';
 import { parse, stringify } from 'qs';
+import { Icon } from 'antd';
 
 export function fixedZero(val) {
   return val * 1 < 10 ? `0${val}` : val;
@@ -181,4 +182,13 @@ export function formatWan(val) {
 // 给官方演示站点用，用于关闭真实开发环境不需要使用的特性
 export function isAntdPro() {
   return window.location.hostname === 'preview.pro.ant.design';
+}
+
+export function formatBool(val) {
+  //(val) => <Switch checked={val} disabled />,
+  let isTrue = false;
+  if (val) {
+    isTrue = val;
+  }
+  return <Icon style={{ color: isTrue === true ? "#1890ff" : "#f5222d" }} type={isTrue === true ? "check" : "close"} />;
 }
