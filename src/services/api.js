@@ -533,6 +533,10 @@ export async function firstProvince(params) {
   return request(`/api/countries/provinces/${params.id}`);
 }
 
+export async function queryProvinceTree(params) {
+  return request(`/api/countries/provinces/tree/${params.countryId}`);
+}
+
 export async function queryProvinceGrid(params) {
   return request(`/api/countries/provinces/grid/${params.countryId}`, {
     method: 'POST',

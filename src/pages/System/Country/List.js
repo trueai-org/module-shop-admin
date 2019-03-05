@@ -273,60 +273,6 @@ class CountryList extends PureComponent {
         });
     };
 
-    handleInit = () => {
-        const { dispatch } = this.props;
-        // this.setState({ loading: true });
-        // new Promise(resolve => {
-        //     dispatch({
-        //         type: 'attr/queryProductAttr',
-        //         payload: { resolve }
-        //     });
-        // }).then(res => {
-        //     this.setState({ loading: false });
-        //     if (res.success === true) {
-        //         if (res.data != null) {
-        //             this.setState({
-        //                 data: res.data
-        //             });
-        //         }
-        //     } else {
-        //         notification.error({
-        //             message: res.message,
-        //         });
-        //     }
-        // });
-
-        this.setState({
-            selectLoading: true
-        });
-
-        new Promise(resolve => {
-            dispatch({
-                type: 'group/queryProductAGS',
-                payload: {
-                    resolve,
-                },
-            });
-        }).then(res => {
-            if (res.success === true) {
-                this.setState({
-                    selectLoading: false,
-                });
-                let cs = [];
-                let list = [];
-                list = res.data;
-                list.forEach(c => {
-                    cs.push(<Option value={c.id} key={c.id}>{c.name}</Option>);
-                });
-                this.setState({ children: cs });
-            } else {
-                notification.error({
-                    message: res.message,
-                });
-            }
-        });
-    };
-
     handleSearch = () => {
         this.setState({
             loading: true,
@@ -399,20 +345,6 @@ class CountryList extends PureComponent {
 
     render() {
         const { form: { getFieldDecorator }, } = this.props;
-        const modalFooter = { okText: '保存', onOk: this.handleSubmit, onCancel: this.handleCancel };
-        const extraContent = (
-            <div>
-                <Button
-                    onClick={this.handleAdd}
-                    type="primary"
-                    icon="plus">
-                    新增</Button>
-            </div>
-        );
-        const formLayout = {
-            labelCol: { span: 7 },
-            wrapperCol: { span: 13 },
-        };
         const pagination = {
             showQuickJumper: true,
             showSizeChanger: true,
@@ -426,44 +358,19 @@ class CountryList extends PureComponent {
                 return `${range[0]}-${range[1]} 条 , 共 ${total} 条`;
             }
         };
-        const getModalContent = () => {
-            return (
-                <Form onSubmit={this.handleSubmit}>
-                    <FormItem label="名称" {...formLayout}>
-                        {getFieldDecorator('name', {
-                            rules: [{ required: true, message: '请输入属性名称' }],
-                            initialValue: this.state.current.name || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                    <FormItem label={<span>组</span>} {...formLayout}>
-                        {getFieldDecorator('groupId', {
-                            rules: [{ required: true, message: '请选择属性组' }],
-                            initialValue: this.state.current.groupId || '', valuePropName: 'value'
-                        })(
-                            <Select loading={this.state.selectLoading} allowClear={true}>
-                                {this.state.children}
-                            </Select>)}
-                    </FormItem>
-                </Form>
-            );
-        };
         const action = (
             <Fragment>
                 <Button
                     onClick={this.handleAdd}
                     type="primary"
-                    icon="plus">新增</Button>
+                    icon="plus">添加</Button>
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="国家 - 列表">
+            <PageHeaderWrapper title="国家 - 列表" action={action}>
                 <div>
-                    <Card bordered={false}
-                    // extra={extraContent}
-                    >
-                        <div style={{ marginBottom: '20px' }} >
-                            {action}
-                        </div>
+                    <Card bordered={false}>
+
                         <StandardTable
                             pagination={pagination}
                             loading={this.state.loading}
@@ -474,22 +381,8 @@ class CountryList extends PureComponent {
                             onChange={this.handleStandardTableChange}
                             scroll={{ x: 1300 }}
                         />
-                        {/* <Table bordered
-                            rowKey={record => record.id}
-                            pagination={false}
-                            loading={this.state.loading}
-                            dataSource={this.state.data}
-                            columns={this.columns}
-                        /> */}
                     </Card>
                 </div>
-                <Modal
-                    title={`商品属性 - ${this.state.current.id ? '编辑' : '新增'}`}
-                    destroyOnClose
-                    visible={this.state.visible}
-                    {...modalFooter}>
-                    {getModalContent()}
-                </Modal>
             </PageHeaderWrapper>
         );
     }

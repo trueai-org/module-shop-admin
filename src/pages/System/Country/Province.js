@@ -1,27 +1,17 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
-    List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Menu, Dropdown, Checkbox, Switch, Badge, Tooltip
+    Row, Col, List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
+    Menu, Dropdown, Checkbox, Switch, Badge, Tooltip, InputNumber, TreeSelect
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
 import router from 'umi/router';
 import Link from 'umi/link';
-import { SketchPicker } from 'react-color'
 
 const FormItem = Form.Item;
-const Option = Select.Option;
-const rollback = (
-    <Fragment>
-        <Link to="./list">
-            <Button>
-                <Icon type="rollback" />
-            </Button>
-        </Link>
-    </Fragment>
-);
+const level = ['省', '市', '区', '街道'];
 
 @connect()
 @Form.create()
@@ -34,11 +24,11 @@ class ProvinceList extends PureComponent {
             data: [],
             current: {},
             submitting: false,
-            selectLoading: false,
-            children: [],
 
+            name: '',
+            search: {},
             pageNum: 1,
-            pageSize: 5,
+            pageSize: 10,
             predicate: 'id',
             reverse: true,
             pageData: {
@@ -49,8 +39,8 @@ class ProvinceList extends PureComponent {
             option: {},
             countryId: props.location.query.id,
 
-            displayColorPicker: false,
-            color: '',
+            treeDataLoading: false,
+            treeData: []
         };
     }
 
@@ -59,16 +49,14 @@ class ProvinceList extends PureComponent {
             title: '操作',
             align: 'center',
             key: 'operation',
-            width: 150,
+            width: 130,
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
                         <Button size="small" onClick={() => this.showEditModal(record)}>编辑</Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
                             <Button type="danger" size="small">删除</Button>
-                            {/* <a href="javascript:;">删除</a> */}
                         </Popconfirm>
-                        {/* <Button size="small" onClick={() => this.deleteItem(record.id)}>删除</Button> */}
                     </Button.Group>
                 </Fragment>
             )
@@ -76,91 +64,102 @@ class ProvinceList extends PureComponent {
         {
             title: 'ID',
             dataIndex: 'id',
-            width: 120,
+            width: 100,
             sorter: true,
             defaultSortOrder: 'descend',
         },
         {
-            title: '值',
-            dataIndex: 'value',
+            title: '类型',
+            dataIndex: 'level',
+            width: 110,
+            sorter: true,
+            filters: [
+                {
+                    text: level[0],
+                    value: 0,
+                },
+                {
+                    text: level[1],
+                    value: 1,
+                },
+                {
+                    text: level[2],
+                    value: 2,
+                },
+                {
+                    text: level[3],
+                    value: 3,
+                },
+            ],
+            render(val) {
+                return level[val];
+            },
+        },
+        {
+            title: '编码',
+            dataIndex: 'code',
+            width: 110,
             sorter: true,
         },
         {
-            title: '显示',
-            dataIndex: 'display',
+            title: '名称',
+            dataIndex: 'name',
             sorter: true,
-            width: 120,
-            render: (text, record) => {
-                if (record.optionDisplayType == 1 && text) {
-                    return <Fragment>
-                        <Tooltip placement="topLeft" title={text}>
-                            <Tag style={{ backgroundColor: (record.optionDisplayType == 1 ? text : '') }}>
-                                {text}
-                            </Tag>
-                        </Tooltip>
-                    </Fragment>;
-                }
-                return text;
-            }
-
         },
         {
-            title: '描述',
-            dataIndex: 'description',
+            title: '父级',
+            dataIndex: 'parentName',
+        },
+        {
+            title: '显示顺序',
+            dataIndex: 'displayOrder',
+            width: 110,
             sorter: true,
         },
         {
             title: '是否发布',
             dataIndex: 'isPublished',
             sorter: true,
-            width: 120,
-            render: (val) => <Switch checked={val} disabled />
+            width: 110,
+            render: (val) => this.boolFormat(val)
         }
     ];
 
-    componentDidMount() {
-        // const { dispatch } = this.props;
-        // this.setState({ loading: true });
-        // new Promise(resolve => {
-        //     dispatch({
-        //         type: 'province/grid',
-        //         payload: {
-        //             resolve,
-        //             params: { countryId: this.state.countryId },
-        //         },
-        //     });
-        // }).then(res => {
-        //     this.setState({ loading: false });
-        //     if (res.success === true) {
-        //         this.setState({ option: res.data });
-        //     } else {
-        //         notification.error({ message: res.message, });
-        //     }
-        // });
+    boolFormat(val) {
+        //(val) => <Switch checked={val} disabled />,
+        return <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />;
+    }
 
+    componentDidMount() {
+        this.handleInit();
         this.handleSearchFirst();
     }
 
-    handleClick = () => {
-        this.setState({ displayColorPicker: !this.state.displayColorPicker })
-    };
-
-    handleClose = () => {
-        this.setState({ displayColorPicker: false })
-    };
-
-    handleChange = (color) => {
-        this.setState({
-            color: color.hex
-        })
-    };
+    handleInit = () => {
+        const { dispatch } = this.props;
+        this.setState({ treeDataLoading: true });
+        new Promise(resolve => {
+            dispatch({
+                type: 'province/tree',
+                payload: {
+                    resolve,
+                    params: { countryId: this.state.countryId },
+                },
+            });
+        }).then(res => {
+            this.setState({ treeDataLoading: false });
+            if (res.success === true) {
+                this.setState({ treeData: res.data });
+            } else {
+                notification.error({ message: res.message, });
+            }
+        });
+    }
 
     showModal = () => {
         this.setState({
             visible: true,
-            current: {},
-            color: '',
-            displayColorPicker: false
+            current: {}
         });
     };
 
@@ -168,15 +167,12 @@ class ProvinceList extends PureComponent {
         this.setState({
             visible: true,
             current: item,
-            color: item.display,
-            displayColorPicker: false
         });
     };
 
     handleCancel = () => {
         this.setState({
-            visible: false,
-            displayColorPicker: false
+            visible: false
         });
     };
 
@@ -190,13 +186,13 @@ class ProvinceList extends PureComponent {
 
             var params = {
                 ...values,
-                optionId: this.state.optionId
+                countryId: this.state.countryId
             };
 
-            let bt = 'option/addProductOptionData';
+            let bt = 'province/add';
             if (id) {
                 params.id = id;
-                bt = 'option/editProductOptionData';
+                bt = 'province/edit';
             }
 
             // console.log(params);
@@ -216,7 +212,8 @@ class ProvinceList extends PureComponent {
                 this.setState({ submitting: false });
                 if (res.success === true) {
                     form.resetFields();
-                    this.setState({ visible: false, displayColorPicker: false });
+                    this.setState({ visible: false });
+                    this.handleInit();
                     this.handleSearch();
                 } else {
                     notification.error({
@@ -228,23 +225,18 @@ class ProvinceList extends PureComponent {
     };
 
     deleteItem = id => {
-        this.setState({
-            loading: true,
-        });
+        this.setState({ loading: true, });
         const { dispatch } = this.props;
-        const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'option/deleteProductOptionData',
+                type: 'province/delete',
                 payload: {
                     resolve,
-                    params,
+                    params: { id },
                 },
             });
         }).then(res => {
-            this.setState({
-                loading: false,
-            });
+            this.setState({ loading: false });
             if (res.success === true) {
                 this.handleSearch();
             } else {
@@ -252,16 +244,6 @@ class ProvinceList extends PureComponent {
                     message: res.message,
                 });
             }
-        });
-    };
-
-    showDeleteModal = (item) => {
-        Modal.confirm({
-            title: '删除选项值',
-            content: '确定删除该选项值吗？',
-            okText: '确认',
-            cancelText: '取消',
-            onOk: () => this.deleteItem(item.id),
         });
     };
 
@@ -280,6 +262,7 @@ class ProvinceList extends PureComponent {
                 predicate: this.state.predicate,
                 reverse: this.state.reverse
             },
+            search: { ...this.state.search, name: this.state.name },
             countryId: this.state.countryId
         };
 
@@ -313,7 +296,10 @@ class ProvinceList extends PureComponent {
         var firstPage = sorter.field != this.state.predicate;
         this.setState({
             pageNum: pagination.current,
-            pageSize: pagination.pageSize
+            pageSize: pagination.pageSize,
+            search: {
+                ...filtersArg
+            }
         }, () => {
             if (sorter.field) {
                 this.setState({
@@ -334,18 +320,34 @@ class ProvinceList extends PureComponent {
         });
     };
 
+    renderSimpleForm() {
+        return (
+            <Form layout="inline" style={{ marginBottom: 20 }}>
+                <Form.Item>
+                    <Input
+                        allowClear
+                        placeholder="名称"
+                        value={this.state.name}
+                        onChange={(e) => {
+                            this.setState({ name: e.target.value });
+                        }}
+                    />
+                </Form.Item>
+                <Form.Item>
+                    <Button
+                        onClick={this.handleSearch}
+                        type="primary"
+                        htmlType="submit"
+                        icon="search"
+                    >查询</Button>
+                </Form.Item>
+            </Form>
+        );
+    }
+
     render() {
         const { form: { getFieldDecorator }, } = this.props;
         const modalFooter = { okText: '保存', onOk: this.handleSubmit, onCancel: this.handleCancel };
-        const extraContent = (
-            <div>
-                <Button
-                    onClick={this.showModal}
-                    type="primary"
-                    icon="plus">
-                    新增</Button>
-            </div>
-        );
         const formLayout = {
             labelCol: { span: 7 },
             wrapperCol: { span: 13 },
@@ -366,33 +368,32 @@ class ProvinceList extends PureComponent {
         const getModalContent = () => {
             return (
                 <Form onSubmit={this.handleSubmit}>
-                    <FormItem label="选项值" {...formLayout}>
-                        {getFieldDecorator('value', {
-                            rules: [{ required: true, message: '请输入选项值' }],
-                            initialValue: this.state.current.value || '',
+                    <FormItem label="名称" {...formLayout}>
+                        {getFieldDecorator('name', {
+                            rules: [{ required: true, message: '请输入名称' }],
+                            initialValue: this.state.current.name || '',
                         })(<Input placeholder="请输入" />)}
                     </FormItem>
-                    <FormItem label="显示" {...formLayout}>
-                        {getFieldDecorator('display', {
-                            initialValue: (this.state.option.displayType == 1) ? this.state.color || ''
-                                : this.state.current.display || '',
-                        })(<Input onClick={this.handleClick}
-                            style={{
-                                backgroundColor: this.state.color || ''
-                            }}
-                        />
-                        )}
-                        {
-                            (this.state.option.displayType == 1 && this.state.displayColorPicker) ? <div>
-                                <div onClick={this.handleClose} />
-                                <SketchPicker color={this.state.color} onChange={this.handleChange} />
-                            </div> : null
-                        }
-                    </FormItem>
-                    <FormItem label="描述" {...formLayout}>
-                        {getFieldDecorator('description', {
-                            initialValue: this.state.current.description || '',
+                    <FormItem label="编码" {...formLayout}>
+                        {getFieldDecorator('code', {
+                            initialValue: this.state.current.code || '',
                         })(<Input placeholder="请输入" />)}
+                    </FormItem>
+                    <FormItem label={<span>父级</span>} {...formLayout}>
+                        {getFieldDecorator('parentId', {
+                            initialValue: this.state.current.parentId || '', valuePropName: 'value'
+                        })(
+                            <TreeSelect
+                                // treeDefaultExpandAll
+                                loading={this.state.treeDataLoading}
+                                allowClear={true}
+                                treeData={this.state.treeData}
+                            />)}
+                    </FormItem>
+                    <FormItem label="显示顺序" {...formLayout}>
+                        {getFieldDecorator('displayOrder', {
+                            initialValue: this.state.current.displayOrder || 0,
+                        })(<InputNumber style={{ width: '100%' }} />)}
                     </FormItem>
                     <FormItem label="发布" {...formLayout}>
                         {getFieldDecorator('isPublished', {
@@ -402,22 +403,25 @@ class ProvinceList extends PureComponent {
                 </Form>
             );
         };
-        const action = (
+        const rollback = (
             <Fragment>
                 <Button
                     onClick={this.showModal}
                     type="primary"
-                    icon="plus">新增</Button>
+                    icon="plus">添加</Button>
+                <Link to="./list">
+                    <Button>
+                        <Icon type="rollback" />
+                    </Button>
+                </Link>
             </Fragment>
         );
         return (
             <PageHeaderWrapper title="省市区" action={rollback}>
                 <div>
-                    <Card bordered={false}
-                    // extra={extraContent}
-                    >
-                        <div style={{ marginBottom: '20px' }} >
-                            {action}
+                    <Card bordered={false}>
+                        <div>
+                            {this.renderSimpleForm()}
                         </div>
                         <StandardTable
                             pagination={pagination}
@@ -427,19 +431,12 @@ class ProvinceList extends PureComponent {
                             columns={this.columns}
                             bordered
                             onChange={this.handleStandardTableChange}
-                        // scroll={{ x: 800 }}
+                            scroll={{ x: 960 }}
                         />
-                        {/* <Table bordered
-                            rowKey={record => record.id}
-                            pagination={false}
-                            loading={this.state.loading}
-                            dataSource={this.state.data}
-                            columns={this.columns}
-                        /> */}
                     </Card>
                 </div>
                 <Modal
-                    title={`选项值 - ${this.state.current.id ? '编辑' : '新增'}`}
+                    title={`省市区 - ${this.state.current.id ? '编辑' : '添加'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>

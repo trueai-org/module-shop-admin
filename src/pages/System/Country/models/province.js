@@ -1,5 +1,5 @@
 import {
-    firstProvince, queryProvinceGrid, addProvince, editProvince, deleteProvince
+    firstProvince, queryProvinceGrid, addProvince, editProvince, deleteProvince, queryProvinceTree
 } from '@/services/api';
 
 export default {
@@ -10,6 +10,12 @@ export default {
         *get({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(firstProvince, params);
+            !!resolve && resolve(response);
+        },
+
+        *tree({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(queryProvinceTree, params);
             !!resolve && resolve(response);
         },
 
