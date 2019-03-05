@@ -2,7 +2,7 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown
+    Redio, Menu, Dropdown, Tooltip
 } from 'antd';
 import moment from 'moment';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -126,7 +126,6 @@ class UserList extends PureComponent {
     ];
 
     componentDidMount() {
-        // this.handleInit();
         this.handleSearchFirst();
     }
 
@@ -171,10 +170,10 @@ class UserList extends PureComponent {
                 ...values
             };
 
-            let bt = 'attribute/addProductAttr';
+            let bt = 'userManager/add';
             if (id) {
                 params.id = id;
-                bt = 'attribute/editProductAttr';
+                bt = 'userManager/edit';
             }
 
             // console.log(params);
@@ -195,7 +194,6 @@ class UserList extends PureComponent {
                 if (res.success === true) {
                     form.resetFields();
                     this.setState({ visible: false });
-                    // this.handleInit();
                     this.handleSearch();
                 } else {
                     notification.error({
@@ -207,25 +205,20 @@ class UserList extends PureComponent {
     };
 
     deleteItem = id => {
-        this.setState({
-            loading: true,
-        });
+        this.setState({ loading: true });
         const { dispatch } = this.props;
         const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'attribute/deleteProductAttr',
+                type: 'userManager/delete',
                 payload: {
                     resolve,
                     params,
                 },
             });
         }).then(res => {
-            this.setState({
-                loading: false,
-            });
+            this.setState({ loading: false, });
             if (res.success === true) {
-                // this.handleInit();
                 this.handleSearch();
             } else {
                 notification.error({
@@ -242,60 +235,6 @@ class UserList extends PureComponent {
             okText: '确认',
             cancelText: '取消',
             onOk: () => this.deleteItem(item.id),
-        });
-    };
-
-    handleInit = () => {
-        const { dispatch } = this.props;
-        // this.setState({ loading: true });
-        // new Promise(resolve => {
-        //     dispatch({
-        //         type: 'attr/queryProductAttr',
-        //         payload: { resolve }
-        //     });
-        // }).then(res => {
-        //     this.setState({ loading: false });
-        //     if (res.success === true) {
-        //         if (res.data != null) {
-        //             this.setState({
-        //                 data: res.data
-        //             });
-        //         }
-        //     } else {
-        //         notification.error({
-        //             message: res.message,
-        //         });
-        //     }
-        // });
-
-        this.setState({
-            selectLoading: true
-        });
-
-        new Promise(resolve => {
-            dispatch({
-                type: 'group/queryProductAGS',
-                payload: {
-                    resolve,
-                },
-            });
-        }).then(res => {
-            if (res.success === true) {
-                this.setState({
-                    selectLoading: false,
-                });
-                let cs = [];
-                let list = [];
-                list = res.data;
-                list.forEach(c => {
-                    cs.push(<Option value={c.id} key={c.id}>{c.name}</Option>);
-                });
-                this.setState({ children: cs });
-            } else {
-                notification.error({
-                    message: res.message,
-                });
-            }
         });
     };
 
@@ -403,19 +342,43 @@ class UserList extends PureComponent {
         const getModalContent = () => {
             return (
                 <Form onSubmit={this.handleSubmit}>
-                    <FormItem label="名称" {...formLayout}>
-                        {getFieldDecorator('name', {
-                            rules: [{ required: true, message: '请输入属性名称' }],
-                            initialValue: this.state.current.name || '',
+                    <FormItem label="用户名" {...formLayout}>
+                        {getFieldDecorator('userName', {
+                            rules: [{ required: true, message: '请输入用户名' }],
+                            initialValue: this.state.current.userName || '',
                         })(<Input placeholder="请输入" />)}
                     </FormItem>
-                    <FormItem label={<span>组</span>} {...formLayout}>
-                        {getFieldDecorator('groupId', {
-                            rules: [{ required: true, message: '请选择属性组' }],
-                            initialValue: this.state.current.groupId || '', valuePropName: 'value'
+                    <FormItem label="全名" {...formLayout}>
+                        {getFieldDecorator('fullName', {
+                            rules: [{ required: true, message: '请输入全名（昵称）' }],
+                            initialValue: this.state.current.fullName || '',
+                        })(<Input placeholder="请输入" />)}
+                    </FormItem>
+                    <FormItem label="邮箱" {...formLayout}>
+                        {getFieldDecorator('email', {
+                            rules: [{ required: true, message: '请输入邮箱' }],
+                            initialValue: this.state.current.email || '',
+                        })(<Input placeholder="请输入" />)}
+                    </FormItem>
+                    <FormItem label={
+                        <span>密码<Tooltip title="修改密码时，请输入新密码"><Icon type="question-circle" theme="filled" /></Tooltip></span>}
+                        {...formLayout}>
+                        {getFieldDecorator('password', {
+                            initialValue: this.state.current.password || '',
+                        })(<Input placeholder="请输入" />)}
+                    </FormItem>
+                    <FormItem label="角色" {...formLayout}>
+                        {getFieldDecorator('roleIds', {
+                            rules: [{ required: true, message: '请选择角色' }],
+                            initialValue: this.state.current.roleIds, valuePropName: 'value'
                         })(
-                            <Select loading={this.state.selectLoading} allowClear={true}>
-                                {this.state.children}
+                            <Select
+                                mode="multiple"
+                                loading={this.state.selectLoading}
+                                allowClear={true}>
+                                <Option value="1">admin</Option>
+                                <Option value="2">customer</Option>
+                                <Option value="3">guest</Option>
                             </Select>)}
                     </FormItem>
                 </Form>
@@ -430,7 +393,7 @@ class UserList extends PureComponent {
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="商品属性 - 列表" action={action}>
+            <PageHeaderWrapper title="用户 - 列表" action={action}>
                 <div>
                     <Card bordered={false}>
 
@@ -444,17 +407,10 @@ class UserList extends PureComponent {
                             onChange={this.handleStandardTableChange}
                             scroll={{ x: 1500 }}
                         />
-                        {/* <Table bordered
-                            rowKey={record => record.id}
-                            pagination={false}
-                            loading={this.state.loading}
-                            dataSource={this.state.data}
-                            columns={this.columns}
-                        /> */}
                     </Card>
                 </div>
                 <Modal
-                    title={`商品属性 - ${this.state.current.id ? '编辑' : '新增'}`}
+                    title={`用户 - ${this.state.current.id ? '编辑' : '添加'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>
