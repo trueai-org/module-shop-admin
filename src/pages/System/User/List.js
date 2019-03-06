@@ -1,8 +1,8 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
-    List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown, Tooltip
+    Row, Col, List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
+    Redio, Menu, Dropdown, Tooltip, Checkbox
 } from 'antd';
 import moment from 'moment';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -30,6 +30,7 @@ class UserList extends PureComponent {
         selectLoading: false,
         children: [],
 
+        search: {},
         pageNum: 1,
         pageSize: 5,
         predicate: 'id',
@@ -76,6 +77,28 @@ class UserList extends PureComponent {
             sorter: true,
         },
         {
+            title: '角色',
+            dataIndex: 'roleIds',
+            // width: 120,
+            filters: [
+                {
+                    text: role[1],
+                    value: 1,
+                },
+                {
+                    text: role[2],
+                    value: 2,
+                },
+                {
+                    text: role[3],
+                    value: 3,
+                },
+            ],
+            render: (val) => val.map(c => {
+                return <Tag key={c} color={roleMap[c]} >{role[c]}</Tag>;
+            })
+        },
+        {
             title: '邮箱',
             dataIndex: 'email',
             //  width: 120,
@@ -86,14 +109,6 @@ class UserList extends PureComponent {
             dataIndex: 'phoneNumber',
             // width: 200,
             sorter: true,
-        },
-        {
-            title: '角色',
-            dataIndex: 'roleIds',
-            // width: 120,
-            render: (val) => val.map(c => {
-                return <Tag key={c} color={roleMap[c]} >{role[c]}</Tag>;
-            })
         },
         {
             title: '已启用',
@@ -252,7 +267,8 @@ class UserList extends PureComponent {
             sort: {
                 predicate: this.state.predicate,
                 reverse: this.state.reverse
-            }
+            },
+            search: this.state.search
         };
 
         new Promise(resolve => {
@@ -289,7 +305,10 @@ class UserList extends PureComponent {
         var firstPage = sorter.field != this.state.predicate;
         this.setState({
             pageNum: pagination.current,
-            pageSize: pagination.pageSize
+            pageSize: pagination.pageSize,
+            search: {
+                ...filtersArg
+            }
         }, () => {
             if (sorter.field) {
                 this.setState({
@@ -310,18 +329,63 @@ class UserList extends PureComponent {
         });
     };
 
+    handleFormReset = () => {
+        const { form, dispatch } = this.props;
+        form.resetFields();
+        this.setState({
+            formValues: {},
+        });
+    };
+
+    renderForm() {
+        return (
+            <Form layout="inline">
+                <Row gutter={{ md: 8, lg: 24, xl: 48 }} style={{ marginBottom: 12, marginTop: 12 }}>
+                    <Col md={8} sm={24}>
+                        <Input
+                            onChange={(e) => {
+                                this.setState({
+                                    search: Object.assign({}, this.state.search, { name: e.target.value })
+                                });
+                            }}
+                            allowClear
+                            placeholder="用户名/全名" />
+                    </Col>
+                    <Col md={8} sm={24}>
+                        <Input
+                            onChange={(e) => {
+                                this.setState({
+                                    search: Object.assign({}, this.state.search, { contact: e.target.value })
+                                });
+                            }}
+                            allowClear
+                            placeholder="邮箱/电话" />
+                    </Col>
+                    <Col md={8} sm={24}>
+                        <Select
+                            onChange={(e) => {
+                                this.setState({
+                                    search: Object.assign({}, this.state.search, { isActive: e })
+                                });
+                            }}
+                            style={{ width: 100, paddingRight: 8, }}
+                            placeholder="已启用"
+                            allowClear>
+                            <Option value='false'>否</Option>
+                            <Option value='true'>是</Option>
+                        </Select>
+                        <Button onClick={this.handleSearch} type="primary" icon="search">查询</Button>
+                    </Col>
+                </Row>
+
+            </Form>
+        );
+    }
+
+
     render() {
         const { form: { getFieldDecorator }, } = this.props;
         const modalFooter = { okText: '保存', onOk: this.handleSubmit, onCancel: this.handleCancel };
-        const extraContent = (
-            <div>
-                <Button
-                    onClick={this.showModal}
-                    type="primary"
-                    icon="plus">
-                    新增</Button>
-            </div>
-        );
         const formLayout = {
             labelCol: { span: 7 },
             wrapperCol: { span: 13 },
@@ -376,10 +440,19 @@ class UserList extends PureComponent {
                                 mode="multiple"
                                 loading={this.state.selectLoading}
                                 allowClear={true}>
-                                <Option value="1">admin</Option>
-                                <Option value="2">customer</Option>
-                                <Option value="3">guest</Option>
+                                <Option value={1}>admin</Option>
+                                <Option value={2}>customer</Option>
+                                <Option value={3}>guest</Option>
                             </Select>)}
+                    </FormItem>
+                    <FormItem
+                        label={<span>已启用</span>}
+                        {...formLayout}>
+                        {getFieldDecorator('isActive', {
+                            initialValue: this.state.current.isActive || false, valuePropName: 'checked'
+                        })(
+                            <Checkbox />
+                        )}
                     </FormItem>
                 </Form>
             );
@@ -396,7 +469,7 @@ class UserList extends PureComponent {
             <PageHeaderWrapper title="用户 - 列表" action={action}>
                 <div>
                     <Card bordered={false}>
-
+                        <div>{this.renderForm()}</div>
                         <StandardTable
                             pagination={pagination}
                             loading={this.state.loading}
