@@ -433,6 +433,24 @@ export default [
               }
             ]
           },
+
+          //仓库
+          {
+            path: '/system/warehouse',
+            name: 'warehouse',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/system/warehouse',
+                redirect: '/system/warehouse/list',
+              },
+              {
+                path: '/system/warehouse/list',
+                name: 'list',
+                component: './System/warehouse/List'
+              }
+            ]
+          },
         ],
       },
 

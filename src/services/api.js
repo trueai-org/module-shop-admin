@@ -500,6 +500,10 @@ export async function firstCountry(params) {
   return request(`/api/countries/${params.id}`);
 }
 
+export async function queryCountryAll(params) {
+  return request(`/api/countries`);
+}
+
 export async function queryCountryGrid(params) {
   return request(`/api/countries/grid`, {
     method: 'POST',
@@ -592,6 +596,38 @@ export async function editUser(params) {
 
 export async function deleteUser(params) {
   return request(`/api/users/${params.id}`, {
+    method: 'DELETE'
+  });
+}
+
+//仓库
+export async function firstWarehouse(params) {
+  return request(`/api/warehouses/${params.id}`);
+}
+
+export async function queryWarehouseGrid(params) {
+  return request(`/api/warehouses/grid`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function addWarehouse(params) {
+  return request(`/api/warehouses`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editWarehouse(params) {
+  return request(`/api/warehouses/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function deleteWarehouse(params) {
+  return request(`/api/warehouses/${params.id}`, {
     method: 'DELETE'
   });
 }
