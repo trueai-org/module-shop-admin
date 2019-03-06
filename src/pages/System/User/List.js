@@ -424,8 +424,8 @@ class UserList extends PureComponent {
                             initialValue: this.state.current.email || '',
                         })(<Input placeholder="请输入" />)}
                     </FormItem>
-                    <FormItem label={
-                        <span>密码<Tooltip title="修改密码时，请输入新密码"><Icon type="question-circle" theme="filled" /></Tooltip></span>}
+                    <FormItem
+                        label={<span>密码<Tooltip title="修改密码：请输入新密码"><Icon type="question-circle" theme="filled" /></Tooltip></span>}
                         {...formLayout}>
                         {getFieldDecorator('password', {
                             initialValue: this.state.current.password || '',
@@ -452,6 +452,16 @@ class UserList extends PureComponent {
                             initialValue: this.state.current.isActive || false, valuePropName: 'checked'
                         })(
                             <Checkbox />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label={<span>管理员备注<Tooltip title="管理员备注，仅内部使用"><Icon type="question-circle" theme="filled" /></Tooltip></span>}
+                        {...formLayout}>
+                        {getFieldDecorator('adminRemark', { initialValue: this.state.current.adminRemark })(
+                            <Input.TextArea
+                                style={{ minHeight: 32 }}
+                                placeholder="管理员备注"
+                                rows={2} />
                         )}
                     </FormItem>
                 </Form>
