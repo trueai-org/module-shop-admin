@@ -110,7 +110,19 @@ class ProductAdd extends PureComponent {
             currentStockTrackingIsEnabled: undefined,
 
             warehouses: [],
-            warehousesLoading: false
+            warehousesLoading: false,
+
+            //库存历史
+            historyLoading: false,
+            pageNum: 1,
+            pageSize: 5,
+            predicate: 'createdOn',
+            reverse: true,
+            historyData: {
+                list: [],
+                pagination: {}
+            },
+
         };
     }
 
@@ -575,6 +587,40 @@ class ProductAdd extends PureComponent {
             )
         },
     ];
+
+    columnsHistory = [
+        {
+            title: '仓库',
+            dataIndex: 'warehouseName',
+            sorter: true,
+        },
+        {
+            title: '调整数量',
+            dataIndex: 'adjustedQuantity',
+            width: 120,
+            sorter: true,
+        },
+        {
+            title: '库存数量',
+            dataIndex: 'stockQuantity',
+            width: 120,
+            sorter: true,
+        },
+        {
+            title: '备注',
+            dataIndex: 'note',
+            sorter: true,
+        },
+        {
+            title: '创建时间',
+            dataIndex: 'createdOn',
+            width: 120,
+            sorter: true,
+            defaultSortOrder: 'descend',
+            render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
+        },
+    ];
+
 
     componentDidMount() {
         this.handleInit();
@@ -1079,14 +1125,14 @@ class ProductAdd extends PureComponent {
 
     handleInit = () => {
         const { dispatch } = this.props;
-
         this.setState({
             loading: true,
             brandLoading: true,
             categoryLoading: true,
             templateLoading: true,
             attributeLoading: true,
-            optionLoading: true
+            optionLoading: true,
+            warehousesLoading: true
         });
 
         new Promise(resolve => {
@@ -1242,6 +1288,31 @@ class ProductAdd extends PureComponent {
                 notification.error({ message: res.message });
             }
         });
+
+        this.handleLoadStockHistory();
+    }
+
+    handleLoadStockHistory = () => {
+        const { dispatch } = this.props;
+        this.setState({ historyLoading: true });
+        new Promise(resolve => {
+            dispatch({
+                type: 'product/stockHistories',
+                payload: {
+                    resolve,
+                    params: {
+                        productId: this.state.id
+                    }
+                },
+            });
+        }).then(res => {
+            this.setState({ historyLoading: false });
+            if (res.success === true) {
+                this.setState({ historyData: res.data });
+            } else {
+                notification.error({ message: res.message });
+            }
+        });
     }
 
     handleUpload = file => {
@@ -1353,6 +1424,34 @@ class ProductAdd extends PureComponent {
     //     }
     // }
 
+    handleHistoryStandardTableChange = (pagination, filtersArg, sorter) => {
+        var firstPage = sorter.field != this.state.predicate;
+        this.setState({
+            pageNum: pagination.current,
+            pageSize: pagination.pageSize,
+            search: {
+                ...filtersArg
+            }
+        }, () => {
+            if (sorter.field) {
+                this.setState({
+                    predicate: sorter.field,
+                    reverse: sorter.order == 'descend'
+                }, () => {
+                    if (firstPage)
+                        this.handleSearchFirst();
+                    else
+                        this.handleSearch();
+                });
+            } else {
+                if (firstPage)
+                    this.handleSearchFirst();
+                else
+                    this.handleSearch();
+            }
+        });
+    };
+
     render() {
         const {
             editorState,
@@ -1404,6 +1503,20 @@ class ProductAdd extends PureComponent {
             'list-ul', 'list-ol', 'separator',
             'remove-styles'
         ];
+
+        const historyPagination = {
+            showQuickJumper: true,
+            showSizeChanger: true,
+            pageSizeOptions: ['5', '10', '50', '100'],
+            defaultPageSize: this.state.pageSize,
+            defaultCurrent: this.state.pageNum,
+            current: this.state.pageNum,
+            pageSize: this.state.pageSize,
+            total: this.state.historyData.pagination.total || 0,
+            showTotal: (total, range) => {
+                return `${range[0]}-${range[1]} 条 , 共 ${total} 条`;
+            }
+        };
 
         const rollback = (
             <Fragment>
@@ -2012,6 +2125,26 @@ class ProductAdd extends PureComponent {
                                                 rows={2} />)
                                         }
                                     </FormItem>
+                                </TabPane>
+                                <TabPane tab="库存历史" key="6">
+                                    <Card bordered={false}>
+                                        <StandardTable
+                                            pagination={historyPagination}
+                                            loading={this.state.historyLoading}
+                                            data={this.state.historyData}
+                                            rowKey={record => record.id}
+                                            columns={this.columnsHistory}
+                                            bordered
+                                            onChange={this.handleHistoryStandardTableChange}
+                                        // scroll={{ x: 1500 }}
+                                        />
+                                    </Card>
+                                </TabPane>
+                                <TabPane tab="购买记录" key="7">
+
+                                </TabPane>
+                                <TabPane tab="操作记录" key="8">
+
                                 </TabPane>
                             </Tabs>
                             <FormItem {...submitFormLayout}>

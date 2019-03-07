@@ -1,6 +1,7 @@
 import {
     queryProductFirst, queryProductGrid, addProduct, editProduct, deleteProduct,
-    publishProduct, unpublishProduct, copyProduct
+    publishProduct, unpublishProduct, copyProduct,
+    queryStockHistoryGrid
 
 } from '@/services/api';
 
@@ -54,6 +55,12 @@ export default {
         *copy({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(copyProduct, params);
+            !!resolve && resolve(response);
+        },
+
+        *stockHistories({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(queryStockHistoryGrid, params);
             !!resolve && resolve(response);
         },
     },

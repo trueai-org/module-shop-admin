@@ -635,3 +635,11 @@ export async function deleteWarehouse(params) {
     method: 'DELETE'
   });
 }
+
+//库存历史
+export async function queryStockHistoryGrid(params) {
+  return request(`/api/stocks-histories/grid`, {
+    method: 'POST',
+    body: params
+  });
+}
