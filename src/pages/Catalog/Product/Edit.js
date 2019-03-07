@@ -101,7 +101,13 @@ class ProductAdd extends PureComponent {
             //辅助商品
             visibleCopy: false,
             copyProduct: {},
-            copySubmitting: false
+            copySubmitting: false,
+
+            //发布
+            currentIsPublished: undefined,
+            currentPublishType: undefined,
+            //库存跟踪
+            currentStockTrackingIsEnabled: undefined,
         };
     }
 
@@ -1092,7 +1098,10 @@ class ProductAdd extends PureComponent {
             this.setState({ loading: false });
             if (res.success === true) {
                 this.setState({
-                    current: res.data
+                    current: res.data,
+                    currentIsPublished: res.data.isPublished,
+                    currentPublishType: res.data.publishType,
+                    currentStockTrackingIsEnabled: res.data.stockTrackingIsEnabled
                 }, () => {
                     this.props.form.setFieldsValue({
                         shortDescription: BraftEditor.createEditorState(this.state.current.shortDescription || ''),
@@ -1342,7 +1351,10 @@ class ProductAdd extends PureComponent {
                 md: { span: 20 },
             },
         };
-
+        const itemFormLayout = {
+            labelCol: { span: 7 },
+            wrapperCol: { span: 13 },
+        };
         const submitFormLayout = {
             wrapperCol: {
                 xs: { span: 24, offset: 0 },
@@ -1502,12 +1514,19 @@ class ProductAdd extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
+                                        label={<span>商品条形码</span>}>
+                                        {getFieldDecorator('barcode', { initialValue: this.state.current.barcode || '' })(
+                                            <Input placeholder="商品条形码" />
+                                        )}
+                                    </FormItem>
+                                    <FormItem
+                                        {...formItemLayout}
                                         label={<span>价格</span>}>
                                         {getFieldDecorator('price', {
                                             rules: [{ required: true, message: '请输入商品价格' }],
                                             initialValue: this.state.current.price || 0
                                         })(
-                                            <InputNumber
+                                            <InputNumber min={0}
                                                 onChange={(e) => {
                                                     this.setState({
                                                         current: Object.assign({},
@@ -1521,8 +1540,8 @@ class ProductAdd extends PureComponent {
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>原价</span>}>
-                                        {getFieldDecorator('oldPrice', { initialValue: this.state.current.oldPrice || 0 })(
-                                            <InputNumber
+                                        {getFieldDecorator('oldPrice', { initialValue: this.state.current.oldPrice })(
+                                            <InputNumber min={0}
                                                 onChange={(e) => {
                                                     this.setState({
                                                         current: Object.assign({},
@@ -1536,8 +1555,8 @@ class ProductAdd extends PureComponent {
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>特价</span>}>
-                                        {getFieldDecorator('specialPrice', { initialValue: this.state.current.specialPrice || 0 })(
-                                            <InputNumber style={{ width: '100%' }} placeholder="特价" />
+                                        {getFieldDecorator('specialPrice', { initialValue: this.state.current.specialPrice })(
+                                            <InputNumber min={0} style={{ width: '100%' }} placeholder="特价" />
                                         )}
                                     </FormItem>
                                     <FormItem
@@ -1604,6 +1623,29 @@ class ProductAdd extends PureComponent {
                                             <img alt="image" style={{ width: '100%' }} src={previewImage} />
                                         </Modal>
                                     </FormItem>
+
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label={<span>单独可见
+                                            <Tooltip placement="topLeft" title="如果你想让这个商品在目录或搜索结果中可以看到，请开启它。仅商品组合允许设置此值。">
+                                                <Icon type="question-circle" theme="filled" />
+                                            </Tooltip>
+                                        </span>}>
+                                        {getFieldDecorator('isVisibleIndividually', { initialValue: this.state.current.isVisibleIndividually || false, valuePropName: 'checked' })(
+                                            <Checkbox
+                                                disabled={(this.state.current.parentGroupedProductId || 0) <= 0}
+                                            />
+                                        )}
+                                    </FormItem>
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label={<span>允许订购</span>}>
+                                        {
+                                            getFieldDecorator('isAllowToOrder', { initialValue: this.state.current.isAllowToOrder || false, valuePropName: 'checked' })(
+                                                <Checkbox />
+                                            )
+                                        }
+                                    </FormItem>
                                     <FormItem
                                         {...formItemLayout}
                                         label={<span>精品</span>}>
@@ -1618,17 +1660,162 @@ class ProductAdd extends PureComponent {
                                         label={<span>已发布</span>}>
                                         {
                                             getFieldDecorator('isPublished', { initialValue: this.state.current.isPublished || false, valuePropName: 'checked' })(
-                                                <Checkbox />
+                                                <Checkbox
+                                                    // disabled
+                                                    onChange={(e) => {
+                                                        this.setState({ currentIsPublished: e.target.checked });
+                                                        if (e.target.checked == false) {
+                                                            this.setState({ currentPublishType: 0 });
+                                                        }
+                                                    }} />
                                             )
+                                        }
+                                        {
+                                            !this.state.currentIsPublished ? <Card type="inner">
+                                                <FormItem
+                                                    {...itemFormLayout}
+                                                    label=''>
+                                                    {
+
+                                                        getFieldDecorator('publishType', { initialValue: this.state.currentPublishType || 0 })(
+                                                            <Radio.Group
+                                                                onChange={(e) => {
+                                                                    this.setState({ currentPublishType: e.target.value });
+                                                                }}
+                                                            >
+                                                                <Radio value={0}>立即发布</Radio>
+                                                                <Radio value={1}>定时发布</Radio>
+                                                            </Radio.Group>
+                                                        )
+                                                    }
+                                                </FormItem>
+                                                {
+                                                    this.state.currentPublishType == 1 ?
+                                                        <FormItem>
+                                                            {
+                                                                <DatePicker
+                                                                    showTime
+                                                                    placeholder="定时发布时间"
+                                                                />
+                                                            }
+                                                        </FormItem> : null
+                                                }
+                                                {
+                                                    this.state.current.unpublishedOn ? <div>取消发布时间：{this.state.current.unpublishedOn}</div> : null
+                                                }
+                                                {
+                                                    this.state.current.unpublishedReason ? <div>取消发布原因：{this.state.current.unpublishedReason}</div> : null
+                                                }
+                                            </Card> : this.state.current.publishedOn ? <div>发布时间：{this.state.current.publishedOn}</div> : null
                                         }
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>允许订购</span>}>
+                                        label={<span>商品有效期
+                                            <Tooltip placement="topLeft" title="商品有效期。单位:天。自发布/上架时间起计算，如果过期，则自动取消发布/下架。发布时，计算下架时间。默认：长期有效">
+                                                <Icon type="question-circle" theme="filled" />
+                                            </Tooltip>
+                                        </span>}>
+                                        {getFieldDecorator('validThru', { initialValue: this.state.current.validThru })(
+                                            <InputNumber min={0} precision={0} style={{ width: '100%' }} placeholder="商品有效期" />
+                                        )}
+                                    </FormItem>
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label={<span>备货期
+                                            <Tooltip placement="topLeft" title="备货期。取值范围:1-60;单位:天。">
+                                                <Icon type="question-circle" theme="filled" />
+                                            </Tooltip>
+                                        </span>}>
+                                        {getFieldDecorator('deliveryTime', { initialValue: this.state.current.deliveryTime })(
+                                            <InputNumber min={0} precision={0} style={{ width: '100%' }} placeholder="备货期" />
+                                        )}
+                                    </FormItem>
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label='启用库存跟踪'>
                                         {
-                                            getFieldDecorator('isAllowToOrder', { initialValue: this.state.current.isAllowToOrder || false, valuePropName: 'checked' })(
-                                                <Checkbox />
+                                            getFieldDecorator('stockTrackingIsEnabled', { initialValue: this.state.current.stockTrackingIsEnabled || false, valuePropName: 'checked' })(
+                                                <Checkbox
+                                                    onChange={(e) => {
+                                                        this.setState({ currentStockTrackingIsEnabled: e.target.checked });
+                                                    }}
+                                                />
                                             )
+                                        }
+                                        {
+                                            this.state.currentStockTrackingIsEnabled ?
+                                                <Card type="inner" title="库存跟踪">
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label='显示库存可用性'>
+                                                        {
+                                                            getFieldDecorator('displayStockAvailability', { initialValue: this.state.current.displayStockAvailability || false, valuePropName: 'checked' })(
+                                                                <Checkbox />
+                                                            )
+                                                        }
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label='显示库存量'>
+                                                        {
+                                                            getFieldDecorator('displayStockQuantity', { initialValue: this.state.current.displayStockQuantity || false, valuePropName: 'checked' })(
+                                                                <Checkbox />
+                                                            )
+                                                        }
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label={<span>库存数量</span>}>
+                                                        {getFieldDecorator('stockQuantity', { initialValue: this.state.current.stockQuantity || 0 })(
+                                                            <InputNumber min={0} precision={0} style={{ width: '100%' }} placeholder="库存数量" />
+                                                        )}
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label={<span>仓库</span>}>
+                                                        {getFieldDecorator('warehouseId',
+                                                            { initialValue: this.state.current.warehouseId || '', valuePropName: 'value' })(
+                                                                <Select>
+                                                                </Select>
+                                                            )}
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label={<span>最低购物车数量</span>}>
+                                                        {getFieldDecorator('orderMinimumQuantity', { initialValue: this.state.current.orderMinimumQuantity || 1 })(
+                                                            <InputNumber min={1} precision={0} style={{ width: '100%' }} placeholder="最低购物车数量" />
+                                                        )}
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label={<span>最大购物车数量</span>}>
+                                                        {getFieldDecorator('orderMaximumQuantity', { initialValue: this.state.current.orderMaximumQuantity || 1 })(
+                                                            <InputNumber min={1} precision={0} style={{ width: '100%' }} placeholder="最大购物车数量" />
+                                                        )}
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label='不可退货'>
+                                                        {
+                                                            getFieldDecorator('notReturnable', { initialValue: this.state.current.notReturnable || false, valuePropName: 'checked' })(
+                                                                <Checkbox />
+                                                            )
+                                                        }
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label='库存扣减策略'>
+                                                        {
+                                                            getFieldDecorator('stockReduceStrategy', { initialValue: this.state.current.stockReduceStrategy || 0 })(
+                                                                <Radio.Group>
+                                                                    <Radio value={0}>下单减库存</Radio>
+                                                                    <Radio value={1}>支付减库存</Radio>
+                                                                </Radio.Group>
+                                                            )
+                                                        }
+                                                    </FormItem>
+                                                </Card> : null
                                         }
                                     </FormItem>
                                     <FormItem
@@ -1636,15 +1823,6 @@ class ProductAdd extends PureComponent {
                                         label={<span>isCallForPricing</span>}>
                                         {
                                             getFieldDecorator('isCallForPricing', { initialValue: this.state.current.isCallForPricing || false, valuePropName: 'checked' })(
-                                                <Checkbox />
-                                            )
-                                        }
-                                    </FormItem>
-                                    <FormItem
-                                        {...formItemLayout}
-                                        label='Enable Stock Tracking'>
-                                        {
-                                            getFieldDecorator('stockTrackingIsEnabled', { initialValue: this.state.current.stockTrackingIsEnabled || false, valuePropName: 'checked' })(
                                                 <Checkbox />
                                             )
                                         }
@@ -1867,7 +2045,7 @@ class ProductAdd extends PureComponent {
                     onOk={this.handleCopySubmit}
                     copySubmitting={this.state.copySubmitting}
                 />
-            </PageHeaderWrapper>
+            </PageHeaderWrapper >
         );
     }
 }
