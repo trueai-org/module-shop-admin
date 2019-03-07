@@ -601,6 +601,10 @@ export async function deleteUser(params) {
 }
 
 //仓库
+export async function queryWarehouseAll() {
+  return request(`/api/warehouses`);
+}
+
 export async function firstWarehouse(params) {
   return request(`/api/warehouses/${params.id}`);
 }

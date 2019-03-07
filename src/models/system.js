@@ -1,5 +1,5 @@
 import {
-    queryCountryAll, queryProvinceTree
+    queryCountryAll, queryProvinceTree, queryWarehouseAll
 } from '@/services/api';
 
 export default {
@@ -18,6 +18,12 @@ export default {
         *provinces({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(queryProvinceTree, params);
+            !!resolve && resolve(response);
+        },
+
+        *warehouses({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(queryWarehouseAll, params);
             !!resolve && resolve(response);
         },
     },

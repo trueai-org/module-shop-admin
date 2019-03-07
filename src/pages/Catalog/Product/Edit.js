@@ -108,6 +108,9 @@ class ProductAdd extends PureComponent {
             currentPublishType: undefined,
             //库存跟踪
             currentStockTrackingIsEnabled: undefined,
+
+            warehouses: [],
+            warehousesLoading: false
         };
     }
 
@@ -1146,6 +1149,22 @@ class ProductAdd extends PureComponent {
 
         new Promise(resolve => {
             dispatch({
+                type: 'system/warehouses',
+                payload: {
+                    resolve,
+                },
+            });
+        }).then(res => {
+            this.setState({ warehousesLoading: false });
+            if (res.success === true) {
+                this.setState({ warehouses: res.data });
+            } else {
+                notification.error({ message: res.message });
+            }
+        });
+
+        new Promise(resolve => {
+            dispatch({
                 type: 'catalog/brands',
                 payload: {
                     resolve,
@@ -1692,12 +1711,16 @@ class ProductAdd extends PureComponent {
                                                 {
                                                     this.state.currentPublishType == 1 ?
                                                         <FormItem>
-                                                            {
+                                                            {getFieldDecorator('publishedOn', {
+                                                                initialValue: this.state.current.publishedOn ? moment(this.state.current.publishedOn, "YYYY/MM/DD HH:mm:ss") : null,
+                                                                valuePropName: "defaultValue"
+                                                            })(
                                                                 <DatePicker
                                                                     showTime
+                                                                    format="YYYY/MM/DD HH:mm:ss"
                                                                     placeholder="定时发布时间"
                                                                 />
-                                                            }
+                                                            )}
                                                         </FormItem> : null
                                                 }
                                                 {
@@ -1776,7 +1799,14 @@ class ProductAdd extends PureComponent {
                                                         label={<span>仓库</span>}>
                                                         {getFieldDecorator('warehouseId',
                                                             { initialValue: this.state.current.warehouseId || '', valuePropName: 'value' })(
-                                                                <Select>
+                                                                <Select
+                                                                    placeholder="仓库"
+                                                                    loading={this.state.warehousesLoading}
+                                                                    allowClear={true}
+                                                                >
+                                                                    {this.state.warehouses.map(c => {
+                                                                        return <Option value={c.id} key={c.id}>{c.name}</Option>;
+                                                                    })}
                                                                 </Select>
                                                             )}
                                                     </FormItem>
