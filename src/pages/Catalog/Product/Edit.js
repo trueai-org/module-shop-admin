@@ -123,6 +123,8 @@ class ProductAdd extends PureComponent {
                 pagination: {}
             },
 
+            //航运
+            isShipEnabled: false
         };
     }
 
@@ -1340,7 +1342,8 @@ class ProductAdd extends PureComponent {
                     current: res.data,
                     currentIsPublished: res.data.isPublished,
                     currentPublishType: res.data.publishType,
-                    currentStockTrackingIsEnabled: res.data.stockTrackingIsEnabled
+                    currentStockTrackingIsEnabled: res.data.stockTrackingIsEnabled,
+                    isShipEnabled: res.data.isShipEnabled,
                 }, () => {
                     this.props.form.setFieldsValue({
                         shortDescription: BraftEditor.createEditorState(this.state.current.shortDescription || ''),
@@ -1687,19 +1690,7 @@ class ProductAdd extends PureComponent {
                                                 className={styles.myEditor}
                                                 controls={controlsEasy}
                                                 placeholder=""
-                                                contentStyle={{ height: 120 }}
-                                            />
-                                        )}
-                                    </FormItem>
-                                    <FormItem
-                                        {...formItemLayout}
-                                        label={<span>描述</span>}>
-                                        {getFieldDecorator('description')(
-                                            <BraftEditor
-                                                className={styles.myEditor}
-                                                controls={controls}
-                                                placeholder=""
-                                                contentStyle={{ height: 200 }}
+                                                contentStyle={{ height: 100 }}
                                             />
                                         )}
                                     </FormItem>
@@ -1713,9 +1704,21 @@ class ProductAdd extends PureComponent {
                                         {getFieldDecorator('specification')(
                                             <BraftEditor
                                                 className={styles.myEditor}
+                                                controls={controlsEasy}
+                                                placeholder=""
+                                                contentStyle={{ height: 100 }}
+                                            />
+                                        )}
+                                    </FormItem>
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label={<span>描述</span>}>
+                                        {getFieldDecorator('description')(
+                                            <BraftEditor
+                                                className={styles.myEditor}
                                                 controls={controls}
                                                 placeholder=""
-                                                contentStyle={{ height: 120 }}
+                                                contentStyle={{ height: 200 }}
                                             />
                                         )}
                                     </FormItem>
@@ -1955,17 +1958,6 @@ class ProductAdd extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span>备货期
-                                            <Tooltip placement="topLeft" title="备货期。取值范围:1-60;单位:天。">
-                                                <Icon type="question-circle" theme="filled" />
-                                            </Tooltip>
-                                        </span>}>
-                                        {getFieldDecorator('deliveryTime', { initialValue: this.state.current.deliveryTime })(
-                                            <InputNumber min={0} precision={0} style={{ width: '100%' }} placeholder="备货期" />
-                                        )}
-                                    </FormItem>
-                                    <FormItem
-                                        {...formItemLayout}
                                         label='启用库存跟踪'>
                                         {
                                             getFieldDecorator('stockTrackingIsEnabled', { initialValue: this.state.current.stockTrackingIsEnabled || false, valuePropName: 'checked' })(
@@ -2060,11 +2052,109 @@ class ProductAdd extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
+                                        label='启用航运'>
+                                        {
+                                            getFieldDecorator('isShipEnabled', { initialValue: this.state.current.isShipEnabled || false, valuePropName: 'checked' })(
+                                                <Checkbox
+                                                    onChange={(e) => {
+                                                        this.setState({ isShipEnabled: e.target.checked });
+                                                    }}
+                                                />
+                                            )
+                                        }
+                                        {
+                                            this.state.isShipEnabled ?
+                                                <Card type="inner" title="配送">
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label={<span>重量(kg)</span>}>
+                                                        {getFieldDecorator('weight', { initialValue: this.state.current.weight || 0 })(
+                                                            <InputNumber min={0} precision={3} style={{ width: '100%' }} placeholder="重量" />
+                                                        )}
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label={<span>长度(cm)</span>}>
+                                                        {getFieldDecorator('length', { initialValue: this.state.current.length || 0 })(
+                                                            <InputNumber min={0} precision={2} style={{ width: '100%' }} placeholder="长度" />
+                                                        )}
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label={<span>宽度(cm)</span>}>
+                                                        {getFieldDecorator('width', { initialValue: this.state.current.width || 0 })(
+                                                            <InputNumber min={0} precision={2} style={{ width: '100%' }} placeholder="宽度" />
+                                                        )}
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label={<span>高度(m)</span>}>
+                                                        {getFieldDecorator('height', { initialValue: this.state.current.height || 0 })(
+                                                            <InputNumber min={0} precision={2} style={{ width: '100%' }} placeholder="高度" />
+                                                        )}
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label='是否免费配送'>
+                                                        {
+                                                            getFieldDecorator('isFreeShipping', { initialValue: this.state.current.isFreeShipping || false, valuePropName: 'checked' })(
+                                                                <Checkbox />
+                                                            )
+                                                        }
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label={<span>额外运费</span>}>
+                                                        {getFieldDecorator('additionalShippingCharge', { initialValue: this.state.current.additionalShippingCharge || 0 })(
+                                                            <InputNumber min={0} precision={2} style={{ width: '100%' }} placeholder="额外运费" />
+                                                        )}
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label={<span>运费模板</span>}>
+                                                        {getFieldDecorator('warehouseId',
+                                                            { initialValue: this.state.current.warehouseId || '', valuePropName: 'value' })(
+                                                                <Select
+                                                                    placeholder="运费模板"
+                                                                    loading={this.state.warehousesLoading}
+                                                                    allowClear={true}
+                                                                >
+                                                                    {this.state.warehouses.map(c => {
+                                                                        return <Option value={c.id} key={c.id}>{c.name}</Option>;
+                                                                    })}
+                                                                </Select>
+                                                            )}
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label={<span>备货期<Tooltip placement="topLeft" title="备货期。发货天数。取值范围:1-60;单位:天。">
+                                                            <Icon type="question-circle" theme="filled" />
+                                                        </Tooltip>
+                                                        </span>}>
+                                                        {getFieldDecorator('deliveryTime', { initialValue: this.state.current.deliveryTime })(
+                                                            <InputNumber min={0} precision={0} style={{ width: '100%' }} placeholder="备货期" />
+                                                        )}
+                                                    </FormItem>
+                                                </Card> : null
+                                        }
+                                    </FormItem>
+                                    <FormItem
+                                        {...formItemLayout}
                                         label={<span>isCallForPricing</span>}>
                                         {
                                             getFieldDecorator('isCallForPricing', { initialValue: this.state.current.isCallForPricing || false, valuePropName: 'checked' })(
                                                 <Checkbox />
                                             )
+                                        }
+                                    </FormItem>
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label={<span>管理员备注</span>}>
+                                        {getFieldDecorator('adminRemark', { initialValue: this.state.current.adminRemark || '' })(
+                                            <TextArea
+                                                style={{ minHeight: 32 }}
+                                                placeholder=""
+                                                rows={2} />)
                                         }
                                     </FormItem>
                                 </TabPane>
