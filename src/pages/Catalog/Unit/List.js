@@ -177,6 +177,7 @@ class UnitList extends PureComponent {
                             pagination={false}
                             dataSource={this.state.data}
                             columns={this.columns}
+                            loading={this.state.loading}
                         />
                     </Card>
                 </div>

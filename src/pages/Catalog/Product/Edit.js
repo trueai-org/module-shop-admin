@@ -124,7 +124,11 @@ class ProductAdd extends PureComponent {
             },
 
             //航运
-            isShipEnabled: false
+            isShipEnabled: false,
+
+            //单位
+            units: [],
+            unitsLoading: false,
         };
     }
 
@@ -1221,11 +1225,28 @@ class ProductAdd extends PureComponent {
             templateLoading: true,
             attributeLoading: true,
             optionLoading: true,
-            warehousesLoading: true
+            warehousesLoading: true,
+            unitsLoading: true
         });
 
         if (this.state.id)
             this.handleGetProduct();
+
+        new Promise(resolve => {
+            dispatch({
+                type: 'catalog/units',
+                payload: {
+                    resolve,
+                },
+            });
+        }).then(res => {
+            this.setState({ unitsLoading: false });
+            if (res.success === true) {
+                this.setState({ units: res.data });
+            } else {
+                notification.error({ message: res.message });
+            }
+        });
 
         new Promise(resolve => {
             dispatch({
@@ -1750,6 +1771,22 @@ class ProductAdd extends PureComponent {
                                         {getFieldDecorator('barcode', { initialValue: this.state.current.barcode || '' })(
                                             <Input placeholder="商品条形码" />
                                         )}
+                                    </FormItem>
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label={<span>单位</span>}>
+                                        {getFieldDecorator('unitId',
+                                            { initialValue: this.state.current.unitId || '', valuePropName: 'value' })(
+                                                <Select
+                                                    placeholder="单位"
+                                                    loading={this.state.unitsLoading}
+                                                    allowClear={true}
+                                                >
+                                                    {this.state.units.map(c => {
+                                                        return <Option value={c.id} key={c.id}>{c.name}</Option>;
+                                                    })}
+                                                </Select>
+                                            )}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}

@@ -7,7 +7,8 @@ import {
     firstProductAttributeTemplate,
     queryProductAttrData,
     queryProductOptionData,
-    categories
+    categories,
+    queryUnitAll
 } from '@/services/api';
 
 export default {
@@ -68,6 +69,12 @@ export default {
         *categories({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(categories, params);
+            !!resolve && resolve(response);
+        },
+
+        *units({ payload }, { call, put }) {
+            const { resolve } = payload;
+            const response = yield call(queryUnitAll);
             !!resolve && resolve(response);
         },
     },
