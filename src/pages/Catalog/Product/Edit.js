@@ -592,13 +592,15 @@ class ProductAdd extends PureComponent {
         {
             title: '仓库',
             dataIndex: 'warehouseName',
-            sorter: true,
         },
         {
             title: '调整数量',
             dataIndex: 'adjustedQuantity',
             width: 120,
             sorter: true,
+            render: val => <span style={{
+                color: (val > 0 ? '#52c41a' : '#f5222d')
+            }}>{val > 0 ? '+' : ''}{val}</span>,
         },
         {
             title: '库存数量',
@@ -624,6 +626,14 @@ class ProductAdd extends PureComponent {
 
     componentDidMount() {
         this.handleInit();
+    }
+
+    handleTabChange = (key) => {
+        if (key == 6) {
+            //库存历史
+            if (this.state.id)
+                this.handleLoadStockHistory();
+        }
     }
 
     handleSubmit = e => {
@@ -1126,7 +1136,6 @@ class ProductAdd extends PureComponent {
     handleInit = () => {
         const { dispatch } = this.props;
         this.setState({
-            loading: true,
             brandLoading: true,
             categoryLoading: true,
             templateLoading: true,
@@ -1135,63 +1144,8 @@ class ProductAdd extends PureComponent {
             warehousesLoading: true
         });
 
-        new Promise(resolve => {
-            dispatch({
-                type: 'product/get',
-                payload: {
-                    resolve,
-                    params: { id: this.state.id }
-                },
-            });
-        }).then(res => {
-            this.setState({ loading: false });
-            if (res.success === true) {
-                this.setState({
-                    current: res.data,
-                    currentIsPublished: res.data.isPublished,
-                    currentPublishType: res.data.publishType,
-                    currentStockTrackingIsEnabled: res.data.stockTrackingIsEnabled
-                }, () => {
-                    this.props.form.setFieldsValue({
-                        shortDescription: BraftEditor.createEditorState(this.state.current.shortDescription || ''),
-                        description: BraftEditor.createEditorState(this.state.current.description || ''),
-                        specification: BraftEditor.createEditorState(this.state.current.specification || ''),
-                    })
-                });
-
-                let imgs = res.data.productImages || [];
-                let fs = [];
-                imgs.forEach(c => {
-                    fs.push({
-                        uid: -c.id,
-                        name: c.caption || '',
-                        status: 'done',
-                        url: c.mediaUrl,
-                        mediaId: c.mediaId
-                    });
-                    this.setState({ fileList: fs });
-                });
-
-                this.setState({
-                    productAttributeData: res.data.attributes,
-                    productOptionData: res.data.options,
-                    productSku: res.data.variations
-                }, () => {
-                    //加载属性对应的属性值列表
-                    this.state.productAttributeData.forEach(c => {
-                        this.queryAttributeData(c.id, c.name);
-                    });
-
-                    this.state.productOptionData.forEach(c => {
-                        this.queryOptionData(c.id, c.name);
-                    });
-                });
-            } else {
-                notification.error({
-                    message: res.message,
-                });
-            }
-        });
+        if (this.state.id)
+            this.handleGetProduct();
 
         new Promise(resolve => {
             dispatch({
@@ -1288,21 +1242,93 @@ class ProductAdd extends PureComponent {
                 notification.error({ message: res.message });
             }
         });
+    }
 
-        this.handleLoadStockHistory();
+    handleGetProduct = () => {
+        const { dispatch } = this.props;
+        this.setState({ loading: true });
+        new Promise(resolve => {
+            dispatch({
+                type: 'product/get',
+                payload: {
+                    resolve,
+                    params: { id: this.state.id }
+                },
+            });
+        }).then(res => {
+            this.setState({ loading: false });
+            if (res.success === true) {
+                this.setState({
+                    current: res.data,
+                    currentIsPublished: res.data.isPublished,
+                    currentPublishType: res.data.publishType,
+                    currentStockTrackingIsEnabled: res.data.stockTrackingIsEnabled
+                }, () => {
+                    this.props.form.setFieldsValue({
+                        shortDescription: BraftEditor.createEditorState(this.state.current.shortDescription || ''),
+                        description: BraftEditor.createEditorState(this.state.current.description || ''),
+                        specification: BraftEditor.createEditorState(this.state.current.specification || ''),
+                    })
+                });
+
+                let imgs = res.data.productImages || [];
+                let fs = [];
+                imgs.forEach(c => {
+                    fs.push({
+                        uid: -c.id,
+                        name: c.caption || '',
+                        status: 'done',
+                        url: c.mediaUrl,
+                        mediaId: c.mediaId
+                    });
+                    this.setState({ fileList: fs });
+                });
+
+                this.setState({
+                    productAttributeData: res.data.attributes,
+                    productOptionData: res.data.options,
+                    productSku: res.data.variations
+                }, () => {
+                    //加载属性对应的属性值列表
+                    this.state.productAttributeData.forEach(c => {
+                        this.queryAttributeData(c.id, c.name);
+                    });
+
+                    this.state.productOptionData.forEach(c => {
+                        this.queryOptionData(c.id, c.name);
+                    });
+                });
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
     }
 
     handleLoadStockHistory = () => {
         const { dispatch } = this.props;
+        const params =
+        {
+            pagination: {
+                current: this.state.pageNum,
+                pageSize: this.state.pageSize
+            },
+            sort: {
+                predicate: this.state.predicate,
+                reverse: this.state.reverse
+            },
+            search: {
+                productId: this.state.id
+            }
+        };
         this.setState({ historyLoading: true });
         new Promise(resolve => {
             dispatch({
                 type: 'product/stockHistories',
                 payload: {
                     resolve,
-                    params: {
-                        productId: this.state.id
-                    }
+                    params: params
                 },
             });
         }).then(res => {
@@ -1425,7 +1451,6 @@ class ProductAdd extends PureComponent {
     // }
 
     handleHistoryStandardTableChange = (pagination, filtersArg, sorter) => {
-        var firstPage = sorter.field != this.state.predicate;
         this.setState({
             pageNum: pagination.current,
             pageSize: pagination.pageSize,
@@ -1438,16 +1463,10 @@ class ProductAdd extends PureComponent {
                     predicate: sorter.field,
                     reverse: sorter.order == 'descend'
                 }, () => {
-                    if (firstPage)
-                        this.handleSearchFirst();
-                    else
-                        this.handleSearch();
+                    this.handleLoadStockHistory();
                 });
             } else {
-                if (firstPage)
-                    this.handleSearchFirst();
-                else
-                    this.handleSearch();
+                this.handleLoadStockHistory();
             }
         });
     };
@@ -1539,7 +1558,7 @@ class ProductAdd extends PureComponent {
                 <Spin spinning={this.state.loading}>
                     <Card bordered={false}>
                         <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
-                            <Tabs type="card">
+                            <Tabs type="card" onChange={this.handleTabChange}>
                                 <TabPane tab="基本信息" key="1">
                                     <FormItem
                                         {...formItemLayout}
