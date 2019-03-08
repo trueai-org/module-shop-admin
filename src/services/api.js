@@ -643,3 +643,28 @@ export async function queryStockHistoryGrid(params) {
     body: params
   });
 }
+
+//单位
+export async function queryUnitAll() {
+  return request(`/api/units`);
+}
+
+export async function addUnit(params) {
+  return request(`/api/units`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editUnit(params) {
+  return request(`/api/units/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function deleteUnit(params) {
+  return request(`/api/units/${params.id}`, {
+    method: 'DELETE'
+  });
+}

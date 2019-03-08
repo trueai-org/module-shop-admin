@@ -308,15 +308,6 @@ class ProductAttributeTemplateList extends PureComponent {
     render() {
         const { form: { getFieldDecorator }, } = this.props;
         const modalFooter = { okText: '保存', onOk: this.handleSubmit, onCancel: this.handleCancel };
-        const extraContent = (
-            <div>
-                <Button
-                    onClick={this.showModal}
-                    type="primary"
-                    icon="plus">
-                    新增</Button>
-            </div>
-        );
         const formLayout = {
             labelCol: { span: 7 },
             wrapperCol: { span: 13 },
@@ -365,18 +356,13 @@ class ProductAttributeTemplateList extends PureComponent {
                 <Button
                     onClick={this.showModal}
                     type="primary"
-                    icon="plus">新增</Button>
+                    icon="plus">添加</Button>
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="商品属性模板">
+            <PageHeaderWrapper title="商品属性模板" action={action}>
                 <div>
-                    <Card bordered={false}
-                    // extra={extraContent}
-                    >
-                        <div style={{ marginBottom: '20px' }} >
-                            {action}
-                        </div>
+                    <Card bordered={false}>
                         <StandardTable
                             pagination={pagination}
                             loading={this.state.loading}
@@ -397,7 +383,7 @@ class ProductAttributeTemplateList extends PureComponent {
                     </Card>
                 </div>
                 <Modal
-                    title={`商品属性模板 - ${this.state.current.id ? '编辑' : '新增'}`}
+                    title={`商品属性模板 - ${this.state.current.id ? '编辑' : '添加'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>

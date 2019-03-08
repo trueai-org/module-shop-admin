@@ -373,7 +373,11 @@ export default [
             name: 'product-attribute-template',
             component: './Catalog/ProductAttributeTemplate/List',
           },
-
+          {
+            path: '/catalog/unit',
+            name: 'unit',
+            component: './Catalog/Unit/List',
+          },
         ],
       },
 
