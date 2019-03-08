@@ -435,9 +435,19 @@ class ProductAdd extends PureComponent {
                 <Fragment>
                     <Input
                         onChange={(e) => {
-                            let obj = this.state.productSku.find(c => c.id == record.id);
-                            if (obj) {
-                                obj.name = e.target.value;
+                            // let obj = this.state.productSku.find(c => c.id == record.id);
+                            // if (obj) {
+                            //     obj.name = e.target.value;
+                            // }
+
+                            let index = this.state.productSku.indexOf(record);
+                            if (index >= 0) {
+                                let list = this.state.productSku.slice();
+                                list.splice(index, 1);
+
+                                record.name = e.target.value;
+                                list.splice(index, 0, record);
+                                this.setState({ productSku: list });
                             }
                         }}
                         defaultValue={text}></Input>
@@ -452,9 +462,19 @@ class ProductAdd extends PureComponent {
                 <Fragment>
                     <Input
                         onChange={(e) => {
-                            let obj = this.state.productSku.find(c => c.id == record.id);
-                            if (obj) {
-                                obj.sku = e.target.value;
+                            // let obj = this.state.productSku.find(c => c.id == record.id);
+                            // if (obj) {
+                            //     obj.sku = e.target.value;
+                            // }
+
+                            let index = this.state.productSku.indexOf(record);
+                            if (index >= 0) {
+                                let list = this.state.productSku.slice();
+                                list.splice(index, 1);
+
+                                record.sku = e.target.value;
+                                list.splice(index, 0, record);
+                                this.setState({ productSku: list });
                             }
                         }}
                         defaultValue={text}></Input>
@@ -469,9 +489,18 @@ class ProductAdd extends PureComponent {
                 <Fragment>
                     <Input
                         onChange={(e) => {
-                            let obj = this.state.productSku.find(c => c.id == record.id);
-                            if (obj) {
-                                obj.gtin = e.target.value;
+                            // let obj = this.state.productSku.find(c => c.id == record.id);
+                            // if (obj) {
+                            //     obj.gtin = e.target.value;
+                            // }
+                            let index = this.state.productSku.indexOf(record);
+                            if (index >= 0) {
+                                let list = this.state.productSku.slice();
+                                list.splice(index, 1);
+
+                                record.gtin = e.target.value;
+                                list.splice(index, 0, record);
+                                this.setState({ productSku: list });
                             }
                         }}
                         defaultValue={text}></Input>
@@ -486,9 +515,18 @@ class ProductAdd extends PureComponent {
                 <Fragment>
                     <InputNumber
                         onChange={(e) => {
-                            let obj = this.state.productSku.find(c => c.id == record.id);
-                            if (obj) {
-                                obj.price = e;
+                            // let obj = this.state.productSku.find(c => c.id == record.id);
+                            // if (obj) {
+                            //     obj.price = e;
+                            // }
+                            let index = this.state.productSku.indexOf(record);
+                            if (index >= 0) {
+                                let list = this.state.productSku.slice();
+                                list.splice(index, 1);
+
+                                record.price = e;
+                                list.splice(index, 0, record);
+                                this.setState({ productSku: list });
                             }
                         }}
                         defaultValue={value}></InputNumber>
@@ -503,9 +541,47 @@ class ProductAdd extends PureComponent {
                 <Fragment>
                     <InputNumber
                         onChange={(e) => {
-                            let obj = this.state.productSku.find(c => c.id == record.id);
-                            if (obj) {
-                                obj.oldPrice = e;
+                            // let obj = this.state.productSku.find(c => c.id == record.id);
+                            // if (obj) {
+                            //     obj.oldPrice = e;
+                            // }
+                            let index = this.state.productSku.indexOf(record);
+                            if (index >= 0) {
+                                let list = this.state.productSku.slice();
+                                list.splice(index, 1);
+
+                                record.oldPrice = e;
+                                list.splice(index, 0, record);
+                                this.setState({ productSku: list });
+                            }
+                        }}
+                        defaultValue={value}></InputNumber>
+                </Fragment>
+            )
+        },
+        {
+            title: '库存',
+            dataIndex: 'stockQuantity',
+            width: 100,
+            render: (value, record) => (
+                <Fragment>
+                    <InputNumber
+                        min={0}
+                        precision={0}
+                        onChange={(e) => {
+                            // let obj = this.state.productSku.find(c => c.name == record.name);
+                            // if (obj) {
+                            //     obj.stockQuantity = e;
+                            // }
+
+                            let index = this.state.productSku.indexOf(record);
+                            if (index >= 0) {
+                                let list = this.state.productSku.slice();
+                                list.splice(index, 1);
+
+                                record.stockQuantity = e;
+                                list.splice(index, 0, record);
+                                this.setState({ productSku: list });
                             }
                         }}
                         defaultValue={value}></InputNumber>
@@ -879,7 +955,8 @@ class ProductAdd extends PureComponent {
             normalizedName: optionCombinations.map(this.getItemValue).join('-'),
             optionCombinations: optionCombinations,
             price: this.state.current.price || 0,
-            oldPrice: this.state.current.oldPrice || 0
+            oldPrice: this.state.current.oldPrice,
+            stockQuantity: this.state.current.stockQuantity || 0,
         };
 
         if (!this.state.productSku.find(c => c.name == variation.name)) {
@@ -939,7 +1016,8 @@ class ProductAdd extends PureComponent {
                     normalizedName: optionCombinations.map(this.getItemValue).join('-'),
                     optionCombinations: optionCombinations,
                     price: this.state.current.price || 0,
-                    oldPrice: this.state.current.oldPrice || 0
+                    oldPrice: this.state.current.oldPrice,
+                    stockQuantity: this.state.current.stockQuantity || 0,
                 };
                 skus.push(variation);
             } else {
