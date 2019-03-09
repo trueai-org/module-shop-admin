@@ -10,17 +10,12 @@ import StandardTable from '@/components/StandardTable';
 
 import router from 'umi/router';
 import Link from 'umi/link';
-import { formatBool } from '@/utils/utils';
-
-const role = ['null', 'admin', 'customer', 'guest'];
-const roleMap = ['', 'red', 'blue', ''];
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 
 @connect()
 @Form.create()
-class UserList extends PureComponent {
+class FreightTemplateList extends PureComponent {
     state = {
         loading: false,
         visible: false,
@@ -36,22 +31,19 @@ class UserList extends PureComponent {
             list: [],
             pagination: {}
         },
-
-        countries: [],
-        countriesLoading: false,
-
-        provinces: [],
-        provincesLoading: false,
     };
     columns = [
         {
             title: '操作',
             align: 'center',
             key: 'operation',
-            width: 120,
+            width: 135,
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
+                        <Tooltip title="运费配置">
+                            <Button icon="setting" size="small" onClick={() => this.handleData(text, record)}></Button>
+                        </Tooltip>
                         <Button icon="edit" size="small" onClick={() => this.showEditModal(record)}></Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
                             <Button icon="delete" type="danger" size="small"></Button>
@@ -68,18 +60,13 @@ class UserList extends PureComponent {
         //     defaultSortOrder: 'descend',
         // },
         {
-            title: '仓库名称',
+            title: '模板名称',
             dataIndex: 'name',
             sorter: true,
         },
-        // {
-        //     title: '联系人',
-        //     dataIndex: 'contactName',
-        //     sorter: true,
-        // },
         {
-            title: '管理员备注',
-            dataIndex: 'adminRemark',
+            title: '备注',
+            dataIndex: 'note',
             sorter: true,
         },
         {
@@ -100,48 +87,15 @@ class UserList extends PureComponent {
     ];
 
     componentDidMount() {
-        this.handleInit();
         this.handleSearchFirst();
     }
 
-    handleInit = () => {
-        const { dispatch } = this.props;
-        this.setState({ countriesLoading: true });
-        new Promise(resolve => {
-            dispatch({
-                type: 'system/countries',
-                payload: {
-                    resolve
-                },
-            });
-        }).then(res => {
-            this.setState({ countriesLoading: false });
-            if (res.success === true) {
-                this.setState({ countries: res.data });
-            } else {
-                notification.error({ message: res.message, });
-            }
-        });
-    }
-
-    handleInitProvinces = (countryId) => {
-        const { dispatch } = this.props;
-        this.setState({ provincesLoading: true });
-        new Promise(resolve => {
-            dispatch({
-                type: 'system/provinces',
-                payload: {
-                    resolve,
-                    params: { countryId: countryId },
-                },
-            });
-        }).then(res => {
-            this.setState({ provincesLoading: false });
-            if (res.success === true) {
-                this.setState({ provinces: res.data });
-            } else {
-                notification.error({ message: res.message, });
-            }
+    handleData = (text, record) => {
+        router.push({
+            pathname: './setting',
+            query: {
+                id: record.id,
+            },
         });
     }
 
@@ -156,8 +110,6 @@ class UserList extends PureComponent {
         this.setState({
             visible: true,
             current: item,
-        }, () => {
-            this.handleInitProvinces(item.countryId);
         });
     };
 
@@ -179,10 +131,10 @@ class UserList extends PureComponent {
                 ...values
             };
 
-            let bt = 'warehouse/add';
+            let bt = 'freight-template/add';
             if (id) {
                 params.id = id;
-                bt = 'warehouse/edit';
+                bt = 'freight-template/edit';
             }
 
             // console.log(params);
@@ -219,7 +171,7 @@ class UserList extends PureComponent {
         const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'warehouse/delete',
+                type: 'freight-template/delete',
                 payload: {
                     resolve,
                     params,
@@ -257,7 +209,7 @@ class UserList extends PureComponent {
 
         new Promise(resolve => {
             dispatch({
-                type: 'warehouse/grid',
+                type: 'freight-template/grid',
                 payload: {
                     resolve,
                     params,
@@ -344,85 +296,17 @@ class UserList extends PureComponent {
         const getModalContent = () => {
             return (
                 <Form onSubmit={this.handleSubmit}>
-                    <FormItem label="仓库名称" {...formLayout}>
+                    <FormItem label="模板名称" {...formLayout}>
                         {getFieldDecorator('name', {
-                            rules: [{ required: true, message: '请输入仓库名称' }],
+                            rules: [{ required: true, message: '请输入模板名称' }],
                             initialValue: this.state.current.name || '',
                         })(<Input placeholder="请输入" />)}
                     </FormItem>
-                    <FormItem label="联系人" {...formLayout}>
-                        {getFieldDecorator('contactName', {
-                            initialValue: this.state.current.contactName || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                    <FormItem label="电话" {...formLayout}>
-                        {getFieldDecorator('phone', {
-                            initialValue: this.state.current.phone || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                    <FormItem label="国家" {...formLayout}>
-                        {getFieldDecorator('countryId', {
-                            rules: [{ required: true, message: '请选择国家' }],
-                            initialValue: this.state.current.countryId, valuePropName: 'value'
-                        })(
-                            <Select
-                                placeholder="请选择国家"
-                                loading={this.state.countriesLoading}
-                                allowClear={true}
-                                onChange={(value) => {
-                                    this.props.form.setFieldsValue({ stateOrProvinceId: '' })
-                                    if (value) {
-                                        this.handleInitProvinces(value);
-                                    } else {
-                                        this.setState({ provinces: [] });
-                                    }
-                                }}>
-                                {this.state.countries.map(c => {
-                                    return <Option key={c.id} value={c.id}>{c.name}</Option>;
-                                })}
-                            </Select>)}
-                    </FormItem>
-                    <FormItem label={<span>省市区</span>} {...formLayout}>
-                        {getFieldDecorator('stateOrProvinceId', {
-                            rules: [{ required: true, message: '请选择省市区' }],
-                            initialValue: this.state.current.stateOrProvinceId || '', valuePropName: 'value'
-                        })(
-                            <TreeSelect
-                                // value={this.state.currentProvinceId}
-                                // treeDefaultExpandAll
-                                loading={this.state.provincesLoading}
-                                allowClear={true}
-                                treeData={this.state.provinces}
-                            />)}
-                    </FormItem>
-                    <FormItem label="城市" {...formLayout}>
-                        {getFieldDecorator('city', {
-                            initialValue: this.state.current.city || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                    <FormItem label="邮政编码" {...formLayout}>
-                        {getFieldDecorator('zipCode', {
-                            initialValue: this.state.current.zipCode || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                    <FormItem label="地址1" {...formLayout}>
-                        {getFieldDecorator('addressLine1', {
-                            initialValue: this.state.current.addressLine1 || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                    <FormItem label="地址2" {...formLayout}>
-                        {getFieldDecorator('addressLine2', {
-                            initialValue: this.state.current.addressLine2 || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
                     <FormItem
-                        label={<span>管理员备注<Tooltip title="管理员备注，仅内部使用"><Icon type="question-circle" theme="filled" /></Tooltip></span>}
+                        label={<span>备注</span>}
                         {...formLayout}>
-                        {getFieldDecorator('adminRemark', { initialValue: this.state.current.adminRemark })(
-                            <Input.TextArea
-
-                                placeholder="管理员备注"
-                                rows={2} />
+                        {getFieldDecorator('note', { initialValue: this.state.current.note })(
+                            <Input.TextArea rows={2} />
                         )}
                     </FormItem>
                 </Form>
@@ -437,7 +321,7 @@ class UserList extends PureComponent {
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="仓库 - 列表" action={action}>
+            <PageHeaderWrapper title="运费模板" action={action}>
                 <div>
                     <Card bordered={false}>
                         <StandardTable
@@ -453,7 +337,7 @@ class UserList extends PureComponent {
                     </Card>
                 </div>
                 <Modal
-                    title={`仓库 - ${this.state.current.id ? '编辑' : '添加'}`}
+                    title={`运费模板 - ${this.state.current.id ? '编辑' : '添加'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>
@@ -464,4 +348,4 @@ class UserList extends PureComponent {
     }
 }
 
-export default UserList;
+export default FreightTemplateList;

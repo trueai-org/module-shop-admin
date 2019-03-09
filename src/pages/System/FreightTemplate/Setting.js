@@ -2,52 +2,56 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     Row, Col, List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown, Tooltip, Checkbox, TreeSelect
+    Menu, Dropdown, Checkbox, Switch, Badge, Tooltip, InputNumber, TreeSelect
 } from 'antd';
-import moment from 'moment';
+
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
-
 import router from 'umi/router';
 import Link from 'umi/link';
 import { formatBool } from '@/utils/utils';
 
-const role = ['null', 'admin', 'customer', 'guest'];
-const roleMap = ['', 'red', 'blue', ''];
-
 const FormItem = Form.Item;
-const Option = Select.Option;
+const level = ['省', '市', '区', '街道'];
 
 @connect()
 @Form.create()
-class UserList extends PureComponent {
-    state = {
-        loading: false,
-        visible: false,
-        current: {},
-        submitting: false,
+class FreightTemplateSettingList extends PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {
+            loading: false,
+            visible: false,
+            data: [],
+            current: {},
+            submitting: false,
 
-        search: {},
-        pageNum: 1,
-        pageSize: 5,
-        predicate: 'updatedOn',
-        reverse: true,
-        pageData: {
-            list: [],
-            pagination: {}
-        },
+            search: {},
+            pageNum: 1,
+            pageSize: 10,
+            predicate: 'id',
+            reverse: true,
+            pageData: {
+                list: [],
+                pagination: {}
+            },
 
-        countries: [],
-        countriesLoading: false,
+            id: props.location.query.id,
 
-        provinces: [],
-        provincesLoading: false,
-    };
+            countries: [],
+            countriesLoading: false,
+
+            provinces: [],
+            provincesLoading: false,
+        };
+    }
+
     columns = [
         {
             title: '操作',
             align: 'center',
             key: 'operation',
+            fixed: 'left',
             width: 120,
             render: (text, record) => (
                 <Fragment>
@@ -60,43 +64,56 @@ class UserList extends PureComponent {
                 </Fragment>
             )
         },
-        // {
-        //     title: 'ID',
-        //     dataIndex: 'id',
-        //     width: 100,
-        //     sorter: true,
-        //     defaultSortOrder: 'descend',
-        // },
         {
-            title: '仓库名称',
-            dataIndex: 'name',
-            sorter: true,
-        },
-        // {
-        //     title: '联系人',
-        //     dataIndex: 'contactName',
-        //     sorter: true,
-        // },
-        {
-            title: '管理员备注',
-            dataIndex: 'adminRemark',
-            sorter: true,
-        },
-        {
-            title: '创建时间',
-            dataIndex: 'createdOn',
-            width: 120,
-            sorter: true,
-            render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
-        },
-        {
-            title: '更新时间',
-            dataIndex: 'updatedOn',
-            width: 120,
+            title: 'ID',
+            dataIndex: 'id',
+            width: 100,
             sorter: true,
             defaultSortOrder: 'descend',
-            render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
-        }
+        },
+        {
+            title: '国家',
+            dataIndex: 'countryName',
+            width: 120,
+        },
+        {
+            title: '省市区',
+            dataIndex: 'stateOrProvinceName',
+            width: 150,
+            render: (text, record) => {
+                if (record.stateOrProvinceLevel != null) {
+                    return <div>
+                        <Tag>{level[record.stateOrProvinceLevel]}</Tag>
+                        {text}
+                    </div>;
+                }
+                return text;
+            }
+        },
+        {
+            title: '最低订单金额',
+            dataIndex: 'minOrderSubtotal',
+            width: 150,
+            sorter: true,
+        },
+        {
+            title: '运费',
+            dataIndex: 'shippingPrice',
+            width: 120,
+            sorter: true,
+        },
+        {
+            title: '启用',
+            dataIndex: 'isEnabled',
+            width: 100,
+            sorter: true,
+            render: (val) => formatBool(val)
+        },
+        {
+            title: '备注',
+            dataIndex: 'note',
+            sorter: true,
+        },
     ];
 
     componentDidMount() {
@@ -145,10 +162,11 @@ class UserList extends PureComponent {
         });
     }
 
+
     showModal = () => {
         this.setState({
             visible: true,
-            current: {},
+            current: {}
         });
     };
 
@@ -163,7 +181,7 @@ class UserList extends PureComponent {
 
     handleCancel = () => {
         this.setState({
-            visible: false,
+            visible: false
         });
     };
 
@@ -176,13 +194,14 @@ class UserList extends PureComponent {
             if (err) return;
 
             var params = {
-                ...values
+                ...values,
+                freightTemplateId: this.state.id
             };
 
-            let bt = 'warehouse/add';
+            let bt = 'price-destination/add';
             if (id) {
                 params.id = id;
-                bt = 'warehouse/edit';
+                bt = 'price-destination/edit';
             }
 
             // console.log(params);
@@ -203,6 +222,7 @@ class UserList extends PureComponent {
                 if (res.success === true) {
                     form.resetFields();
                     this.setState({ visible: false });
+                    this.handleInit();
                     this.handleSearch();
                 } else {
                     notification.error({
@@ -214,19 +234,18 @@ class UserList extends PureComponent {
     };
 
     deleteItem = id => {
-        this.setState({ loading: true });
+        this.setState({ loading: true, });
         const { dispatch } = this.props;
-        const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'warehouse/delete',
+                type: 'price-destination/delete',
                 payload: {
                     resolve,
-                    params,
+                    params: { id },
                 },
             });
         }).then(res => {
-            this.setState({ loading: false, });
+            this.setState({ loading: false });
             if (res.success === true) {
                 this.handleSearch();
             } else {
@@ -252,27 +271,24 @@ class UserList extends PureComponent {
                 predicate: this.state.predicate,
                 reverse: this.state.reverse
             },
-            search: this.state.search
+            search: { ...this.state.search, name: this.state.name },
+            freightTemplateId: this.state.id
         };
 
         new Promise(resolve => {
             dispatch({
-                type: 'warehouse/grid',
+                type: 'price-destination/grid',
                 payload: {
                     resolve,
                     params,
                 },
             });
         }).then(res => {
+            this.setState({ loading: false });
             if (res.success === true) {
-                this.setState({
-                    loading: false,
-                    pageData: res.data
-                });
+                this.setState({ pageData: res.data });
             } else {
-                notification.error({
-                    message: res.message,
-                });
+                notification.error({ message: res.message });
             }
         });
     };
@@ -313,14 +329,6 @@ class UserList extends PureComponent {
         });
     };
 
-    handleFormReset = () => {
-        const { form, dispatch } = this.props;
-        form.resetFields();
-        this.setState({
-            formValues: {},
-        });
-    };
-
     render() {
         const { form: { getFieldDecorator }, } = this.props;
         const modalFooter = { okText: '保存', onOk: this.handleSubmit, onCancel: this.handleCancel };
@@ -344,22 +352,6 @@ class UserList extends PureComponent {
         const getModalContent = () => {
             return (
                 <Form onSubmit={this.handleSubmit}>
-                    <FormItem label="仓库名称" {...formLayout}>
-                        {getFieldDecorator('name', {
-                            rules: [{ required: true, message: '请输入仓库名称' }],
-                            initialValue: this.state.current.name || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                    <FormItem label="联系人" {...formLayout}>
-                        {getFieldDecorator('contactName', {
-                            initialValue: this.state.current.contactName || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                    <FormItem label="电话" {...formLayout}>
-                        {getFieldDecorator('phone', {
-                            initialValue: this.state.current.phone || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
                     <FormItem label="国家" {...formLayout}>
                         {getFieldDecorator('countryId', {
                             rules: [{ required: true, message: '请选择国家' }],
@@ -384,60 +376,55 @@ class UserList extends PureComponent {
                     </FormItem>
                     <FormItem label={<span>省市区</span>} {...formLayout}>
                         {getFieldDecorator('stateOrProvinceId', {
-                            rules: [{ required: true, message: '请选择省市区' }],
                             initialValue: this.state.current.stateOrProvinceId || '', valuePropName: 'value'
                         })(
                             <TreeSelect
-                                // value={this.state.currentProvinceId}
                                 // treeDefaultExpandAll
                                 loading={this.state.provincesLoading}
                                 allowClear={true}
                                 treeData={this.state.provinces}
                             />)}
                     </FormItem>
-                    <FormItem label="城市" {...formLayout}>
-                        {getFieldDecorator('city', {
-                            initialValue: this.state.current.city || '',
-                        })(<Input placeholder="请输入" />)}
+                    <FormItem label="最低订单金额" {...formLayout}>
+                        {getFieldDecorator('minOrderSubtotal', {
+                            initialValue: this.state.current.minOrderSubtotal || 0,
+                        })(<InputNumber min={0} style={{ width: '100%' }} />)}
                     </FormItem>
-                    <FormItem label="邮政编码" {...formLayout}>
-                        {getFieldDecorator('zipCode', {
-                            initialValue: this.state.current.zipCode || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                    <FormItem label="地址1" {...formLayout}>
-                        {getFieldDecorator('addressLine1', {
-                            initialValue: this.state.current.addressLine1 || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                    <FormItem label="地址2" {...formLayout}>
-                        {getFieldDecorator('addressLine2', {
-                            initialValue: this.state.current.addressLine2 || '',
-                        })(<Input placeholder="请输入" />)}
+                    <FormItem label="运费" {...formLayout}>
+                        {getFieldDecorator('shippingPrice', {
+                            initialValue: this.state.current.shippingPrice || 0,
+                        })(<InputNumber min={0} style={{ width: '100%' }} />)}
                     </FormItem>
                     <FormItem
-                        label={<span>管理员备注<Tooltip title="管理员备注，仅内部使用"><Icon type="question-circle" theme="filled" /></Tooltip></span>}
+                        label={<span>备注</span>}
                         {...formLayout}>
-                        {getFieldDecorator('adminRemark', { initialValue: this.state.current.adminRemark })(
-                            <Input.TextArea
-
-                                placeholder="管理员备注"
-                                rows={2} />
+                        {getFieldDecorator('note', { initialValue: this.state.current.note })(
+                            <Input.TextArea rows={2} />
                         )}
+                    </FormItem>
+                    <FormItem label="启用" {...formLayout}>
+                        {getFieldDecorator('isEnabled', {
+                            initialValue: this.state.current.isEnabled || false, valuePropName: 'checked'
+                        })(<Checkbox />)}
                     </FormItem>
                 </Form>
             );
         };
-        const action = (
+        const rollback = (
             <Fragment>
                 <Button
                     onClick={this.showModal}
                     type="primary"
                     icon="plus">添加</Button>
+                <Link to="./list">
+                    <Button>
+                        <Icon type="rollback" />
+                    </Button>
+                </Link>
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="仓库 - 列表" action={action}>
+            <PageHeaderWrapper title="运费配置" action={rollback}>
                 <div>
                     <Card bordered={false}>
                         <StandardTable
@@ -448,12 +435,12 @@ class UserList extends PureComponent {
                             columns={this.columns}
                             bordered
                             onChange={this.handleStandardTableChange}
-                        // scroll={{ x: 1500 }}
+                            scroll={{ x: 960 }}
                         />
                     </Card>
                 </div>
                 <Modal
-                    title={`仓库 - ${this.state.current.id ? '编辑' : '添加'}`}
+                    title={`运费配置 - ${this.state.current.id ? '编辑' : '添加'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>
@@ -464,4 +451,4 @@ class UserList extends PureComponent {
     }
 }
 
-export default UserList;
+export default FreightTemplateSettingList;

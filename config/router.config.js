@@ -451,7 +451,30 @@ export default [
               {
                 path: '/system/warehouse/list',
                 name: 'list',
-                component: './System/warehouse/List'
+                component: './System/Warehouse/List'
+              }
+            ]
+          },
+
+          //运费模板
+          {
+            path: '/system/freight-template',
+            name: 'freight-template',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/system/freight-template',
+                redirect: '/system/freight-template/list',
+              },
+              {
+                path: '/system/freight-template/list',
+                name: 'list',
+                component: './System/FreightTemplate/List'
+              },
+              {
+                path: '/system/freight-template/setting',
+                name: 'setting',
+                component: './System/FreightTemplate/Setting'
               }
             ]
           },

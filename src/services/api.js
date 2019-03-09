@@ -668,3 +668,63 @@ export async function deleteUnit(params) {
     method: 'DELETE'
   });
 }
+
+//运费模板
+export async function queryFreightTemplateAll() {
+  return request(`/api/shippings/freight-templates`);
+}
+
+export async function queryFreightTemplateGrid(params) {
+  return request(`/api/shippings/freight-templates/grid`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function addFreightTemplate(params) {
+  return request(`/api/shippings/freight-templates`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editFreightTemplate(params) {
+  return request(`/api/shippings/freight-templates/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function deleteFreightTemplate(params) {
+  return request(`/api/shippings/freight-templates/${params.id}`, {
+    method: 'DELETE'
+  });
+}
+
+//运费模板 - 价格和目的地配置
+export async function queryPriceAndDestinationGrid(params) {
+  return request(`/api/shippings/price-destinations/grid/${params.freightTemplateId}`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function addPriceAndDestination(params) {
+  return request(`/api/shippings/price-destinations/${params.freightTemplateId}`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editPriceAndDestination(params) {
+  return request(`/api/shippings/price-destinations/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function deletePriceAndDestination(params) {
+  return request(`/api/shippings/price-destinations/${params.id}`, {
+    method: 'DELETE'
+  });
+}

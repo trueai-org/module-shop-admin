@@ -320,4 +320,8 @@ export default {
   'menu.system.user.list': '列表',
   'menu.system.warehouse': '仓库',
   'menu.system.warehouse.list': '列表',
+
+  'menu.system.freight-template': '运费模板',
+  'menu.system.freight-template.list': '列表',
+  'menu.system.freight-template.setting': '运费配置',
 };
