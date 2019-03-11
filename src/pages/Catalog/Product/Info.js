@@ -36,7 +36,7 @@ const { TextArea } = Input;
 
 @connect()
 @Form.create()
-class ProductAdd extends PureComponent {
+class ProductInfo extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
@@ -2443,4 +2443,4 @@ class ProductAdd extends PureComponent {
     }
 }
 
-export default ProductAdd;
+export default ProductInfo;
