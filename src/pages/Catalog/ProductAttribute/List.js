@@ -234,7 +234,7 @@ class ProductAttributeList extends PureComponent {
 
         new Promise(resolve => {
             dispatch({
-                type: 'group/queryProductAGS',
+                type: 'catalog/attrGroups',
                 payload: {
                     resolve,
                 },
