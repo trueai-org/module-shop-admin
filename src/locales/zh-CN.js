@@ -289,8 +289,9 @@ export default {
   'menu.catalog': '商品目录',
   'menu.catalog.product': '商品',
   'menu.catalog.product.list': '列表',
-  'menu.catalog.product.add': '新增',
-  'menu.catalog.product.edit': '编辑',
+  // 'menu.catalog.product.add': '新增',
+  // 'menu.catalog.product.edit': '编辑',
+  'menu.catalog.product.info': '信息',
 
   'menu.catalog.category': '商品分类',
   'menu.catalog.category.list': '列表',

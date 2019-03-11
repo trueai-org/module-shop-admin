@@ -24,7 +24,7 @@ import { SketchPicker } from 'react-color'
 import 'braft-editor/dist/index.css';
 import BraftEditor from 'braft-editor';
 
-import styles from './Edit.less';
+import styles from './Info.less';
 
 import CopyCommponent from './CopyCommponent';
 
@@ -789,7 +789,7 @@ class ProductAdd extends PureComponent {
             this.setState({ submitting: true, loading: true });
             new Promise(resolve => {
                 dispatch({
-                    type: 'product/edit',
+                    type: this.state.id ? 'product/edit' : 'product/add',
                     payload: {
                         resolve,
                         params
@@ -1640,23 +1640,29 @@ class ProductAdd extends PureComponent {
         };
 
         const rollback = (
-            <Fragment>
-                <Button type="primary" icon="copy" onClick={this.showCopyModal}>
-                    复制商品
+            this.state.id ?
+                <Fragment>
+                    <Button type="primary" icon="copy" onClick={this.showCopyModal}>
+                        复制商品
                 </Button>
-                <Button type="danger" icon="delete" onClick={this.showDeleteModal}>
-                    删除
+                    <Button type="danger" icon="delete" onClick={this.showDeleteModal}>
+                        删除
                 </Button>
+                    <Link to="./list">
+                        <Button>
+                            <Icon type="rollback" />
+                        </Button>
+                    </Link>
+                </Fragment> :
                 <Link to="./list">
                     <Button>
                         <Icon type="rollback" />
                     </Button>
                 </Link>
-            </Fragment>
         );
 
         return (
-            <PageHeaderWrapper title="编辑商品" action={rollback}>
+            <PageHeaderWrapper title={this.state.id ? '编辑商品' : '新增商品'} action={rollback}>
                 <Spin spinning={this.state.loading}>
                     <Card bordered={false}>
                         <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>

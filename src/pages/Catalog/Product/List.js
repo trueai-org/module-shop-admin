@@ -344,12 +344,12 @@ class ProductList extends PureComponent {
     };
 
     handleAdd = () => {
-        router.push('./add');
+        router.push('./info');
     }
 
     handleEdit = (id) => {
         router.push({
-            pathname: './edit',
+            pathname: './info',
             query: {
                 id: id,
             },

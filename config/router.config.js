@@ -276,15 +276,20 @@ export default [
                 name: 'list',
                 component: './Catalog/Product/List'
               },
+              // {
+              //   path: '/catalog/product/add',
+              //   name: 'add',
+              //   component: './Catalog/Product/Add'
+              // },
+              // {
+              //   path: '/catalog/product/edit',
+              //   name: 'edit',
+              //   component: './Catalog/Product/Edit'
+              // },
               {
-                path: '/catalog/product/add',
-                name: 'add',
-                component: './Catalog/Product/Add'
-              },
-              {
-                path: '/catalog/product/edit',
-                name: 'edit',
-                component: './Catalog/Product/Edit'
+                path: '/catalog/product/info',
+                name: 'info',
+                component: './Catalog/Product/Info'
               },
             ]
           },
