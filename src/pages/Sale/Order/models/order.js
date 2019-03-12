@@ -8,7 +8,7 @@ import {
 } from '@/services/api';
 
 export default {
-    namespace: 'product',
+    namespace: 'order',
     state: {
     },
     effects: {

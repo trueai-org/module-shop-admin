@@ -2,11 +2,13 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     Form, Input, Button, Card, InputNumber, Icon, Checkbox, notification, Select, Spin,
-    Table, Tabs, Cascader, Radio
+    Table, Tabs, Cascader, Radio, Avatar
 } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import router from 'umi/router';
 import Link from 'umi/link';
+
+import ProductCommponent from './ProductCommponent';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -45,6 +47,21 @@ class AddOrder extends PureComponent {
 
             defaultShippingAddressId: -1, //客户默认配送地址
             shippingMethod: 0,
+
+            //组件
+            visibleProduct: false,
+
+            queryProductLoading: false,
+            queryParam: {},
+            search: {},
+            pageNum: 1,
+            pageSize: 5,
+            predicate: 'id',
+            reverse: true,
+            pageData: {
+                list: [],
+                pagination: {}
+            },
         };
     }
 
@@ -52,279 +69,87 @@ class AddOrder extends PureComponent {
     columnsProduct = [
         {
             title: '商品名称',
-            dataIndex: 'name',
-            // width: 150,
-            // render: (text, record) => (
-            //     <Fragment>
-            //         <Input
-            //             onChange={(e) => {
-            //                 // let obj = this.state.productSku.find(c => c.id == record.id);
-            //                 // if (obj) {
-            //                 //     obj.name = e.target.value;
-            //                 // }
-
-            //                 let index = this.state.productSku.indexOf(record);
-            //                 if (index >= 0) {
-            //                     let list = this.state.productSku.slice();
-            //                     list.splice(index, 1);
-
-            //                     record.name = e.target.value;
-            //                     list.splice(index, 0, record);
-            //                     this.setState({ productSku: list });
-            //                 }
-            //             }}
-            //             defaultValue={text}></Input>
-            //     </Fragment>
-            // )
+            dataIndex: 'name'
         },
         {
-            title: '价格',
-            dataIndex: 'price',
-            // width: 150,
-            // render: (text, record) => (
-            //     <Fragment>
-            //         <Input
-            //             onChange={(e) => {
-            //                 // let obj = this.state.productSku.find(c => c.id == record.id);
-            //                 // if (obj) {
-            //                 //     obj.name = e.target.value;
-            //                 // }
-
-            //                 let index = this.state.productSku.indexOf(record);
-            //                 if (index >= 0) {
-            //                     let list = this.state.productSku.slice();
-            //                     list.splice(index, 1);
-
-            //                     record.name = e.target.value;
-            //                     list.splice(index, 0, record);
-            //                     this.setState({ productSku: list });
-            //                 }
-            //             }}
-            //             defaultValue={text}></Input>
-            //     </Fragment>
-            // )
+            title: '单价',
+            dataIndex: 'productPrice',
+            width: 150,
+            render: (text, record) => (
+                <Fragment>
+                    <InputNumber
+                        min={0}
+                        onChange={(e) => {
+                            let index = this.state.products.indexOf(record);
+                            if (index >= 0) {
+                                let list = this.state.products.slice();
+                                list.splice(index, 1);
+                                record.productPrice = e;
+                                list.splice(index, 0, record);
+                                this.setState({ products: list });
+                            }
+                        }}
+                        defaultValue={text}></InputNumber>
+                </Fragment>
+            )
+        },
+        {
+            title: '折扣总额',
+            dataIndex: 'discountAmount',
+            width: 150,
+            render: (text, record) => (
+                <Fragment>
+                    <InputNumber
+                        min={0}
+                        onChange={(e) => {
+                            let index = this.state.products.indexOf(record);
+                            if (index >= 0) {
+                                let list = this.state.products.slice();
+                                list.splice(index, 1);
+                                record.discountAmount = e;
+                                list.splice(index, 0, record);
+                                this.setState({ products: list });
+                            }
+                        }}
+                        defaultValue={text}></InputNumber>
+                </Fragment>
+            )
         },
         {
             title: '数量',
             dataIndex: 'quantity',
-            // width: 150,
-            // render: (text, record) => (
-            //     <Fragment>
-            //         <Input
-            //             onChange={(e) => {
-            //                 // let obj = this.state.productSku.find(c => c.id == record.id);
-            //                 // if (obj) {
-            //                 //     obj.name = e.target.value;
-            //                 // }
-
-            //                 let index = this.state.productSku.indexOf(record);
-            //                 if (index >= 0) {
-            //                     let list = this.state.productSku.slice();
-            //                     list.splice(index, 1);
-
-            //                     record.name = e.target.value;
-            //                     list.splice(index, 0, record);
-            //                     this.setState({ productSku: list });
-            //                 }
-            //             }}
-            //             defaultValue={text}></Input>
-            //     </Fragment>
-            // )
+            width: 150,
+            render: (text, record) => (
+                <Fragment>
+                    <InputNumber
+                        min={0}
+                        precision={0}
+                        onChange={(e) => {
+                            let index = this.state.products.indexOf(record);
+                            if (index >= 0) {
+                                let list = this.state.products.slice();
+                                list.splice(index, 1);
+                                record.quantity = e;
+                                list.splice(index, 0, record);
+                                this.setState({ products: list });
+                            }
+                        }}
+                        defaultValue={text}></InputNumber>
+                </Fragment>
+            )
         },
-        // {
-        //     title: 'SKU',
-        //     dataIndex: 'sku',
-        //     width: 150,
-        //     render: (text, record) => (
-        //         <Fragment>
-        //             <Input
-        //                 onChange={(e) => {
-        //                     // let obj = this.state.productSku.find(c => c.id == record.id);
-        //                     // if (obj) {
-        //                     //     obj.sku = e.target.value;
-        //                     // }
-
-        //                     let index = this.state.productSku.indexOf(record);
-        //                     if (index >= 0) {
-        //                         let list = this.state.productSku.slice();
-        //                         list.splice(index, 1);
-
-        //                         record.sku = e.target.value;
-        //                         list.splice(index, 0, record);
-        //                         this.setState({ productSku: list });
-        //                     }
-        //                 }}
-        //                 defaultValue={text}></Input>
-        //         </Fragment>
-        //     )
-        // },
-        // {
-        //     title: 'GTIN',
-        //     dataIndex: 'gtin',
-        //     width: 150,
-        //     render: (text, record) => (
-        //         <Fragment>
-        //             <Input
-        //                 onChange={(e) => {
-        //                     // let obj = this.state.productSku.find(c => c.id == record.id);
-        //                     // if (obj) {
-        //                     //     obj.gtin = e.target.value;
-        //                     // }
-        //                     let index = this.state.productSku.indexOf(record);
-        //                     if (index >= 0) {
-        //                         let list = this.state.productSku.slice();
-        //                         list.splice(index, 1);
-
-        //                         record.gtin = e.target.value;
-        //                         list.splice(index, 0, record);
-        //                         this.setState({ productSku: list });
-        //                     }
-        //                 }}
-        //                 defaultValue={text}></Input>
-        //         </Fragment>
-        //     )
-        // },
-        // {
-        //     title: '价格',
-        //     dataIndex: 'price',
-        //     width: 100,
-        //     render: (value, record) => (
-        //         <Fragment>
-        //             <InputNumber
-        //                 onChange={(e) => {
-        //                     // let obj = this.state.productSku.find(c => c.id == record.id);
-        //                     // if (obj) {
-        //                     //     obj.price = e;
-        //                     // }
-        //                     let index = this.state.productSku.indexOf(record);
-        //                     if (index >= 0) {
-        //                         let list = this.state.productSku.slice();
-        //                         list.splice(index, 1);
-
-        //                         record.price = e;
-        //                         list.splice(index, 0, record);
-        //                         this.setState({ productSku: list });
-        //                     }
-        //                 }}
-        //                 defaultValue={value}></InputNumber>
-        //         </Fragment>
-        //     )
-        // },
-        // {
-        //     title: '原价',
-        //     dataIndex: 'oldPrice',
-        //     width: 100,
-        //     render: (value, record) => (
-        //         <Fragment>
-        //             <InputNumber
-        //                 onChange={(e) => {
-        //                     // let obj = this.state.productSku.find(c => c.id == record.id);
-        //                     // if (obj) {
-        //                     //     obj.oldPrice = e;
-        //                     // }
-        //                     let index = this.state.productSku.indexOf(record);
-        //                     if (index >= 0) {
-        //                         let list = this.state.productSku.slice();
-        //                         list.splice(index, 1);
-
-        //                         record.oldPrice = e;
-        //                         list.splice(index, 0, record);
-        //                         this.setState({ productSku: list });
-        //                     }
-        //                 }}
-        //                 defaultValue={value}></InputNumber>
-        //         </Fragment>
-        //     )
-        // },
-        // {
-        //     title: '库存',
-        //     dataIndex: 'stockQuantity',
-        //     width: 100,
-        //     render: (value, record) => (
-        //         <Fragment>
-        //             <InputNumber
-        //                 min={0}
-        //                 precision={0}
-        //                 onChange={(e) => {
-        //                     // let obj = this.state.productSku.find(c => c.name == record.name);
-        //                     // if (obj) {
-        //                     //     obj.stockQuantity = e;
-        //                     // }
-
-        //                     let index = this.state.productSku.indexOf(record);
-        //                     if (index >= 0) {
-        //                         let list = this.state.productSku.slice();
-        //                         list.splice(index, 1);
-
-        //                         record.stockQuantity = e;
-        //                         list.splice(index, 0, record);
-        //                         this.setState({ productSku: list });
-        //                     }
-        //                 }}
-        //                 defaultValue={value}></InputNumber>
-        //         </Fragment>
-        //     )
-        // },
-        // {
-        //     title: '图片',
-        //     dataIndex: 'mediaId',
-        //     align: 'center',
-        //     width: 64,
-        //     fixed: 'right',
-        //     render: (text, record) => (
-        //         <Fragment>
-        //             <Avatar
-        //                 onClick={
-        //                     () => {
-        //                         Modal.info({
-        //                             title: '选择图片',
-        //                             content: (
-        //                                 <Radio.Group
-        //                                     defaultValue={record.mediaId || ''}
-        //                                     onChange={(e) => {
-        //                                         let index = this.state.productSku.indexOf(record);
-        //                                         let list = this.state.productSku.slice();
-        //                                         list.splice(index, 1);
-        //                                         record.mediaId = '';
-        //                                         record.mediaUrl = '';
-        //                                         if (e.target.value) {
-        //                                             let first = this.state.fileList.find(c => c.mediaId == e.target.value);
-        //                                             if (first) {
-        //                                                 record.mediaId = first.mediaId;
-        //                                                 record.mediaUrl = first.url;
-        //                                             }
-        //                                         }
-        //                                         // list.push(record);
-        //                                         list.splice(index, 0, record);
-        //                                         this.setState({ productSku: list });
-        //                                     }}
-        //                                 >
-        //                                     <Radio
-        //                                         style={{
-        //                                             width: 80
-        //                                         }}
-        //                                         value={''}>无</Radio>
-        //                                     {
-        //                                         this.state.fileList.map(x => {
-        //                                             return <Radio
-        //                                                 style={{
-        //                                                     width: 80
-        //                                                 }}
-        //                                                 key={x.mediaId} value={x.mediaId}>
-        //                                                 <Avatar shape="square" size={48} src={x.url} />
-        //                                             </Radio>;
-        //                                         })
-        //                                     }
-        //                                 </Radio.Group>
-        //                             ),
-        //                             okText: '关闭'
-        //                         })
-        //                     }
-        //                 }
-        //                 shape="square" size={32} src={record.mediaUrl} />
-        //         </Fragment>
-        //     )
-        // },
+        {
+            title: '图片',
+            dataIndex: 'mediaUrl',
+            align: 'center',
+            width: 64,
+            fixed: 'right',
+            render: (text, record) => (
+                <Fragment>
+                    <Avatar shape="square" size={32} src={record.mediaUrl} />
+                </Fragment>
+            )
+        },
         {
             title: '操作',
             key: 'operation',
@@ -334,21 +159,26 @@ class AddOrder extends PureComponent {
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
-                        <Button onClick={() => this.handleRemoveSku(record)} icon="close" type="danger" size="small"></Button>
+                        <Button onClick={() => this.handleRemoveProduct(record)} icon="close" type="danger" size="small"></Button>
                     </Button.Group>
                 </Fragment>
             )
         },
     ];
 
-
     componentDidMount() {
         this.handleInitCountries();
-        // this.handleInit();
     }
 
-    handleAddProduct = () => {
-
+    handleRemoveProduct = (record) => {
+        this.setState(({ products }) => {
+            let index = products.indexOf(record);
+            let list = products.slice();
+            list.splice(index, 1);
+            return {
+                products: list,
+            };
+        });
     }
 
     handleChange = (value) => {
@@ -501,6 +331,96 @@ class AddOrder extends PureComponent {
         });
     };
 
+    saveFormRef = (formRef) => {
+        this.formRef = formRef;
+    }
+
+    showProductModal = () => {
+        this.setState({ visibleProduct: true }, () => {
+            this.handleSearch();
+        });
+    }
+
+    handleProductCancel = () => {
+        this.setState({ visibleProduct: false });
+    }
+
+    handleSearch = (name) => {
+        const { dispatch } = this.props;
+        this.setState({ queryProductLoading: true });
+        let params = {
+            search: {
+                name,
+                isPublished: true
+            },
+            pagination: {
+                current: this.state.pageNum,
+                pageSize: this.state.pageSize
+            },
+            sort: {
+                predicate: this.state.predicate,
+                reverse: this.state.reverse
+            }
+        };
+        new Promise(resolve => {
+            dispatch({
+                type: 'catalog/products',
+                payload: {
+                    resolve,
+                    params,
+                },
+            });
+        }).then(res => {
+            this.setState({ queryProductLoading: false });
+            if (res.success === true) {
+                this.setState({ pageData: res.data });
+            } else {
+                notification.error({ message: res.message, });
+            }
+        });
+    }
+
+    handleStandardTableChange = (pagination, filtersArg, sorter) => {
+        this.setState({
+            pageNum: pagination.current,
+            pageSize: pagination.pageSize,
+        }, () => {
+            this.handleSearch();
+        });
+    };
+
+    onSelectChange = (selectedRowKeys) => {
+        this.setState({
+            visibleProduct: false,
+            productsLoading: true
+        });
+        let ids = [];
+        ids = selectedRowKeys
+        if (!ids || ids.length <= 0)
+            return;
+        let pros = [];
+        ids.forEach(id => {
+            var first = this.state.pageData.list.find(c => c.id == id);
+            if (first) {
+                let pro = {
+                    id: first.id,
+                    name: first.name,
+                    productPrice: first.price,
+                    quantity: 1,
+                    mediaUrl: first.mediaUrl,
+                    discountAmount: 0
+                };
+                pros.push(pro);
+            }
+        });
+
+        // this.setState({ products: [...this.state.products, pro] });
+        this.setState({
+            products: pros,
+            productsLoading: false
+        });
+    }
+
     render() {
         const {
             form: { getFieldDecorator, getFieldValue },
@@ -538,6 +458,20 @@ class AddOrder extends PureComponent {
             height: '30px',
             lineHeight: '30px',
         };
+        const pagination = {
+            showQuickJumper: true,
+            showSizeChanger: true,
+            pageSizeOptions: ['5', '10', '50', '100'],
+            defaultPageSize: this.state.pageSize,
+            defaultCurrent: this.state.pageNum,
+            current: this.state.pageNum,
+            pageSize: this.state.pageSize,
+            total: this.state.pageData.pagination.total || 0,
+            showTotal: (total, range) => {
+                return `${range[0]}-${range[1]} 条 , 共 ${total} 条`;
+            }
+        };
+
         return (
             <PageHeaderWrapper title="订单 - 添加" action={action}>
                 <Card bordered={false}>
@@ -584,7 +518,7 @@ class AddOrder extends PureComponent {
                                 </FormItem>
                                 <FormItem
                                     {...formItemLayout}
-                                    label={<span>配送</span>}>
+                                    label={<span>配送地址</span>}>
                                     <Card >
                                         <FormItem>
                                             {getFieldDecorator('shippingAddressId',
@@ -640,29 +574,10 @@ class AddOrder extends PureComponent {
                                         }
                                     </Card>
                                 </FormItem>
+
                                 <FormItem
                                     {...formItemLayout}
-                                    label={<span>下单备注</span>}>
-                                    {getFieldDecorator('orderNote', { initialValue: this.state.current.orderNote || '' })(
-                                        <TextArea
-                                            style={{ minHeight: 32 }}
-                                            placeholder=""
-                                            rows={2} />)
-                                    }
-                                </FormItem>
-                                <FormItem
-                                    {...formItemLayout}
-                                    label={<span>管理员备注</span>}>
-                                    {getFieldDecorator('adminNote', { initialValue: this.state.current.adminNote || '' })(
-                                        <TextArea
-                                            style={{ minHeight: 32 }}
-                                            placeholder=""
-                                            rows={2} />)
-                                    }
-                                </FormItem>
-                                <FormItem
-                                    {...formItemLayout}
-                                    label={<span>运费</span>}>
+                                    label={<span>配送方式</span>}>
                                     {getFieldDecorator('shippingMethod',
                                         { initialValue: this.state.current.shippingMethod || 0 })(
                                             <RadioGroup onChange={this.handleChangeShippingMethod}>
@@ -697,9 +612,29 @@ class AddOrder extends PureComponent {
                                         rules: [{ required: true, message: '请输入订单总额' }],
                                     })(<InputNumber style={{ width: '100%' }} min={0} allowClear placeholder="订单总额" />)}
                                 </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>下单备注</span>}>
+                                    {getFieldDecorator('orderNote', { initialValue: this.state.current.orderNote || '' })(
+                                        <TextArea
+                                            style={{ minHeight: 32 }}
+                                            placeholder=""
+                                            rows={2} />)
+                                    }
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>管理员备注</span>}>
+                                    {getFieldDecorator('adminNote', { initialValue: this.state.current.adminNote || '' })(
+                                        <TextArea
+                                            style={{ minHeight: 32 }}
+                                            placeholder=""
+                                            rows={2} />)
+                                    }
+                                </FormItem>
                             </TabPane>
                             <TabPane tab="商品信息" key="2">
-                                <Button icon="plus" type="primary" style={{ marginBottom: 16 }} onClick={this.handleAddProduct}>添加商品</Button>
+                                <Button icon="plus" type="primary" style={{ marginBottom: 16 }} onClick={this.showProductModal}>添加商品</Button>
                                 <Table bordered={false}
                                     rowKey={(record, index) => `product_${record.id}_i_${index}`} //{record => record.id}
                                     pagination={false}
@@ -708,6 +643,15 @@ class AddOrder extends PureComponent {
                                     columns={this.columnsProduct}
                                 // scroll={{ x: 960 }}
                                 />
+                                <div style={{ marginTop: 12 }}>商品数量：{eval(this.state.products.map(x => parseInt(x.quantity)).join('+'))}</div>
+                                <div>折扣小计：{eval(this.state.products.map(x => parseFloat(x.discountAmount)).join('+'))}</div>
+                                <div>总额小计：
+                                    {
+                                        this.state.products && this.state.products.length > 0 ?
+                                            <span style={{ color: 'red', fontWeight: 'bold' }}>{eval(this.state.products.map(x => parseInt(x.quantity) * parseFloat(x.productPrice)).join('+')) - eval(this.state.products.map(x => parseFloat(x.discountAmount)).join('+'))}</span>
+                                            : 0
+                                    }
+                                </div>
                             </TabPane>
                             {/* <FormItem {...submitFormLayout}>
                                 <Button type="primary" htmlType="submit" loading={this.state.submitting}>
@@ -716,6 +660,17 @@ class AddOrder extends PureComponent {
                         </Tabs>
                     </Form>
                 </Card>
+                <ProductCommponent
+                    pagination={pagination}
+                    pageData={this.state.pageData}
+                    visible={this.state.visibleProduct}
+                    loading={this.state.queryProductLoading}
+                    wrappedComponentRef={this.saveFormRef}
+                    handleSearch={this.handleSearch}
+                    onCancel={this.handleProductCancel}
+                    onChange={this.handleStandardTableChange}
+                    onOk={(val) => { this.onSelectChange(val) }}
+                />
             </PageHeaderWrapper>
         );
     }

@@ -9,7 +9,8 @@ import {
     queryProductOptionData,
     categories,
     queryUnitAll,
-    queryProductAGS
+    queryProductAGS,
+    queryProductGrid
 } from '@/services/api';
 
 export default {
@@ -82,6 +83,12 @@ export default {
         *attrGroups({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(queryProductAGS, params);
+            !!resolve && resolve(response);
+        },
+
+        *products({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(queryProductGrid, params);
             !!resolve && resolve(response);
         },
     },
