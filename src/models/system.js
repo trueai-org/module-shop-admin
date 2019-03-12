@@ -1,5 +1,6 @@
 import {
-    queryCountryAll, queryProvinceTree, queryWarehouseAll
+    queryCountryAll, queryProvinceTree, queryWarehouseAll,
+    queryUserQuickSearch, queryUserAddresses
 } from '@/services/api';
 
 export default {
@@ -24,6 +25,18 @@ export default {
         *warehouses({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(queryWarehouseAll, params);
+            !!resolve && resolve(response);
+        },
+
+        *users({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(queryUserQuickSearch, params);
+            !!resolve && resolve(response);
+        },
+
+        *userAddresses({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(queryUserAddresses, params);
             !!resolve && resolve(response);
         },
     },

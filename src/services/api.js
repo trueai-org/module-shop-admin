@@ -569,6 +569,14 @@ export async function deleteProvince(params) {
 }
 
 //用户
+export async function queryUserAddresses(params) {
+  return request(`/api/users/${params.userId}/addresses`);
+}
+
+export async function queryUserQuickSearch(params) {
+  return request(`/api/users/quick-search?take=${params.take || 20}&nameOrPhone=${params.nameOrPhone || ''}`);
+}
+
 export async function firstUser(params) {
   return request(`/api/users/${params.id}`);
 }
@@ -725,6 +733,35 @@ export async function editPriceAndDestination(params) {
 
 export async function deletePriceAndDestination(params) {
   return request(`/api/shippings/price-destinations/${params.id}`, {
+    method: 'DELETE'
+  });
+}
+
+
+// 订单
+export async function queryOrderGrid(params) {
+  return request(`/api/orders/grid`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function addOrder(params) {
+  return request(`/api/orders`, {
+    method: 'POST',
+    body: params
+  });
+}
+
+export async function editOrder(params) {
+  return request(`/api/orders/${params.id}`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
+export async function deleteOrder(params) {
+  return request(`/api/orders/${params.id}`, {
     method: 'DELETE'
   });
 }

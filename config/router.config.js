@@ -486,6 +486,44 @@ export default [
         ],
       },
 
+
+      // 销售
+      {
+        name: 'sale',
+        icon: 'table',
+        path: '/sale',
+        routes: [
+          {
+            path: '/sale/order',
+            name: 'order',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/sale/order',
+                redirect: '/sale/order/list',
+              },
+              {
+                path: '/sale/order/list',
+                name: 'list',
+                component: './Sale/Order/List'
+              },
+              {
+                path: '/sale/order/add',
+                name: 'add',
+                component: './Sale/Order/Add'
+              },
+              {
+                path: '/sale/order/edit',
+                name: 'edit',
+                component: './Sale/Order/Edit'
+              },
+            ]
+          },
+
+
+        ],
+      },
+
       // 所有页面配置要放到404之前，否则会报404
       {
         component: '404',

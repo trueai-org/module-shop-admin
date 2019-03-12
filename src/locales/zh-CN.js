@@ -289,13 +289,13 @@ export default {
   'menu.catalog': '商品目录',
   'menu.catalog.product': '商品',
   'menu.catalog.product.list': '列表',
-  // 'menu.catalog.product.add': '新增',
+  // 'menu.catalog.product.add': '添加',
   // 'menu.catalog.product.edit': '编辑',
   'menu.catalog.product.info': '信息',
 
   'menu.catalog.category': '商品分类',
   'menu.catalog.category.list': '列表',
-  'menu.catalog.category.add': '新增',
+  'menu.catalog.category.add': '添加',
   'menu.catalog.category.edit': '编辑',
 
   'menu.catalog.brand': '商品品牌',
@@ -314,7 +314,7 @@ export default {
   'menu.system': '系统',
   'menu.system.country': '国家',
   'menu.system.country.list': '列表',
-  'menu.system.country.add': '新增',
+  'menu.system.country.add': '添加',
   'menu.system.country.edit': '编辑',
   'menu.system.country.province': '省市区',
   'menu.system.user': '用户',
@@ -325,4 +325,11 @@ export default {
   'menu.system.freight-template': '运费模板',
   'menu.system.freight-template.list': '列表',
   'menu.system.freight-template.setting': '运费配置',
+
+
+  'menu.sale': '销售',
+  'menu.sale.order': '订单',
+  'menu.sale.order.list': '列表',
+  'menu.sale.order.add': '添加',
+  'menu.sale.order.edit': '编辑',
 };
