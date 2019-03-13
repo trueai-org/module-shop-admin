@@ -746,6 +746,11 @@ export async function queryOrderGrid(params) {
   });
 }
 
+export async function firstOrder(params) {
+  return request(`/api/orders/${params.id}`);
+}
+
+
 export async function addOrder(params) {
   return request(`/api/orders`, {
     method: 'POST',

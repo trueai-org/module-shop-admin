@@ -4,7 +4,7 @@ import moment from 'moment';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
     Redio, Menu, Dropdown, Switch,
-    Row, Col, InputNumber, DatePicker, Checkbox
+    Row, Col, InputNumber, DatePicker, Checkbox, Spin
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -15,22 +15,34 @@ import Link from 'umi/link';
 
 import styles from './List.less';
 
+const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
 const Option = Select.Option;
+const ShippingStatus = [
+    { key: 0, value: '无需配送', color: '' },
+    { key: 20, value: '未发货', color: '#f50' },
+    { key: 25, value: '部分发货', color: '#2db7f5' },
+    { key: 30, value: '已发货', color: '#108ee9' },
+    { key: 40, value: '已收货', color: '#87d068' }];
+
+const OrderStatus = [
+    { key: 0, value: '新订单', color: 'purple' },
+    { key: 10, value: '挂起', color: 'red' },
+    { key: 20, value: '待付款', color: 'orange' },
+    { key: 25, value: '付款失败', color: 'red' },
+    { key: 30, value: '已付款', color: 'lime' },
+    { key: 40, value: '发货中', color: 'cyan' },
+    { key: 50, value: '已发货', color: 'blue' },
+    { key: 60, value: '交易成功', color: 'green' },
+    { key: 70, value: '交易取消', color: '' }];
 
 @connect()
 @Form.create()
-class SaleList extends PureComponent {
+class OrderList extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
             loading: false,
-            visible: false,
-            data: [],
-            current: {},
-            submitting: false,
-
-            children: [],
 
             pageNum: 1,
             pageSize: 10,
@@ -44,8 +56,8 @@ class SaleList extends PureComponent {
             expandForm: false,
             queryParam: {},
 
-            categoryLoading: false, //类别加载中
-            categories: [],
+            users: [],
+            usersLoading: false,
         };
     }
 
@@ -59,9 +71,8 @@ class SaleList extends PureComponent {
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
+                        <Button icon="eye" size="small" onClick={() => this.handleEdit(record.id)}></Button>
                         <Button icon="edit" size="small" onClick={() => this.handleEdit(record.id)}></Button>
-                        <Button style={{ color: record.isPublished == true ? "#f5222d" : "#1890ff" }} icon={record.isPublished == true ? "pause-circle" : "play-circle"} size="small"
-                            onClick={() => this.handlePublish(record.id, !record.isPublished)}></Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
                             <Button icon="delete" type="danger" size="small"></Button>
                         </Popconfirm>
@@ -77,68 +88,47 @@ class SaleList extends PureComponent {
             defaultSortOrder: 'descend',
             width: 100,
         },
+
         {
-            title: '名称',
-            dataIndex: 'name',
-            sorter: true,
-            // render: (text, record) => (
-            //     <Fragment>
-            //         {text}
-            //         {record.isFeatured ? <Tag color="red">精品</Tag> : null}
-            //     </Fragment>
-            // )
-        },
-        {
-            title: '价格/￥',
-            dataIndex: 'price',
+            title: '订单状态',
+            dataIndex: 'orderStatus',
             sorter: true,
             width: 120,
+            render: (val) => {
+                if (val || val === 0) {
+                    let first = OrderStatus.find(c => c.key == val);
+                    if (first) {
+                        return <Tag color={first.color}>{first.value}</Tag>
+                    }
+                }
+                return <Tag>无</Tag>;
+            }
         },
         {
-            title: '是否发布',
-            dataIndex: 'isPublished',
+            title: '配送状态',
+            dataIndex: 'shippingStatus',
             sorter: true,
             width: 120,
-            align: 'center',
-            render: (val) => this.boolFormat(val)
+            render: (val) => {
+                if (val || val === 0) {
+                    let first = ShippingStatus.find(c => c.key == val);
+                    if (first) {
+                        return <Tag color={first.color}>{first.value}</Tag>
+                    }
+                }
+                return <Tag>无</Tag>;
+            }
         },
         {
-            title: '允许订购',
-            dataIndex: 'isAllowToOrder',
+            title: '订单总额',
+            dataIndex: 'orderTotal',
             sorter: true,
-            width: 120,
-            align: 'center',
-            render: (val) => this.boolFormat(val)
+            width: 120
         },
         {
-            title: '有选项',
-            dataIndex: 'hasOptions',
+            title: '客户',
+            dataIndex: 'customerName',
             sorter: true,
-            width: 120,
-            align: 'center',
-            render: (val) => this.boolFormat(val)
-        },
-        {
-            title: '单独可见',
-            dataIndex: 'isVisibleIndividually',
-            sorter: true,
-            width: 120,
-            align: 'center',
-            render: (val) => this.boolFormat(val)
-        },
-        {
-            title: '精品',
-            dataIndex: 'isFeatured',
-            sorter: true,
-            width: 120,
-            align: 'center',
-            render: (val) => this.boolFormat(val)
-        },
-        {
-            title: '库存',
-            dataIndex: 'stockQuantity',
-            sorter: true,
-            width: 100,
         },
         {
             title: '创建时间',
@@ -147,105 +137,59 @@ class SaleList extends PureComponent {
             width: 120,
             render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
         },
-        {
-            title: '更新时间',
-            dataIndex: 'updatedOn',
-            sorter: true,
-            width: 120,
-            render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
-        }
+        // {
+        //     title: '更新时间',
+        //     dataIndex: 'updatedOn',
+        //     sorter: true,
+        //     width: 120,
+        //     render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
+        // }
     ];
 
-
-    boolFormat(val) {
-        //(val) => <Switch checked={val} disabled />,
-        return <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />;
+    componentDidMount() {
+        this.queryData(this.state.queryParam);
     }
 
-    componentDidMount() {
+    handleQueryUsers = (nameOrPhone) => {
         const { dispatch } = this.props;
+        this.setState({ usersLoading: true });
         new Promise(resolve => {
             dispatch({
-                type: 'catalog/categories',
+                type: 'system/users',
                 payload: {
                     resolve,
+                    params: { nameOrPhone }
                 },
             });
         }).then(res => {
-            this.setState({ categoryLoading: false });
+            this.setState({ usersLoading: false });
             if (res.success === true) {
-                this.setState({ categories: res.data });
+                this.setState({ users: res.data });
             } else {
                 notification.error({ message: res.message });
             }
         });
-
-        this.queryData(this.state.queryParam);
     }
 
     deleteItem = id => {
-        this.setState({
-            loading: true,
-        });
+        this.setState({ loading: true, });
         const { dispatch } = this.props;
         const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'product/delete',
+                type: 'order/delete',
                 payload: {
                     resolve,
                     params,
                 },
             });
         }).then(res => {
-            this.setState({
-                loading: false,
-            });
+            this.setState({ loading: false, });
             if (res.success === true) {
                 this.queryData();
             } else {
-                notification.error({
-                    message: res.message,
-                });
+                notification.error({ message: res.message });
             }
-        });
-    };
-
-    handlePublish = (id, isPublish) => {
-        this.setState({
-            loading: true,
-        });
-        const { dispatch } = this.props;
-        const params = { id };
-        new Promise(resolve => {
-            dispatch({
-                type: isPublish ? 'product/publish' : 'product/unpublish',
-                payload: {
-                    resolve,
-                    params,
-                },
-            });
-        }).then(res => {
-            this.setState({
-                loading: false,
-            });
-            if (res.success === true) {
-                this.queryData();
-            } else {
-                notification.error({
-                    message: res.message,
-                });
-            }
-        });
-    };
-
-    showDeleteModal = (item) => {
-        Modal.confirm({
-            title: '删除选项',
-            content: '确定删除该选项吗？',
-            okText: '确认',
-            cancelText: '取消',
-            onOk: () => this.deleteItem(item.id),
         });
     };
 
@@ -267,6 +211,13 @@ class SaleList extends PureComponent {
             search = {
                 ...fieldsValue,
             };
+
+            //特价时间处理
+            if (search.createdOn && search.createdOn.length == 2) {
+                search.createdOnStart = search.createdOn[0].format('YYYY-MM-DD');
+                search.createdOnEnd = search.createdOn[1].format('YYYY-MM-DD');
+                search.createdOn = {};
+            }
             this.setState({ queryParam: search });
         });
 
@@ -284,7 +235,7 @@ class SaleList extends PureComponent {
 
         new Promise(resolve => {
             dispatch({
-                type: 'product/grid',
+                type: 'order/grid',
                 payload: {
                     resolve,
                     params,
@@ -312,6 +263,7 @@ class SaleList extends PureComponent {
             let search = {
                 ...fieldsValue,
             };
+
             this.setState({ queryParam: search }, () => {
                 this.queryData();
             });
@@ -361,38 +313,62 @@ class SaleList extends PureComponent {
         return (
             <Form onSubmit={this.handleSearch} layout="inline">
                 <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-                    <Col md={8} sm={24}>
-                        <FormItem label="商品名称">
-                            {getFieldDecorator('name')(<Input
-                                allowClear
-                                placeholder="商品名称" />)}
-                        </FormItem>
-                    </Col>
-                    <Col md={8} sm={24}>
-                        <FormItem label="是否发布">
-                            {getFieldDecorator('isPublished')(
+                    <Col md={12} sm={24}>
+                        <FormItem label="订单状态">
+                            {getFieldDecorator('orderStatus')(
                                 <Select
+                                    mode="multiple"
                                     allowClear
-                                    placeholder="是否发布">
-                                    <Option value={'false'}>否</Option>
-                                    <Option value={'true'}>是</Option>
+                                    placeholder="订单状态">
+                                    {OrderStatus.map(c =>
+                                        <Option key={c.key} value={c.key}>{c.value}</Option>
+                                    )}
                                 </Select>
                             )}
                         </FormItem>
                     </Col>
-                    <Col md={8} sm={24}>
-                        <FormItem label="有选项">
-                            {getFieldDecorator('hasOptions')(
+                    <Col md={12} sm={24}>
+                        <FormItem label="配送状态">
+                            {getFieldDecorator('shippingStatus')(
                                 <Select
+                                    mode="multiple"
                                     allowClear
-                                    placeholder="有选项">
-                                    <Option value={'false'}>否</Option>
-                                    <Option value={'true'}>是</Option>
+                                    placeholder="配送状态">
+                                    {ShippingStatus.map(c =>
+                                        <Option key={c.key} value={c.key}>{c.value}</Option>
+                                    )}
                                 </Select>
                             )}
                         </FormItem>
                     </Col>
                 </Row>
+                <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                    <Col md={12} sm={24}>
+                        <FormItem label="客户名称">
+                            {getFieldDecorator('customerId')(
+                                <Select
+                                    // mode="multiple"
+                                    allowClear
+                                    showSearch
+                                    placeholder="客户名称或联系方式"
+                                    notFoundContent={this.state.usersLoading ? <Spin size="small" /> : null}
+                                    filterOption={false}
+                                    onSearch={this.handleQueryUsers}
+                                >
+                                    {this.state.users.map(d =>
+                                        <Option key={d.id} value={d.id}>{d.fullName}</Option>)}
+                                </Select>)}
+                        </FormItem>
+                    </Col>
+                    <Col md={12} sm={24}>
+                        <FormItem label="创建时间">
+                            {getFieldDecorator('createdOn')(
+                                <RangePicker />
+                            )}
+                        </FormItem>
+                    </Col>
+                </Row>
+
                 {this.state.expandForm ? this.getAdvancedFields() : null}
                 <Row>
                     <Col span={12} >
@@ -405,10 +381,6 @@ class SaleList extends PureComponent {
                             </a>
                         </span>
                     </Col>
-                    {/* <Col span={12} style={{ textAlign: 'right' }}>
-                        <span >
-                        </span>
-                    </Col> */}
                 </Row>
 
             </Form>
@@ -420,58 +392,20 @@ class SaleList extends PureComponent {
         return (
             <Fragment>
                 <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-                    <Col md={8} sm={24}>
-                        <FormItem label="单独可见">
-                            {getFieldDecorator('isVisibleIndividually')(
-                                <Select
+                    <Col md={12} sm={24}>
+                        <FormItem label="产品名称">
+                            {getFieldDecorator('productName')(
+                                <Input
                                     allowClear
-                                    placeholder="单独可见">
-                                    <Option value={'false'}>否</Option>
-                                    <Option value={'true'}>是</Option>
-                                </Select>
-                            )}
+                                    placeholder="产品名称" />)}
                         </FormItem>
                     </Col>
-                    <Col md={8} sm={24}>
-                        <FormItem label="允许订购">
-                            {getFieldDecorator('isAllowToOrder')(
-                                <Select
-                                    allowClear
-                                    placeholder="允许订购">
-                                    <Option value={'false'}>否</Option>
-                                    <Option value={'true'}>是</Option>
-                                </Select>
-                            )}
-                        </FormItem>
-                    </Col>
-                    <Col md={8} sm={24}>
+                    <Col md={12} sm={24}>
                         <FormItem label="SKU">
-                            {getFieldDecorator('sku')(<Input
-                                allowClear
-                                placeholder="SKU" />)}
-                        </FormItem>
-                    </Col>
-                </Row>
-                <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-                    <Col md={16} sm={24}>
-                        <FormItem
-                            label={<span>商品分类</span>}>
-                            {getFieldDecorator('categoryIds')
-                                (<Select
-                                    mode="multiple"
-                                    placeholder="请选择商品分类"
-                                    allowClear={true}>
-                                    {
-                                        this.state.categories.map(c => {
-                                            return <Option value={c.id} key={c.id}>{c.name}</Option>;
-                                        })
-                                    }
-                                </Select>)}
-                        </FormItem>
-                    </Col>
-                    <Col md={8} sm={24}>
-                        <FormItem >
-                            {getFieldDecorator('includeSubCategories')(<Checkbox>自动搜索子类别</Checkbox>)}
+                            {getFieldDecorator('sku')(
+                                <Input
+                                    allowClear
+                                    placeholder="SKU" />)}
                         </FormItem>
                     </Col>
                 </Row>
@@ -516,19 +450,14 @@ class SaleList extends PureComponent {
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="商品 - 列表" action={
+            <PageHeaderWrapper title="订单" action={
                 <Button
                     onClick={this.handleAdd}
                     type="primary"
-                    icon="plus"
-                >添加</Button>
-            }>
+                    icon="plus">添加</Button>}>
                 <div>
                     <Card bordered={false}>
                         <div className={styles.tableListForm}>{this.renderForm()}</div>
-                        {/* <div style={{ marginBottom: '20px' }} >
-                            {action}
-                        </div> */}
                         <StandardTable
                             pagination={pagination}
                             loading={this.state.loading}
@@ -537,7 +466,7 @@ class SaleList extends PureComponent {
                             columns={this.columns}
                             bordered
                             onChange={this.handleStandardTableChange}
-                            scroll={{ x: 1600 }}
+                            scroll={{ x: 860 }}
                         />
                     </Card>
                 </div>
@@ -546,4 +475,4 @@ class SaleList extends PureComponent {
     }
 }
 
-export default SaleList;
+export default OrderList;

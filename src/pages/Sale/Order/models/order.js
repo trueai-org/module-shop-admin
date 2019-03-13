@@ -1,9 +1,6 @@
 import {
-    queryProductFirst, queryProductGrid, addProduct, editProduct, deleteProduct,
-    publishProduct, unpublishProduct, copyProduct,
-    queryStockHistoryGrid,
     queryOrderGrid,
-    addOrder
+    addOrder, editOrder, deleteOrder,firstOrder
 
 } from '@/services/api';
 
@@ -14,7 +11,7 @@ export default {
     effects: {
         *get({ payload }, { call, put }) {
             const { resolve, params } = payload;
-            const response = yield call(queryProductFirst, params);
+            const response = yield call(firstOrder, params);
             !!resolve && resolve(response);
         },
 
@@ -32,37 +29,13 @@ export default {
 
         *edit({ payload }, { call, put }) {
             const { resolve, params } = payload;
-            const response = yield call(editProduct, params);
+            const response = yield call(editOrder, params);
             !!resolve && resolve(response);
         },
 
         *delete({ payload }, { call, put }) {
             const { resolve, params } = payload;
-            const response = yield call(deleteProduct, params);
-            !!resolve && resolve(response);
-        },
-
-        *publish({ payload }, { call, put }) {
-            const { resolve, params } = payload;
-            const response = yield call(publishProduct, params);
-            !!resolve && resolve(response);
-        },
-
-        *unpublish({ payload }, { call, put }) {
-            const { resolve, params } = payload;
-            const response = yield call(unpublishProduct, params);
-            !!resolve && resolve(response);
-        },
-
-        *copy({ payload }, { call, put }) {
-            const { resolve, params } = payload;
-            const response = yield call(copyProduct, params);
-            !!resolve && resolve(response);
-        },
-
-        *stockHistories({ payload }, { call, put }) {
-            const { resolve, params } = payload;
-            const response = yield call(queryStockHistoryGrid, params);
+            const response = yield call(deleteOrder, params);
             !!resolve && resolve(response);
         },
     },

@@ -16,6 +16,7 @@ const TabPane = Tabs.TabPane;
 const { TextArea } = Input;
 const RadioGroup = Radio.Group;
 const ShippingMethod = [{ key: 0, value: '免费' }, { key: 1, value: '标准' }];
+const PaymentType = [{ key: 0, value: '在线支付' }, { key: 1, value: '货到付款' }];
 
 @connect()
 @Form.create()
@@ -38,14 +39,15 @@ class AddOrder extends PureComponent {
             countriesLoading: false,
 
             provinces: [],
-            provincesLoading: false,
+            provinces2: [],
 
             userAddresses: {
                 addresses: []
             },
             userAddressesLoading: false,
 
-            defaultShippingAddressId: -1, //客户默认配送地址
+            defaultShippingAddressId: '', //客户默认配送地址
+            defaultBillingAddressId: '',
             shippingMethod: 0,
 
             //组件
@@ -184,17 +186,13 @@ class AddOrder extends PureComponent {
     handleChange = (value) => {
         var first = this.state.users.find(c => c.id == value);
         if (first) {
-            this.props.form.setFieldsValue({
-                contactName: first.fullName || '',
-                phone: first.phone || ''
-            })
+            // this.props.form.setFieldsValue({
+            //     contactName: first.fullName || '',
+            //     phone: first.phone || ''
+            // })
 
             this.handleQueryUserAddresses(value);
         }
-    }
-
-    handleChangeShippingAddress = (e) => {
-        this.setState({ defaultShippingAddressId: e.target.value });
     }
 
     handleChangeShippingMethod = (e) => {
@@ -217,21 +215,18 @@ class AddOrder extends PureComponent {
             if (res.success === true) {
                 this.setState({
                     userAddresses: res.data,
-                    // shippingAddressId: res.data.defaultShippingAddressId || -1,
-                    defaultShippingAddressId: res.data.defaultShippingAddressId || -1
+                    defaultShippingAddressId: res.data.defaultShippingAddressId || '',
+                    defaultBillingAddressId: res.data.defaultBillingAddressId || '',
                 }, () => {
                     this.props.form.setFieldsValue({
-                        shippingAddressId: this.state.defaultShippingAddressId
+                        shippingUserAddressId: this.state.defaultShippingAddressId,
+                        billingUserAddressId: this.state.defaultBillingAddressId
                     })
                 });
             } else {
                 notification.error({ message: res.message });
             }
         });
-    }
-
-    handleChangeCountry = (value) => {
-        this.handleInitProvinces(value);
     }
 
     handleQueryUsers = (nameOrPhone) => {
@@ -275,9 +270,8 @@ class AddOrder extends PureComponent {
         });
     }
 
-    handleInitProvinces = (countryId) => {
+    handleInitProvinces = (countryId, addressType) => {
         const { dispatch } = this.props;
-        this.setState({ provincesLoading: true });
         new Promise(resolve => {
             dispatch({
                 type: 'system/provinces',
@@ -287,9 +281,12 @@ class AddOrder extends PureComponent {
                 },
             });
         }).then(res => {
-            this.setState({ provincesLoading: false });
             if (res.success === true) {
-                this.setState({ provinces: res.data });
+                if (addressType == 0) {
+                    this.setState({ provinces: res.data });
+                } else {
+                    this.setState({ provinces2: res.data });
+                }
             } else {
                 notification.error({ message: res.message, });
             }
@@ -304,13 +301,30 @@ class AddOrder extends PureComponent {
                 if (this.state.submitting)
                     return;
                 this.setState({ submitting: true });
+
                 var params = {
                     id: this.state.id,
+                    items: this.state.products,
                     ...values
                 };
+
+                //配送地址
+                if (params.shippingAddress) {
+                    var stateOrProvinceId = params.shippingAddress.stateOrProvinceId[params.shippingAddress.stateOrProvinceId.length - 1];
+                    params.shippingAddress.stateOrProvinceId = stateOrProvinceId;
+                }
+
+                //账单地址
+                if (params.billingAddress) {
+                    var stateOrProvinceId = params.billingAddress.stateOrProvinceId[params.billingAddress.stateOrProvinceId.length - 1];
+                    params.billingAddress.stateOrProvinceId = stateOrProvinceId;
+                }
+
+                // console.log(params);
+                // return;
                 new Promise(resolve => {
                     dispatch({
-                        type: 'country/add',
+                        type: 'order/add',
                         payload: {
                             resolve,
                             params
@@ -398,8 +412,11 @@ class AddOrder extends PureComponent {
         ids = selectedRowKeys
         if (!ids || ids.length <= 0)
             return;
-        let pros = [];
+        let pros = this.state.products;
         ids.forEach(id => {
+            var old = pros.find(c => c.id == id);
+            if (old)
+                return;
             var first = this.state.pageData.list.find(c => c.id == id);
             if (first) {
                 let pro = {
@@ -413,8 +430,6 @@ class AddOrder extends PureComponent {
                 pros.push(pro);
             }
         });
-
-        // this.setState({ products: [...this.state.products, pro] });
         this.setState({
             products: pros,
             productsLoading: false
@@ -444,7 +459,7 @@ class AddOrder extends PureComponent {
         };
         const action = (
             <Fragment>
-                <Button type="primary" icon="save" htmlType="submit" loading={this.state.submitting}>
+                <Button onClick={this.handleSubmit} type="primary" icon="save" htmlType="submit" loading={this.state.submitting}>
                     保存</Button>
                 <Link to="./list">
                     <Button>
@@ -502,81 +517,6 @@ class AddOrder extends PureComponent {
                                 </FormItem>
                                 <FormItem
                                     {...formItemLayout}
-                                    label={<span>联系人</span>}>
-                                    {getFieldDecorator('contactName', {
-                                        initialValue: this.state.current.contactName,
-                                        rules: [{ required: true, message: '请输入联系人' }],
-                                    })(<Input allowClear placeholder="客户名称" />)}
-                                </FormItem>
-                                <FormItem
-                                    {...formItemLayout}
-                                    label={<span>联系方式</span>}>
-                                    {getFieldDecorator('phone', {
-                                        initialValue: this.state.current.phone,
-                                        rules: [{ required: true, message: '请输入联系方式' }],
-                                    })(<Input allowClear placeholder="电话/手机" />)}
-                                </FormItem>
-                                <FormItem
-                                    {...formItemLayout}
-                                    label={<span>配送地址</span>}>
-                                    <Card >
-                                        <FormItem>
-                                            {getFieldDecorator('shippingAddressId',
-                                                { initialValue: this.state.defaultShippingAddressId })(
-                                                    <RadioGroup onChange={this.handleChangeShippingAddress}>
-                                                        <Radio style={radioStyle} value={-1}>无</Radio>
-                                                        {
-                                                            this.state.userAddresses.addresses.map(x =>
-                                                                <Radio key={x.userAddressId} style={radioStyle} value={x.userAddressId}>{
-                                                                    `${x.countryName}, ${x.stateOrProvinceName}, ${x.cityName || ''}, ${x.addressLine1 || ''} (${x.contactName}, ${x.phone || ''})`
-                                                                }</Radio>)
-                                                        }
-                                                        <Radio style={radioStyle} value={0}>添加地址</Radio>
-                                                    </RadioGroup>)
-                                            }
-                                        </FormItem>
-                                        {
-                                            this.state.defaultShippingAddressId == 0 ?
-                                                <div>
-                                                    <FormItem
-                                                        {...formItemLayout}
-                                                        label={<span>国家</span>}>
-                                                        {getFieldDecorator('countryId', {
-                                                            initialValue: this.state.current.countryId,
-                                                            rules: [{ required: true, message: '请选择国家' }],
-                                                        })(<Select
-                                                            showSearch
-                                                            placeholder="Select a country"
-                                                            optionFilterProp="children"
-                                                            onChange={this.handleChangeCountry}
-                                                            filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                                        >
-                                                            {this.state.countries.map(d =>
-                                                                <Option key={d.id} value={d.id}>{d.name}</Option>)}
-                                                        </Select>)}
-                                                    </FormItem>
-                                                    <FormItem
-                                                        {...formItemLayout}
-                                                        label={<span>省市区</span>}>
-                                                        {getFieldDecorator('stateOrProvinceId', {
-                                                            initialValue: this.state.current.stateOrProvinceId,
-                                                            rules: [{ required: true, message: '请选择省市区' }],
-                                                        })(<Cascader options={this.state.provinces} placeholder="Please select" />)}
-                                                    </FormItem>
-                                                    <FormItem
-                                                        {...formItemLayout}
-                                                        label={<span>配送地址</span>}>
-                                                        {getFieldDecorator('address', {
-                                                            initialValue: this.state.current.address,
-                                                            rules: [{ required: true, message: '请输入地址' }],
-                                                        })(<Input placeholder="地址" />)}
-                                                    </FormItem></div> : null
-                                        }
-                                    </Card>
-                                </FormItem>
-
-                                <FormItem
-                                    {...formItemLayout}
                                     label={<span>配送方式</span>}>
                                     {getFieldDecorator('shippingMethod',
                                         { initialValue: this.state.current.shippingMethod || 0 })(
@@ -587,21 +527,37 @@ class AddOrder extends PureComponent {
                                                 }
                                             </RadioGroup>)
                                     }
-                                    {
-                                        this.state.shippingMethod == 1 ? <FormItem>
+                                </FormItem>
+                                {
+                                    this.state.shippingMethod == 1 ?
+                                        <FormItem
+                                            {...formItemLayout}
+                                            label={<span>运费</span>}>
                                             {getFieldDecorator('shippingFeeAmount', {
                                                 initialValue: this.state.current.shippingFeeAmount,
                                                 rules: [{ required: true, message: '请输入运费' }],
                                             })(<InputNumber style={{ width: '100%' }} min={0} allowClear placeholder="运费" />)}
                                         </FormItem> : null
+                                }
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={<span>付款类型</span>}>
+                                    {getFieldDecorator('paymentType',
+                                        { initialValue: this.state.current.paymentType || 0 })(
+                                            <RadioGroup>
+                                                {
+                                                    PaymentType.map(x =>
+                                                        <Radio key={x.key} value={x.key}>{x.value}</Radio>)
+                                                }
+                                            </RadioGroup>)
                                     }
                                 </FormItem>
                                 <FormItem
                                     {...formItemLayout}
-                                    label={<span>折扣</span>}>
+                                    label={<span>订单折扣</span>}>
                                     {getFieldDecorator('discountAmount', {
                                         initialValue: this.state.current.discountAmount,
-                                        rules: [{ required: true, message: '请输入折扣金额' }],
+                                        rules: [{ required: true, message: '请输入订单折扣金额' }],
                                     })(<InputNumber style={{ width: '100%' }} min={0} allowClear placeholder="折扣金额" />)}
                                 </FormItem>
                                 <FormItem
@@ -633,7 +589,232 @@ class AddOrder extends PureComponent {
                                     }
                                 </FormItem>
                             </TabPane>
-                            <TabPane tab="商品信息" key="2">
+                            <TabPane tab="配送 & 账单" key="2">
+                                <Card type="inner" title="配送地址">
+                                    <FormItem>
+                                        {getFieldDecorator('shippingUserAddressId',
+                                            { initialValue: this.state.defaultShippingAddressId })(
+                                                <RadioGroup onChange={(e) => {
+                                                    this.setState({ defaultShippingAddressId: e.target.value });
+                                                }}>
+                                                    <Radio style={radioStyle} value={''}>无</Radio>
+                                                    {
+                                                        this.state.userAddresses.addresses.filter(c => c.addressType == 0).map(x =>
+                                                            <Radio key={x.userAddressId} style={radioStyle} value={x.userAddressId}>{
+                                                                `${x.countryName}, ${x.stateOrProvinceName}, ${x.cityName || ''}, ${x.addressLine1 || ''} (${x.contactName}, ${x.phone || ''})`
+                                                            }</Radio>)
+                                                    }
+                                                    <Radio style={radioStyle} value={0}>添加地址</Radio>
+                                                </RadioGroup>)
+                                        }
+                                    </FormItem>
+                                    {
+                                        this.state.defaultShippingAddressId === 0 ?
+                                            <div>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>联系人</span>}>
+                                                    {getFieldDecorator('shippingAddress.contactName', {
+                                                        // initialValue: this.state.current.shippingAddress.contactName || '',
+                                                        rules: [{ required: true, message: '请输入联系人' }],
+                                                    })(<Input allowClear placeholder="客户名称" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>手机</span>}>
+                                                    {getFieldDecorator('shippingAddress.phone', {
+                                                        // initialValue: this.state.current.shippingAddress.phone || '',
+                                                        rules: [{ required: true, message: '请输入联系方式' }],
+                                                    })(<Input allowClear placeholder="电话/手机" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>邮箱</span>}>
+                                                    {getFieldDecorator('shippingAddress.email', {
+                                                        // initialValue: this.state.current.shippingAddress.email || '',
+                                                    })(<Input placeholder="邮箱" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>国家</span>}>
+                                                    {getFieldDecorator('shippingAddress.countryId', {
+                                                        // initialValue: this.state.current.shippingAddress.countryId || '',
+                                                        rules: [{ required: true, message: '请选择国家' }],
+                                                    })(<Select
+                                                        showSearch
+                                                        placeholder="Select a country"
+                                                        optionFilterProp="children"
+                                                        onChange={(value) => {
+                                                            this.handleInitProvinces(value, 0);
+                                                        }}
+                                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                                    >
+                                                        {this.state.countries.map(d =>
+                                                            <Option key={d.id} value={d.id}>{d.name}</Option>)}
+                                                    </Select>)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>省市区</span>}>
+                                                    {getFieldDecorator('shippingAddress.stateOrProvinceId', {
+                                                        // initialValue: this.state.current.shippingAddress.stateOrProvinceIds || [],
+                                                        rules: [{ required: true, message: '请选择省市区' }],
+                                                    })(<Cascader changeOnSelect options={this.state.provinces} placeholder="Please select" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>城市</span>}>
+                                                    {getFieldDecorator('shippingAddress.city', {
+                                                        // initialValue: this.state.current.shippingAddress.city || '',
+                                                    })(<Input placeholder="城市" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>邮编</span>}>
+                                                    {getFieldDecorator('shippingAddress.zipCode', {
+                                                        // initialValue: this.state.current.shippingAddress.zipCode || '',
+                                                    })(<Input placeholder="邮政编码" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>公司</span>}>
+                                                    {getFieldDecorator('shippingAddress.company', {
+                                                        // initialValue: this.state.current.shippingAddress.company || '',
+                                                    })(<Input placeholder="公司" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>街道地址</span>}>
+                                                    {getFieldDecorator('shippingAddress.addressLine1', {
+                                                        // initialValue: this.state.current.shippingAddress.addressLine1 || '',
+                                                        rules: [{ required: true, message: '请输入街道地址' }],
+                                                    })(<Input placeholder="街道地址" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>街道地址2</span>}>
+                                                    {getFieldDecorator('shippingAddress.addressLine2', {
+                                                        // initialValue: this.state.current.shippingAddress.addressLine2 || '',
+                                                    })(<Input placeholder="街道地址2" />)}
+                                                </FormItem>
+                                            </div> : null
+                                    }
+                                </Card>
+                                <Card type="inner" title="账单地址"
+                                    style={{ marginTop: 16 }}>
+                                    <FormItem>
+                                        {getFieldDecorator('billingUserAddressId',
+                                            { initialValue: this.state.defaultBillingAddressId })(
+                                                <RadioGroup onChange={(e) => {
+                                                    this.setState({ defaultBillingAddressId: e.target.value });
+                                                }}>
+                                                    <Radio style={radioStyle} value={''}>无</Radio>
+                                                    {
+                                                        this.state.userAddresses.addresses.filter(c => c.addressType == 1).map(x =>
+                                                            <Radio key={x.userAddressId} style={radioStyle} value={x.userAddressId}>{
+                                                                `${x.countryName}, ${x.stateOrProvinceName}, ${x.cityName || ''}, ${x.addressLine1 || ''} (${x.contactName}, ${x.phone || ''})`
+                                                            }</Radio>)
+                                                    }
+                                                    <Radio style={radioStyle} value={0}>添加地址</Radio>
+                                                </RadioGroup>)
+                                        }
+                                    </FormItem>
+                                    {
+                                        this.state.defaultBillingAddressId === 0 ?
+                                            <div>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>联系人</span>}>
+                                                    {getFieldDecorator('billingAddress.contactName', {
+                                                        // initialValue: this.state.current.shippingAddress.contactName || '',
+                                                        rules: [{ required: true, message: '请输入联系人' }],
+                                                    })(<Input allowClear placeholder="客户名称" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>手机</span>}>
+                                                    {getFieldDecorator('billingAddress.phone', {
+                                                        // initialValue: this.state.current.shippingAddress.phone || '',
+                                                        rules: [{ required: true, message: '请输入联系方式' }],
+                                                    })(<Input allowClear placeholder="电话/手机" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>邮箱</span>}>
+                                                    {getFieldDecorator('billingAddress.email', {
+                                                        // initialValue: this.state.current.shippingAddress.email || '',
+                                                    })(<Input placeholder="邮箱" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>国家</span>}>
+                                                    {getFieldDecorator('billingAddress.countryId', {
+                                                        // initialValue: this.state.current.shippingAddress.countryId || '',
+                                                        rules: [{ required: true, message: '请选择国家' }],
+                                                    })(<Select
+                                                        showSearch
+                                                        placeholder="Select a country"
+                                                        optionFilterProp="children"
+                                                        onChange={(value) => {
+                                                            this.handleInitProvinces(value, 0);
+                                                        }}
+                                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                                    >
+                                                        {this.state.countries.map(d =>
+                                                            <Option key={d.id} value={d.id}>{d.name}</Option>)}
+                                                    </Select>)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>省市区</span>}>
+                                                    {getFieldDecorator('billingAddress.stateOrProvinceId', {
+                                                        // initialValue: this.state.current.shippingAddress.stateOrProvinceIds || [],
+                                                        rules: [{ required: true, message: '请选择省市区' }],
+                                                    })(<Cascader changeOnSelect options={this.state.provinces} placeholder="Please select" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>城市</span>}>
+                                                    {getFieldDecorator('billingAddress.city', {
+                                                        // initialValue: this.state.current.shippingAddress.city || '',
+                                                    })(<Input placeholder="城市" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>邮编</span>}>
+                                                    {getFieldDecorator('billingAddress.zipCode', {
+                                                        // initialValue: this.state.current.shippingAddress.zipCode || '',
+                                                    })(<Input placeholder="邮政编码" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>公司</span>}>
+                                                    {getFieldDecorator('billingAddress.company', {
+                                                        // initialValue: this.state.current.shippingAddress.company || '',
+                                                    })(<Input placeholder="公司" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>街道地址</span>}>
+                                                    {getFieldDecorator('billingAddress.addressLine1', {
+                                                        // initialValue: this.state.current.shippingAddress.addressLine1 || '',
+                                                        rules: [{ required: true, message: '请输入街道地址' }],
+                                                    })(<Input placeholder="街道地址" />)}
+                                                </FormItem>
+                                                <FormItem
+                                                    {...formItemLayout}
+                                                    label={<span>街道地址2</span>}>
+                                                    {getFieldDecorator('billingAddress.addressLine2', {
+                                                        // initialValue: this.state.current.shippingAddress.addressLine2 || '',
+                                                    })(<Input placeholder="街道地址2" />)}
+                                                </FormItem>
+                                            </div> : null
+                                    }
+                                </Card>
+
+
+                            </TabPane>
+                            <TabPane tab="商品信息" key="3">
                                 <Button icon="plus" type="primary" style={{ marginBottom: 16 }} onClick={this.showProductModal}>添加商品</Button>
                                 <Table bordered={false}
                                     rowKey={(record, index) => `product_${record.id}_i_${index}`} //{record => record.id}
@@ -643,8 +824,10 @@ class AddOrder extends PureComponent {
                                     columns={this.columnsProduct}
                                 // scroll={{ x: 960 }}
                                 />
-                                <div style={{ marginTop: 12 }}>商品数量：{eval(this.state.products.map(x => parseInt(x.quantity)).join('+'))}</div>
-                                <div>折扣小计：{eval(this.state.products.map(x => parseFloat(x.discountAmount)).join('+'))}</div>
+                                <div style={{ marginTop: 12 }}>商品总数：{eval(this.state.products.map(x => parseInt(x.quantity)).join('+'))}</div>
+                                <div>折扣小计：
+                                    <span style={{ color: '#52c41a', fontWeight: 'bold' }}>
+                                        {eval(this.state.products.map(x => parseFloat(x.discountAmount)).join('+'))}</span></div>
                                 <div>总额小计：
                                     {
                                         this.state.products && this.state.products.length > 0 ?
@@ -653,10 +836,6 @@ class AddOrder extends PureComponent {
                                     }
                                 </div>
                             </TabPane>
-                            {/* <FormItem {...submitFormLayout}>
-                                <Button type="primary" htmlType="submit" loading={this.state.submitting}>
-                                    保存</Button>
-                            </FormItem> */}
                         </Tabs>
                     </Form>
                 </Card>
