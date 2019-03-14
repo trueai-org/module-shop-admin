@@ -12,6 +12,7 @@ import Link from 'umi/link';
 import { formatBool } from '@/utils/utils';
 
 const FormItem = Form.Item;
+const Option = Select.Option;
 const level = ['省', '市', '区', '街道'];
 
 @connect()
