@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import moment from 'moment';
 import {
     Form, Input, Button, Card, InputNumber, Icon, Checkbox, notification, Select, Spin,
-    Table, Tabs, Cascader, Radio, Avatar, DatePicker
+    Table, Tabs, Cascader, Radio, Avatar, DatePicker, Tag
 } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import router from 'umi/router';
@@ -92,9 +92,51 @@ class EditOrder extends PureComponent {
                 list: [],
                 pagination: {}
             },
+
+            histories: [],
+            historiesLoading: false,
+
         };
     }
 
+    columnsHistories = [
+        {
+            title: '操作时间',
+            dataIndex: 'createdOn',
+            width: 160,
+            render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+        },
+        {
+            title: '状态',
+            dataIndex: 'newStatus',
+            width: 200,
+            render: (text, record) => {
+                let strs = [];
+                if (record.oldStatus || record.oldStatus === 0) {
+                    let first = OrderStatus.find(c => c.key == record.oldStatus);
+                    if (first) {
+                        strs.push(<Tag key={`old_${record.id}`} color={first.color}>{first.value}</Tag>);
+                    }
+                    strs.push(<span key={`c_${record.id}`} style={{ marginRight: 8 }}>→</span>)
+                }
+                if (record.newStatus || record.newStatus === 0) {
+                    let first = OrderStatus.find(c => c.key == record.newStatus);
+                    if (first) {
+                        strs.push(<Tag key={`new_${record.id}`} color={first.color}>{first.value}</Tag>);
+                    }
+                }
+                return strs;
+            }
+        },
+        {
+            title: '操作人',
+            dataIndex: 'createdByFullName'
+        },
+        {
+            title: '备注',
+            dataIndex: 'note'
+        }
+    ];
 
     columnsProduct = [
         {
@@ -201,6 +243,37 @@ class EditOrder extends PureComponent {
             this.handleInit(this.state.id);
 
         this.handleInitCountries();
+    }
+
+    handleTabChange = (key) => {
+        if (key == 4) {
+            //订单历史
+            if (this.state.id)
+                this.handleLoadHistory(this.state.id);
+        }
+    }
+
+    handleLoadHistory = (orderId) => {
+        const { dispatch } = this.props;
+        this.setState({ historiesLoading: true });
+        new Promise(resolve => {
+            dispatch({
+                type: 'order/histories',
+                payload: {
+                    resolve,
+                    params: { orderId }
+                },
+            });
+        }).then(res => {
+            this.setState({ historiesLoading: false });
+            if (res.success === true) {
+                this.setState({
+                    histories: res.data
+                });
+            } else {
+                notification.error({ message: res.message, });
+            }
+        });
     }
 
     handleInit = (id) => {
@@ -750,7 +823,7 @@ class EditOrder extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span style={{color:'red'}}>退款状态</span>}>
+                                        label={<span style={{ color: 'red' }}>退款状态</span>}>
                                         {getFieldDecorator('refundStatus', {
                                             initialValue: this.state.current.refundStatus,
                                         })(
@@ -765,14 +838,14 @@ class EditOrder extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span style={{color:'red'}}>退款金额</span>}>
+                                        label={<span style={{ color: 'red' }}>退款金额</span>}>
                                         {getFieldDecorator('refundAmount', {
                                             initialValue: this.state.current.refundAmount,
                                         })(<InputNumber style={{ width: '100%' }} min={0} allowClear placeholder="退款金额" />)}
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span style={{color:'red'}}>退款时间</span>}>
+                                        label={<span style={{ color: 'red' }}>退款时间</span>}>
                                         {getFieldDecorator('refundOn', {
                                             initialValue: this.state.current.refundOn ? moment(this.state.current.refundOn, "YYYY-MM-DD HH:mm:ss") : null,
                                         })(
@@ -784,7 +857,7 @@ class EditOrder extends PureComponent {
                                     </FormItem>
                                     <FormItem
                                         {...formItemLayout}
-                                        label={<span style={{color:'red'}}>退款原因</span>}>
+                                        label={<span style={{ color: 'red' }}>退款原因</span>}>
                                         {getFieldDecorator('refundReason', { initialValue: this.state.current.refundReason || '' })(
                                             <TextArea
                                                 style={{ minHeight: 32 }}
@@ -1044,6 +1117,15 @@ class EditOrder extends PureComponent {
                                                 : 0
                                         }
                                     </div>
+                                </TabPane>
+                                <TabPane tab="操作记录" key="4">
+                                    <Table bordered={false}
+                                        rowKey={(record, index) => `order_history_${record.id}_i_${index}`} //{record => record.id}
+                                        pagination={false}
+                                        loading={this.state.historiesLoading}
+                                        dataSource={this.state.histories}
+                                        columns={this.columnsHistories}
+                                    />
                                 </TabPane>
                             </Tabs>
                         </Form>

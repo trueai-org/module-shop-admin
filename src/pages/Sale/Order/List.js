@@ -116,7 +116,7 @@ class OrderList extends PureComponent {
                         return <Tag color={first.color}>{first.value}</Tag>
                     }
                 }
-                return <Tag>无</Tag>;
+                return '-';
             }
         },
         {

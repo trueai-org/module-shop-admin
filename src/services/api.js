@@ -770,3 +770,7 @@ export async function deleteOrder(params) {
     method: 'DELETE'
   });
 }
+
+export async function queryOrderHistory(params) {
+  return request(`/api/orders/history/${params.orderId}`);
+}
