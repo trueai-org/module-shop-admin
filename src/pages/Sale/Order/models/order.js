@@ -1,5 +1,5 @@
 import {
-    queryOrderGrid, addOrder, editOrder, deleteOrder, firstOrder, queryOrderHistory
+    queryOrderGrid, addOrder, editOrder, deleteOrder, firstOrder, queryOrderHistory, cancelOrder, onHoldOrder
 } from '@/services/api';
 
 export default {
@@ -34,6 +34,18 @@ export default {
         *delete({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(deleteOrder, params);
+            !!resolve && resolve(response);
+        },
+
+        *cancel({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(cancelOrder, params);
+            !!resolve && resolve(response);
+        },
+
+        *onHold({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(onHoldOrder, params);
             !!resolve && resolve(response);
         },
 

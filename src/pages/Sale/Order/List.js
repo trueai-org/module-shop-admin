@@ -36,6 +36,11 @@ const OrderStatus = [
     { key: 60, value: '交易成功', color: 'green' },
     { key: 70, value: '交易取消', color: '' }];
 
+const CancelOrderStatus = [0, 20, 25];
+const DeleteOrderStatus = [0, 20, 25, 60, 70];
+const OnHoldNotOrderStatus = [10, 60, 70];
+const NotMoreStatus = [10];
+
 @connect()
 @Form.create()
 class OrderList extends PureComponent {
@@ -67,15 +72,71 @@ class OrderList extends PureComponent {
             key: 'operation',
             fixed: 'left',
             align: 'center',
-            width: 135,
+            width: 200,
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
                         <Button icon="eye" size="small" onClick={() => this.handleEdit(record.id)}></Button>
                         <Button icon="edit" size="small" onClick={() => this.handleEdit(record.id)}></Button>
-                        <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
-                            <Button icon="delete" type="danger" size="small"></Button>
-                        </Popconfirm>
+                        <Dropdown overlay={
+                            <Menu>
+                                {
+                                    [20, 25].indexOf(record.orderStatus) >= 0 ?
+                                        <Menu.Item>
+                                            <a>标记付款</a>
+                                        </Menu.Item> : null
+                                }
+                                {
+                                    record.orderStatus == 40 && [20, 25].indexOf(record.shippingStatus) >= 0 ?
+                                        <Menu.Item>
+                                            <a>发货</a>
+                                        </Menu.Item> : null
+                                }
+                                {
+                                    CancelOrderStatus.indexOf(record.orderStatus) >= 0 ?
+                                        <Menu.Item>
+                                            <a onClick={() => {
+                                                Modal.confirm({
+                                                    title: '取消订单',
+                                                    content: '确定取消订单吗？',
+                                                    okText: '确认',
+                                                    cancelText: '取消',
+                                                    onOk: () => this.cancelItem(record.id),
+                                                });
+                                            }}>取消订单</a>
+                                        </Menu.Item> : null
+                                }
+                                {
+                                    DeleteOrderStatus.indexOf(record.orderStatus) >= 0 ?
+                                        <Menu.Item>
+                                            <a onClick={() => {
+                                                Modal.confirm({
+                                                    title: '删除订单',
+                                                    content: '确定删除订单吗？',
+                                                    okText: '确认',
+                                                    cancelText: '取消',
+                                                    onOk: () => this.deleteItem(record.id),
+                                                });
+                                            }}>删除订单</a>
+                                        </Menu.Item> : null
+                                }
+                                {
+                                    OnHoldNotOrderStatus.indexOf(record.orderStatus) < 0 ?
+                                        <Menu.Item>
+                                            <a onClick={() => {
+                                                Modal.confirm({
+                                                    title: '挂起订单',
+                                                    content: '确定挂起订单吗？',
+                                                    okText: '确认',
+                                                    cancelText: '取消',
+                                                    onOk: () => this.onHoldItem(record.id),
+                                                });
+                                            }}>挂起订单</a>
+                                        </Menu.Item> : null
+                                }
+                            </Menu>}>
+                            <Button icon="ellipsis" size="small"></Button>
+                        </Dropdown>
                     </Button.Group>
                 </Fragment>
             )
@@ -178,6 +239,50 @@ class OrderList extends PureComponent {
         new Promise(resolve => {
             dispatch({
                 type: 'order/delete',
+                payload: {
+                    resolve,
+                    params,
+                },
+            });
+        }).then(res => {
+            this.setState({ loading: false, });
+            if (res.success === true) {
+                this.queryData();
+            } else {
+                notification.error({ message: res.message });
+            }
+        });
+    };
+
+    cancelItem = id => {
+        this.setState({ loading: true, });
+        const { dispatch } = this.props;
+        const params = { id };
+        new Promise(resolve => {
+            dispatch({
+                type: 'order/cancel',
+                payload: {
+                    resolve,
+                    params,
+                },
+            });
+        }).then(res => {
+            this.setState({ loading: false, });
+            if (res.success === true) {
+                this.queryData();
+            } else {
+                notification.error({ message: res.message });
+            }
+        });
+    };
+
+    onHoldItem = id => {
+        this.setState({ loading: true, });
+        const { dispatch } = this.props;
+        const params = { id };
+        new Promise(resolve => {
+            dispatch({
+                type: 'order/onHold',
                 payload: {
                     resolve,
                     params,

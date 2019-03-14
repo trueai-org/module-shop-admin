@@ -771,6 +771,18 @@ export async function deleteOrder(params) {
   });
 }
 
+export async function cancelOrder(params) {
+  return request(`/api/orders/${params.id}/cancel`, {
+    method: 'PUT'
+  });
+}
+
+export async function onHoldOrder(params) {
+  return request(`/api/orders/${params.id}/on-hold`, {
+    method: 'PUT'
+  });
+}
+
 export async function queryOrderHistory(params) {
   return request(`/api/orders/history/${params.orderId}`);
 }
