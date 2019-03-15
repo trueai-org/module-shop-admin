@@ -773,13 +773,15 @@ export async function deleteOrder(params) {
 
 export async function cancelOrder(params) {
   return request(`/api/orders/${params.id}/cancel`, {
-    method: 'PUT'
+    method: 'PUT',
+    body: params
   });
 }
 
 export async function onHoldOrder(params) {
   return request(`/api/orders/${params.id}/on-hold`, {
-    method: 'PUT'
+    method: 'PUT',
+    body: params
   });
 }
 

@@ -63,6 +63,9 @@ class OrderList extends PureComponent {
 
             users: [],
             usersLoading: false,
+
+            onHoldReason: '',
+            cancelReason: '',
         };
     }
 
@@ -72,7 +75,7 @@ class OrderList extends PureComponent {
             key: 'operation',
             fixed: 'left',
             align: 'center',
-            width: 200,
+            width: 135,
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
@@ -96,9 +99,17 @@ class OrderList extends PureComponent {
                                     CancelOrderStatus.indexOf(record.orderStatus) >= 0 ?
                                         <Menu.Item>
                                             <a onClick={() => {
+                                                this.setState({ cancelReason: '' });
                                                 Modal.confirm({
-                                                    title: '取消订单',
-                                                    content: '确定取消订单吗？',
+                                                    title: '确定取消订单吗？',
+                                                    content: (
+                                                        <Input.TextArea
+                                                            onChange={(e) => {
+                                                                this.setState({ cancelReason: e.target.value });
+                                                            }}
+                                                            placeholder="取消原因"
+                                                            rows={3} />
+                                                    ),
                                                     okText: '确认',
                                                     cancelText: '取消',
                                                     onOk: () => this.cancelItem(record.id),
@@ -257,7 +268,7 @@ class OrderList extends PureComponent {
     cancelItem = id => {
         this.setState({ loading: true, });
         const { dispatch } = this.props;
-        const params = { id };
+        const params = { id, reason: this.state.cancelReason };
         new Promise(resolve => {
             dispatch({
                 type: 'order/cancel',
