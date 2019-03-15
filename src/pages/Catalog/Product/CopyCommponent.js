@@ -30,12 +30,12 @@ class CopyCommponent extends React.Component {
                     visible={this.props.visible}
                     onCancel={this.props.onCancel}
                     onOk={this.props.onOk}
-                    footer={[
-                        <Button onClick={this.props.onCancel}>取消</Button>,
-                        <Button type="primary" loading={this.props.copySubmitting} onClick={this.props.onOk}>
-                            确定
-                        </Button>,
-                    ]}
+                    // footer={[
+                    //     <Button onClick={this.props.onCancel}>取消</Button>,
+                    //     <Button type="primary" loading={this.props.copySubmitting} onClick={this.props.onOk}>
+                    //         确定
+                    //     </Button>,
+                    // ]}
                 >
                     <Alert style={{ marginBottom: 24 }}
                         message="提示：不复制商品组合" type="info" showIcon />
@@ -63,6 +63,13 @@ class CopyCommponent extends React.Component {
                                 {...formItemLayout}
                                 label={<span>复制图片</span>}>
                                 {getFieldDecorator('isCopyImages', {
+                                    initialValue: true, valuePropName: 'checked'
+                                })(<Checkbox />)}
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label={<span>复制库存</span>}>
+                                {getFieldDecorator('isCopyStock', {
                                     initialValue: true, valuePropName: 'checked'
                                 })(<Checkbox />)}
                             </FormItem>

@@ -28,7 +28,7 @@ class BrandComponent extends React.Component {
                     visible={this.props.visible}
                     onOk={this.props.onCreate}
                     onCancel={this.props.handleCancel}>
-                    <Form >
+                    <Form>
                         <FormItem>
                             {getFieldDecorator('id', { initialValue: this.props.brand.id, })(<Input type="hidden" />)}
                         </FormItem>

@@ -37,7 +37,7 @@ const OrderStatus = [
     { key: 70, value: '交易取消', color: '' }];
 
 const CancelOrderStatus = [0, 20, 25];
-const DeleteOrderStatus = [0, 20, 25, 60, 70];
+const DeleteOrderStatus = [60, 70];
 const OnHoldNotOrderStatus = [10, 60, 70];
 const NotMoreStatus = [10];
 

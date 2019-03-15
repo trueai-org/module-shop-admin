@@ -116,7 +116,7 @@ class ProductInfo extends PureComponent {
             historyLoading: false,
             pageNum: 1,
             pageSize: 5,
-            predicate: 'createdOn',
+            predicate: 'Id',
             reverse: true,
             historyData: {
                 list: [],
@@ -129,6 +129,14 @@ class ProductInfo extends PureComponent {
             //单位
             units: [],
             unitsLoading: false,
+
+            //产品库存
+            productStocks: [],
+            productStocksLoading: false,
+
+            //sku库存
+            visibleSkuStocks: false,
+            skuStockCurrent: {}
         };
     }
 
@@ -569,30 +577,30 @@ class ProductInfo extends PureComponent {
             title: '库存',
             dataIndex: 'stockQuantity',
             width: 100,
-            render: (value, record) => (
-                <Fragment>
-                    <InputNumber
-                        min={0}
-                        precision={0}
-                        onChange={(e) => {
-                            // let obj = this.state.productSku.find(c => c.name == record.name);
-                            // if (obj) {
-                            //     obj.stockQuantity = e;
-                            // }
+            // render: (value, record) => (
+            //     <Fragment>
+            //         <InputNumber
+            //             min={0}
+            //             precision={0}
+            //             onChange={(e) => {
+            //                 // let obj = this.state.productSku.find(c => c.name == record.name);
+            //                 // if (obj) {
+            //                 //     obj.stockQuantity = e;
+            //                 // }
 
-                            let index = this.state.productSku.indexOf(record);
-                            if (index >= 0) {
-                                let list = this.state.productSku.slice();
-                                list.splice(index, 1);
+            //                 let index = this.state.productSku.indexOf(record);
+            //                 if (index >= 0) {
+            //                     let list = this.state.productSku.slice();
+            //                     list.splice(index, 1);
 
-                                record.stockQuantity = e;
-                                list.splice(index, 0, record);
-                                this.setState({ productSku: list });
-                            }
-                        }}
-                        defaultValue={value}></InputNumber>
-                </Fragment>
-            )
+            //                     record.stockQuantity = e;
+            //                     list.splice(index, 0, record);
+            //                     this.setState({ productSku: list });
+            //                 }
+            //             }}
+            //             defaultValue={value}></InputNumber>
+            //     </Fragment>
+            // )
         },
         {
             title: '图片',
@@ -658,11 +666,12 @@ class ProductInfo extends PureComponent {
             title: '操作',
             key: 'operation',
             align: 'center',
-            width: 64,
+            width: 100,
             fixed: 'right',
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
+                        <Button onClick={() => this.showSkuStocksModal(record)} icon="setting" type="" size="small"></Button>
                         <Button onClick={() => this.handleRemoveSku(record)} icon="close" type="danger" size="small"></Button>
                     </Button.Group>
                 </Fragment>
@@ -671,6 +680,13 @@ class ProductInfo extends PureComponent {
     ];
 
     columnsHistory = [
+        {
+            title: 'Id',
+            dataIndex: 'id',
+            width: 100,
+            defaultSortOrder: 'descend',
+            sorter: true,
+        },
         {
             title: '仓库',
             dataIndex: 'warehouseName',
@@ -700,11 +716,161 @@ class ProductInfo extends PureComponent {
             dataIndex: 'createdOn',
             width: 120,
             sorter: true,
-            defaultSortOrder: 'descend',
+            // defaultSortOrder: 'descend',
             render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
         },
     ];
 
+    columnsProductStock = [
+        {
+            title: '仓库',
+            dataIndex: 'name',
+        },
+        {
+            title: '库存',
+            dataIndex: 'quantity',
+            width: 100,
+            render: (text, record) => (
+                <Fragment>
+                    <InputNumber
+                        min={0}
+                        precision={0}
+                        onChange={(e) => {
+                            record.quantity = e;
+                            // if (record.type == 'sku') {
+                            //     let index = this.state.productSku.indexOf(this.state.skuStockCurrent);
+                            //     if (index >= 0) {
+                            //         let xxx = this.state.productSku[index];
+
+                            //         let stocks = this.state.skuStockCurrent.stocks || [];
+                            //         let itemIndex = stocks.indexOf(record);
+                            //         if (itemIndex >= 0) {
+                            //             let itemList = stocks.slice();
+                            //             itemList.splice(itemIndex, 1);
+                            //             record.quantity = e;
+                            //             itemList.splice(itemIndex, 0, record);
+                            //             xxx.stocks = itemList;
+                            //         }
+
+                            //         let list = this.state.productSku.slice();
+                            //         list.splice(index, 1);
+                            //         list.splice(index, 0, xxx);
+                            //         this.setState({
+                            //             productSku: list,
+                            //             skuStockCurrent: xxx
+                            //         });
+                            //     }
+                            // } else {
+                            //     let index = this.state.productStocks.indexOf(record);
+                            //     if (index >= 0) {
+                            //         let list = this.state.productStocks.slice();
+                            //         list.splice(index, 1);
+                            //         record.quantity = e;
+                            //         list.splice(index, 0, record);
+                            //         this.setState({ productStocks: list });
+                            //     }
+                            // }
+                        }}
+                        defaultValue={text}></InputNumber>
+                </Fragment>
+            )
+        },
+        {
+            title: '顺序',
+            dataIndex: 'displayOrder',
+            width: 100,
+            render: (text, record) => (
+                <Fragment>
+                    <InputNumber
+                        min={0}
+                        precision={0}
+                        onChange={(e) => {
+                            record.displayOrder = e;
+                            // if (record.type == 'sku') {
+                            //     let index = this.state.productSku.indexOf(this.state.skuStockCurrent);
+                            //     if (index >= 0) {
+                            //         let xxx = this.state.productSku[index];
+
+                            //         let stocks = this.state.skuStockCurrent.stocks || [];
+                            //         let itemIndex = stocks.indexOf(record);
+                            //         if (itemIndex >= 0) {
+                            //             let itemList = stocks.slice();
+                            //             itemList.splice(itemIndex, 1);
+                            //             record.displayOrder = e;
+                            //             itemList.splice(itemIndex, 0, record);
+                            //             xxx.stocks = itemList;
+                            //         }
+
+                            //         let list = this.state.productSku.slice();
+                            //         list.splice(index, 1);
+                            //         list.splice(index, 0, xxx);
+                            //         this.setState({
+                            //             productSku: list,
+                            //             skuStockCurrent: xxx
+                            //         });
+                            //     }
+                            // } else {
+                            //     let index = this.state.productStocks.indexOf(record);
+                            //     if (index >= 0) {
+                            //         let list = this.state.productStocks.slice();
+                            //         list.splice(index, 1);
+                            //         record.displayOrder = e;
+                            //         list.splice(index, 0, record);
+                            //         this.setState({ productStocks: list });
+                            //     }
+                            // }
+                        }}
+                        defaultValue={text}></InputNumber>
+                </Fragment>
+            )
+        },
+        {
+            title: '启用',
+            dataIndex: 'isEnabled',
+            width: 100,
+            render: (val, record) => (
+                <Switch
+                    defaultChecked={val}
+                    onChange={(e) => {
+                        record.isEnabled = e;
+                        // if (record.type == 'sku') {
+                        //     let index = this.state.productSku.indexOf(this.state.skuStockCurrent);
+                        //     if (index >= 0) {
+                        //         let xxx = this.state.productSku[index];
+
+                        //         let stocks = this.state.skuStockCurrent.stocks || [];
+                        //         let itemIndex = stocks.indexOf(record);
+                        //         if (itemIndex >= 0) {
+                        //             let itemList = stocks.slice();
+                        //             itemList.splice(itemIndex, 1);
+                        //             record.isEnabled = e;
+                        //             itemList.splice(itemIndex, 0, record);
+                        //             xxx.stocks = itemList;
+                        //         }
+
+                        //         let list = this.state.productSku.slice();
+                        //         list.splice(index, 1);
+                        //         list.splice(index, 0, xxx);
+                        //         this.setState({
+                        //             productSku: list,
+                        //             skuStockCurrent: xxx
+                        //         });
+                        //     }
+                        // } else {
+                        //     let index = this.state.productStocks.indexOf(record);
+                        //     if (index >= 0) {
+                        //         let list = this.state.productStocks.slice();
+                        //         list.splice(index, 1);
+                        //         record.isEnabled = e;
+                        //         list.splice(index, 0, record);
+                        //         this.setState({ productStocks: list });
+                        //     }
+                        // }
+                    }}
+                />
+            )
+        }
+    ];
 
     componentDidMount() {
         this.handleInit();
@@ -724,6 +890,11 @@ class ProductInfo extends PureComponent {
 
         form.validateFields((err, values) => {
             if (err) return;
+
+            if (this.state.submitting === true)
+                return;
+
+            this.setState({ submitting: true, loading: true });
 
             var params = {
                 id: this.state.id,
@@ -780,13 +951,14 @@ class ProductInfo extends PureComponent {
                 params.variations = this.state.productSku
             }
 
+            //产品库存
+            if (params.stockTrackingIsEnabled) {
+                params.stocks = this.state.productStocks;
+            }
+
             // console.log(params);
             // return;
 
-            if (this.state.submitting === true)
-                return;
-
-            this.setState({ submitting: true, loading: true });
             new Promise(resolve => {
                 dispatch({
                     type: this.state.id ? 'product/edit' : 'product/add',
@@ -823,6 +995,7 @@ class ProductInfo extends PureComponent {
     handleCopySubmit = () => {
         const { dispatch } = this.props;
         const form = this.formRef.props.form;
+
         form.validateFields((err, values) => {
             if (err) {
                 return;
@@ -846,16 +1019,16 @@ class ProductInfo extends PureComponent {
             }).then(res => {
                 this.setState({ copySubmitting: false });
                 if (res.success === true) {
-                    form.resetFields();
                     this.setState({ visibleCopy: false });
 
                     router.push({
-                        pathname: './edit',
+                        pathname: './info',
                         query: {
                             id: res.data,
                         },
                     });
 
+                    form.resetFields();
                     router.go(0);
                 } else {
                     notification.error({ message: res.message, });
@@ -907,6 +1080,20 @@ class ProductInfo extends PureComponent {
         this.setState({
             visibleOptionSetting: false,
             optionSettingCurrent: {}
+        });
+    };
+
+    showSkuStocksModal = (item) => {
+        this.setState({
+            visibleSkuStocks: true,
+            skuStockCurrent: item
+        });
+    };
+
+    handleSkuStocksCancel = () => {
+        this.setState({
+            visibleSkuStocks: false,
+            skuStockCurrent: {}
         });
     };
 
@@ -963,6 +1150,8 @@ class ProductInfo extends PureComponent {
             price: this.state.current.price || 0,
             oldPrice: this.state.current.oldPrice,
             stockQuantity: this.state.current.stockQuantity || 0,
+            stocks: [],
+            warehouseIds: []
         };
 
         if (!this.state.productSku.find(c => c.name == variation.name)) {
@@ -1024,6 +1213,8 @@ class ProductInfo extends PureComponent {
                     price: this.state.current.price || 0,
                     oldPrice: this.state.current.oldPrice,
                     stockQuantity: this.state.current.stockQuantity || 0,
+                    stocks: [],
+                    warehouseIds: []
                 };
                 skus.push(variation);
             } else {
@@ -1365,6 +1556,7 @@ class ProductInfo extends PureComponent {
                     currentPublishType: res.data.publishType,
                     currentStockTrackingIsEnabled: res.data.stockTrackingIsEnabled,
                     isShipEnabled: res.data.isShipEnabled,
+                    productStocks: res.data.stocks
                 }, () => {
                     this.props.form.setFieldsValue({
                         shortDescription: BraftEditor.createEditorState(this.state.current.shortDescription || ''),
@@ -1642,6 +1834,8 @@ class ProductInfo extends PureComponent {
         const rollback = (
             this.state.id ?
                 <Fragment>
+                    <Button onClick={this.handleSubmit} type="primary" icon="save" htmlType="submit" loading={this.state.submitting}>
+                        保存</Button>
                     <Button type="primary" icon="copy" onClick={this.showCopyModal}>
                         复制商品
                 </Button>
@@ -1654,11 +1848,14 @@ class ProductInfo extends PureComponent {
                         </Button>
                     </Link>
                 </Fragment> :
-                <Link to="./list">
-                    <Button>
-                        <Icon type="rollback" />
-                    </Button>
-                </Link>
+                <Fragment>
+                    <Button onClick={this.handleSubmit} type="primary" icon="save" htmlType="submit" loading={this.state.submitting}>
+                        保存</Button>
+                    <Link to="./list">
+                        <Button>
+                            <Icon type="rollback" />
+                        </Button>
+                    </Link></Fragment>
         );
 
         return (
@@ -2034,29 +2231,6 @@ class ProductInfo extends PureComponent {
                                                     </FormItem>
                                                     <FormItem
                                                         {...itemFormLayout}
-                                                        label={<span>库存数量</span>}>
-                                                        {getFieldDecorator('stockQuantity', { initialValue: this.state.current.stockQuantity || 0 })(
-                                                            <InputNumber min={0} precision={0} style={{ width: '100%' }} placeholder="库存数量" />
-                                                        )}
-                                                    </FormItem>
-                                                    <FormItem
-                                                        {...itemFormLayout}
-                                                        label={<span>仓库</span>}>
-                                                        {getFieldDecorator('warehouseId',
-                                                            { initialValue: this.state.current.warehouseId || '', valuePropName: 'value' })(
-                                                                <Select
-                                                                    placeholder="仓库"
-                                                                    loading={this.state.warehousesLoading}
-                                                                    allowClear={true}
-                                                                >
-                                                                    {this.state.warehouses.map(c => {
-                                                                        return <Option value={c.id} key={c.id}>{c.name}</Option>;
-                                                                    })}
-                                                                </Select>
-                                                            )}
-                                                    </FormItem>
-                                                    <FormItem
-                                                        {...itemFormLayout}
                                                         label={<span>最低购物车数量</span>}>
                                                         {getFieldDecorator('orderMinimumQuantity', { initialValue: this.state.current.orderMinimumQuantity || 1 })(
                                                             <InputNumber min={1} precision={0} style={{ width: '100%' }} placeholder="最低购物车数量" />
@@ -2065,7 +2239,7 @@ class ProductInfo extends PureComponent {
                                                     <FormItem
                                                         {...itemFormLayout}
                                                         label={<span>最大购物车数量</span>}>
-                                                        {getFieldDecorator('orderMaximumQuantity', { initialValue: this.state.current.orderMaximumQuantity || 1 })(
+                                                        {getFieldDecorator('orderMaximumQuantity', { initialValue: this.state.current.orderMaximumQuantity || 1000 })(
                                                             <InputNumber min={1} precision={0} style={{ width: '100%' }} placeholder="最大购物车数量" />
                                                         )}
                                                     </FormItem>
@@ -2090,6 +2264,60 @@ class ProductInfo extends PureComponent {
                                                             )
                                                         }
                                                     </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        // label={<span>有效库存数量</span>}
+                                                        label={<span>有效库存数量
+                                                            <Tooltip placement="topLeft" title="可用仓库，可用库存数量">
+                                                                <Icon type="question-circle" theme="filled" />
+                                                            </Tooltip>
+                                                        </span>}
+                                                    >
+                                                        {getFieldDecorator('stockQuantity', { initialValue: this.state.current.stockQuantity || 0 })(
+                                                            <InputNumber disabled min={0} precision={0} style={{ width: '100%' }} placeholder="库存数量" />
+                                                        )}
+                                                    </FormItem>
+                                                    <FormItem
+                                                        {...itemFormLayout}
+                                                        label={<span>仓库</span>}>
+                                                        {getFieldDecorator('warehouseIds',
+                                                            { initialValue: this.state.current.warehouseIds, valuePropName: 'value' })(
+                                                                <Select
+                                                                    mode="multiple"
+                                                                    placeholder="仓库"
+                                                                    loading={this.state.warehousesLoading}
+                                                                    allowClear={true}
+                                                                    onChange={(e) => {
+                                                                        this.setState({ productStocksLoading: true });
+                                                                        let stocks = this.state.productStocks;
+                                                                        e.forEach(c => {
+                                                                            let first = this.state.warehouses.find(x => x.id == c);
+                                                                            if (first && stocks.findIndex(x => x.id == c) < 0) {
+                                                                                let s = { id: first.id, name: first.name, quantity: 0, displayOrder: 0, isEnabled: true };
+                                                                                stocks.push(s);
+                                                                            }
+                                                                        });
+                                                                        this.setState({
+                                                                            productStocks: stocks.filter(c => e.indexOf(c.id) >= 0),
+                                                                            productStocksLoading: false
+                                                                        });
+                                                                    }}
+                                                                >
+                                                                    {this.state.warehouses.map(c => {
+                                                                        return <Option value={c.id} key={c.id}>{c.name}</Option>;
+                                                                    })}
+                                                                </Select>
+                                                            )}
+
+                                                    </FormItem>
+                                                    <Table bordered={true}
+                                                        rowKey={(record, index) => `product_stock_${record.id}_i_${index}`} //{record => record.id}
+                                                        pagination={false}
+                                                        loading={this.state.productStocksLoading}
+                                                        dataSource={this.state.productStocks}
+                                                        columns={this.columnsProductStock}
+                                                    // scroll={{ x: 360 }}
+                                                    />
                                                 </Card> : null
                                         }
                                     </FormItem>
@@ -2377,9 +2605,9 @@ class ProductInfo extends PureComponent {
 
                                 </TabPane>
                             </Tabs>
-                            <FormItem {...submitFormLayout}>
+                            {/* <FormItem {...submitFormLayout}>
                                 <Button type="primary" htmlType="submit" loading={this.state.submitting}>保存</Button>
-                            </FormItem>
+                            </FormItem> */}
                         </Form>
                     </Card>
                 </Spin>
@@ -2396,6 +2624,70 @@ class ProductInfo extends PureComponent {
                         pagination={false}
                         dataSource={this.state.optionSettingCurrent.values}
                         columns={this.columnsOptionSetting}
+                    />
+                </Modal>
+                <Modal
+                    // width={600}
+                    title={`库存配置 - ${this.state.skuStockCurrent.name}`}
+                    destroyOnClose
+                    visible={this.state.visibleSkuStocks}
+                    footer={null}
+                    onCancel={this.handleSkuStocksCancel}
+                >
+                    <Select
+                        style={{ width: '100%', marginBottom: 16 }}
+                        mode="multiple"
+                        placeholder="仓库"
+                        defaultValue={this.state.skuStockCurrent.warehouseIds || []}
+                        loading={this.state.warehousesLoading}
+                        allowClear={true}
+                        onChange={(e) => {
+                            let current = this.state.skuStockCurrent;
+                            let stocks = current.stocks || [];
+                            e.forEach(c => {
+                                let first = this.state.warehouses.find(x => x.id == c);
+                                if (first && stocks.findIndex(x => x.id == c) < 0) {
+                                    let s = {
+                                        id: first.id, name: first.name, quantity: 0, displayOrder: 0, isEnabled: true,
+                                        type: 'sku'
+                                    };
+                                    stocks.push(s);
+                                }
+                            });
+
+                            let record = {};
+                            if (current.id) {
+                                record = this.state.productSku.find(c => c.id == current.id)
+                            } else {
+                                record = this.state.productSku.find(c => c.name == current.name)
+                            }
+                            if (record) {
+                                let index = this.state.productSku.indexOf(record);
+                                if (index >= 0) {
+                                    let list = this.state.productSku.slice();
+                                    list.splice(index, 1);
+
+                                    record.stocks = stocks.filter(c => e.indexOf(c.id) >= 0);
+                                    record.warehouseIds = e;
+
+                                    list.splice(index, 0, record);
+                                    this.setState({
+                                        productSku: list,
+                                        skuStockCurrent: record
+                                    });
+                                }
+                            }
+                        }}
+                    >
+                        {this.state.warehouses.map(c => {
+                            return <Option value={c.id} key={c.id}>{c.name}</Option>;
+                        })}
+                    </Select>
+                    <Table bordered={false}
+                        rowKey={(record, index) => `sku_stock_${record.id}_v_${index}`} //{record => record.id}
+                        pagination={false}
+                        dataSource={this.state.skuStockCurrent.stocks || []}
+                        columns={this.columnsProductStock}
                     />
                 </Modal>
                 <Modal
