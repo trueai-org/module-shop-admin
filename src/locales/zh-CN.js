@@ -332,4 +332,10 @@ export default {
   'menu.sale.order.list': '列表',
   'menu.sale.order.add': '添加',
   'menu.sale.order.edit': '编辑',
+
+
+  'menu.sale': '销售',
+  'menu.sale.shipment': '发货',
+  'menu.sale.shipment.list': '记录',
+  'menu.sale.shipment.add': '发货',
 };

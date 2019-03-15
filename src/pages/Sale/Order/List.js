@@ -40,6 +40,8 @@ const CancelOrderStatus = [0, 20, 25];
 const DeleteOrderStatus = [60, 70];
 const OnHoldNotOrderStatus = [10, 60, 70];
 const NotMoreStatus = [10];
+const DeliveryOrderStatus = [30, 40];
+const DeliveryShippingStatus = [null, 0, 20, 25];
 
 @connect()
 @Form.create()
@@ -86,11 +88,20 @@ class OrderList extends PureComponent {
                                 {
                                     [20, 25].indexOf(record.orderStatus) >= 0 ?
                                         <Menu.Item>
-                                            <a>标记付款</a>
+                                            <a onClick={() => {
+                                                Modal.confirm({
+                                                    title: '标记付款',
+                                                    content: '确定对此订单[' + record.id + ']标记付款吗？',
+                                                    okText: '确认',
+                                                    cancelText: '取消',
+                                                    onOk: () => this.paymentItem(record.id),
+                                                });
+                                            }}>标记付款</a>
                                         </Menu.Item> : null
                                 }
                                 {
-                                    record.orderStatus == 40 && [20, 25].indexOf(record.shippingStatus) >= 0 ?
+                                    DeliveryOrderStatus.indexOf(record.orderStatus) >= 0 &&
+                                        DeliveryShippingStatus.indexOf(record.shippingStatus) >= 0 ?
                                         <Menu.Item>
                                             <a>发货</a>
                                         </Menu.Item> : null
@@ -250,6 +261,28 @@ class OrderList extends PureComponent {
         new Promise(resolve => {
             dispatch({
                 type: 'order/delete',
+                payload: {
+                    resolve,
+                    params,
+                },
+            });
+        }).then(res => {
+            this.setState({ loading: false, });
+            if (res.success === true) {
+                this.queryData();
+            } else {
+                notification.error({ message: res.message });
+            }
+        });
+    };
+
+    paymentItem = id => {
+        this.setState({ loading: true, });
+        const { dispatch } = this.props;
+        const params = { id };
+        new Promise(resolve => {
+            dispatch({
+                type: 'order/payment',
                 payload: {
                     resolve,
                     params,

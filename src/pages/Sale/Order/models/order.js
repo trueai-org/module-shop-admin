@@ -1,5 +1,6 @@
 import {
-    queryOrderGrid, addOrder, editOrder, deleteOrder, firstOrder, queryOrderHistory, cancelOrder, onHoldOrder
+    queryOrderGrid, addOrder, editOrder, deleteOrder, firstOrder, queryOrderHistory, cancelOrder, onHoldOrder,
+    paymentOrder
 } from '@/services/api';
 
 export default {
@@ -46,6 +47,12 @@ export default {
         *onHold({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(onHoldOrder, params);
+            !!resolve && resolve(response);
+        },
+
+        *payment({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(paymentOrder, params);
             !!resolve && resolve(response);
         },
 

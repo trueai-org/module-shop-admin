@@ -785,6 +785,13 @@ export async function onHoldOrder(params) {
   });
 }
 
+export async function paymentOrder(params) {
+  return request(`/api/orders/${params.id}/payment`, {
+    method: 'PUT',
+    body: params
+  });
+}
+
 export async function queryOrderHistory(params) {
   return request(`/api/orders/history/${params.orderId}`);
 }
