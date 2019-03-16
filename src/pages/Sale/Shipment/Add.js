@@ -171,8 +171,7 @@ class ShipmentAdd extends PureComponent {
                     this.setState({ submitting: false });
                     if (res.success === true) {
                         // router.push('./list');
-                        notification.success({ message: '发货成功,2s后自动跳转...' });
-
+                        notification.success({ message: '发货成功,1s后自动跳转...' });
                         setTimeout(() => {
                             router.push({
                                 pathname: './add',
@@ -181,7 +180,7 @@ class ShipmentAdd extends PureComponent {
                                 },
                             });
                             router.go(0);
-                        }, 2000);
+                        }, 1000);
                     } else {
                         notification.error({ message: res.message, });
                     }
@@ -190,13 +189,20 @@ class ShipmentAdd extends PureComponent {
         });
     };
 
+    handleGoBack = () => {
+        router.goBack();
+    }
     render() {
         const { form: { getFieldDecorator } } = this.props;
         const action = (
             <Fragment>
-                <Link to="./list">
+                {/* <Button onClick={this.handleGoBack}>
+                    <Icon type="rollback" />返回上一级
+                </Button> */}
+                <Link to="../order/list">
                     <Button>
                         <Icon type="rollback" />
+                        {/* 返回订单列表 */}
                     </Button>
                 </Link>
             </Fragment>

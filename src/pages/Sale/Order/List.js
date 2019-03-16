@@ -86,7 +86,7 @@ class OrderList extends PureComponent {
                         <Dropdown overlay={
                             <Menu>
                                 {
-                                    [20, 25].indexOf(record.orderStatus) >= 0 ?
+                                    [0, 20, 25].indexOf(record.orderStatus) >= 0 ?
                                         <Menu.Item>
                                             <a onClick={() => {
                                                 Modal.confirm({
@@ -103,7 +103,9 @@ class OrderList extends PureComponent {
                                     DeliveryOrderStatus.indexOf(record.orderStatus) >= 0 &&
                                         DeliveryShippingStatus.indexOf(record.shippingStatus) >= 0 ?
                                         <Menu.Item>
-                                            <a>发货</a>
+                                            <a onClick={() => {
+                                                this.handleDelivery(record.no)
+                                            }}>发货</a>
                                         </Menu.Item> : null
                                 }
                                 {
@@ -304,6 +306,15 @@ class OrderList extends PureComponent {
             }
         });
     };
+
+    handleDelivery = no => {
+        router.push({
+            pathname: '../shipment/add',
+            query: {
+                no: no,
+            },
+        });
+    }
 
     cancelItem = id => {
         this.setState({ loading: true, });
