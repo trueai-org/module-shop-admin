@@ -639,6 +639,11 @@ class EditOrder extends PureComponent {
                                 <TabPane tab="基本信息" key="1">
                                     <FormItem
                                         {...formItemLayout}
+                                        label={<span>订单编号</span>}>
+                                        {this.state.current.no}
+                                    </FormItem>
+                                    <FormItem
+                                        {...formItemLayout}
                                         label={<span>客户</span>}>
                                         <Input disabled value={this.state.current.customerName} />
                                     </FormItem>

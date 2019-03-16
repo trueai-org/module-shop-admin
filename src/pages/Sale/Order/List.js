@@ -53,7 +53,7 @@ class OrderList extends PureComponent {
 
             pageNum: 1,
             pageSize: 10,
-            predicate: 'id',
+            predicate: '',
             reverse: true,
             pageData: {
                 list: [],
@@ -90,8 +90,8 @@ class OrderList extends PureComponent {
                                         <Menu.Item>
                                             <a onClick={() => {
                                                 Modal.confirm({
-                                                    title: '标记付款',
-                                                    content: '确定对此订单[' + record.id + ']标记付款吗？',
+                                                    title: '标记付款：' + record.no,
+                                                    content: '确定对此订单标记付款吗？',
                                                     okText: '确认',
                                                     cancelText: '取消',
                                                     onOk: () => this.paymentItem(record.id),
@@ -163,15 +163,22 @@ class OrderList extends PureComponent {
                 </Fragment>
             )
         },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     // fixed: 'left',
+        //     sorter: true,
+        //     defaultSortOrder: 'descend',
+        //     width: 100,
+        // },
         {
-            title: 'ID',
-            dataIndex: 'id',
+            title: '订单编号',
+            dataIndex: 'no',
             // fixed: 'left',
             sorter: true,
-            defaultSortOrder: 'descend',
-            width: 100,
+            // defaultSortOrder: 'descend',
+            width: 180,
         },
-
         {
             title: '订单状态',
             dataIndex: 'orderStatus',
@@ -615,7 +622,7 @@ class OrderList extends PureComponent {
                             columns={this.columns}
                             bordered
                             onChange={this.handleStandardTableChange}
-                            scroll={{ x: 860 }}
+                            scroll={{ x: 960 }}
                         />
                     </Card>
                 </div>
