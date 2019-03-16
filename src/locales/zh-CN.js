@@ -337,5 +337,5 @@ export default {
   'menu.sale': '销售',
   'menu.sale.shipment': '发货',
   'menu.sale.shipment.list': '记录',
-  'menu.sale.shipment.add': '发货',
+  'menu.sale.shipment.add': '订单发货',
 };

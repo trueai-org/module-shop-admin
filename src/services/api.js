@@ -750,6 +750,9 @@ export async function firstOrder(params) {
   return request(`/api/orders/${params.id}`);
 }
 
+export async function firstOrderByNo(params) {
+  return request(`/api/orders/${params.no}/no`);
+}
 
 export async function addOrder(params) {
   return request(`/api/orders`, {
@@ -794,4 +797,13 @@ export async function paymentOrder(params) {
 
 export async function queryOrderHistory(params) {
   return request(`/api/orders/history/${params.orderId}`);
+}
+
+
+// 发货
+export async function addShipment(params) {
+  return request(`/api/shipments`, {
+    method: 'POST',
+    body: params
+  });
 }
