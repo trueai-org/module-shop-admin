@@ -174,7 +174,7 @@ export default [
       // 商品目录
       {
         name: 'catalog',
-        icon: 'table',
+        icon: 'inbox',
         path: '/catalog',
         routes: [
           {
@@ -304,7 +304,7 @@ export default [
       // 销售
       {
         name: 'sale',
-        icon: 'table',
+        icon: 'shopping',
         path: '/sale',
         routes: [
           {
@@ -365,7 +365,7 @@ export default [
       // 系统
       {
         name: 'system',
-        icon: 'table',
+        icon: 'setting',
         path: '/system',
         routes: [
           {

@@ -512,11 +512,11 @@ class ProductList extends PureComponent {
             <Fragment>
                 <Button onClick={this.handleAdd}
                     type="primary"
-                    icon="plus">新增</Button>
+                    icon="plus">添加</Button>
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="商品 - 列表" action={
+            <PageHeaderWrapper title="商品" action={
                 <Button
                     onClick={this.handleAdd}
                     type="primary"

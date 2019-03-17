@@ -29,7 +29,7 @@ class ProductAttributeTemplateList extends PureComponent {
 
         pageNum: 1,
         pageSize: 5,
-        predicate: 'id',
+        predicate: '',
         reverse: true,
         pageData: {
             list: [],
@@ -48,19 +48,18 @@ class ProductAttributeTemplateList extends PureComponent {
                         <Button icon="edit" size="small" onClick={() => this.showEditModal(record)}></Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
                             <Button icon="delete" type="danger" size="small"></Button>
-                            {/* <a href="javascript:;">删除</a> */}
                         </Popconfirm>
                     </Button.Group>
                 </Fragment>
             )
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 120,
-            sorter: true,
-            defaultSortOrder: 'descend',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 120,
+        //     sorter: true,
+        //     defaultSortOrder: 'descend',
+        // },
         {
             title: '模板名称',
             dataIndex: 'name',

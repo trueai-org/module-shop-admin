@@ -28,7 +28,7 @@ class CountryList extends PureComponent {
 
         pageNum: 1,
         pageSize: 5,
-        predicate: 'id',
+        predicate: '',
         reverse: true,
         pageData: {
             list: [],
@@ -62,13 +62,13 @@ class CountryList extends PureComponent {
                 </Fragment>
             )
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 100,
-            sorter: true,
-            defaultSortOrder: 'descend',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 100,
+        //     sorter: true,
+        //     defaultSortOrder: 'descend',
+        // },
         {
             title: '名称',
             dataIndex: 'name',

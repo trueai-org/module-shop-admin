@@ -33,7 +33,7 @@ class UserList extends PureComponent {
         search: {},
         pageNum: 1,
         pageSize: 5,
-        predicate: 'id',
+        predicate: '',
         reverse: true,
         pageData: {
             list: [],
@@ -57,13 +57,13 @@ class UserList extends PureComponent {
                 </Fragment>
             )
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 100,
-            sorter: true,
-            defaultSortOrder: 'descend',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 100,
+        //     sorter: true,
+        //     defaultSortOrder: 'descend',
+        // },
         {
             title: '用户名',
             dataIndex: 'userName',
@@ -111,12 +111,20 @@ class UserList extends PureComponent {
             sorter: true,
         },
         {
+            title: '最后活动时间',
+            dataIndex: 'lastActivityOn',
+            width: 150,
+            sorter: true,
+            render: val => <span>{val ? moment(val).format('YYYY-MM-DD') : null}</span>,
+        },
+        {
             title: '已启用',
             dataIndex: 'isActive',
             width: 100,
             sorter: true,
             render: (val) => formatBool(val)
         },
+
         {
             title: '创建时间',
             dataIndex: 'createdOn',
@@ -131,13 +139,7 @@ class UserList extends PureComponent {
             sorter: true,
             render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
         },
-        {
-            title: '最后活动时间',
-            dataIndex: 'lastActivityOn',
-            width: 150,
-            sorter: true,
-            render: val => <span>{val ? moment(val).format('YYYY-MM-DD') : null}</span>,
-        },
+
     ];
 
     componentDidMount() {
@@ -359,7 +361,7 @@ class UserList extends PureComponent {
                                 });
                             }}
                             allowClear
-                            placeholder="邮箱/电话" />
+                            placeholder="联系方式(邮箱/电话)" />
                     </Col>
                     <Col md={8} sm={24}>
                         <Select

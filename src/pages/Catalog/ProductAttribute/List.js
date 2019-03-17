@@ -28,7 +28,7 @@ class ProductAttributeList extends PureComponent {
 
         pageNum: 1,
         pageSize: 5,
-        predicate: 'id',
+        predicate: '',
         reverse: true,
         pageData: {
             list: [],
@@ -67,17 +67,18 @@ class ProductAttributeList extends PureComponent {
                 </Fragment>
             )
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 120,
-            sorter: true,
-            defaultSortOrder: 'descend',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 120,
+        //     sorter: true,
+        //     defaultSortOrder: 'descend',
+        // },
         {
             title: '名称',
             dataIndex: 'name',
             sorter: true,
+            width: 200,
         },
         {
             title: '组',
@@ -386,18 +387,18 @@ class ProductAttributeList extends PureComponent {
                 <Button
                     onClick={this.showModal}
                     type="primary"
-                    icon="plus">新增</Button>
+                    icon="plus">添加</Button>
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="商品属性 - 列表">
+            <PageHeaderWrapper title="商品属性" action={action}>
                 <div>
                     <Card bordered={false}
                     // extra={extraContent}
                     >
-                        <div style={{ marginBottom: '20px' }} >
+                        {/* <div style={{ marginBottom: '20px' }} >
                             {action}
-                        </div>
+                        </div> */}
                         <StandardTable
                             pagination={pagination}
                             loading={this.state.loading}

@@ -13,15 +13,6 @@ import { SketchPicker } from 'react-color'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-const rollback = (
-    <Fragment>
-        <Link to="./list">
-            <Button>
-                <Icon type="rollback" />
-            </Button>
-        </Link>
-    </Fragment>
-);
 
 @connect()
 @Form.create()
@@ -39,7 +30,7 @@ class ProductOptionListData extends PureComponent {
 
             pageNum: 1,
             pageSize: 5,
-            predicate: 'id',
+            predicate: '',
             reverse: true,
             pageData: {
                 list: [],
@@ -73,13 +64,13 @@ class ProductOptionListData extends PureComponent {
             title: '操作',
             align: 'center',
             key: 'operation',
-            width: 150,
+            width: 120,
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
-                        <Button size="small" onClick={() => this.showEditModal(record)}>编辑</Button>
+                        <Button icon="edit" size="small" onClick={() => this.showEditModal(record)}></Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
-                            <Button type="danger" size="small">删除</Button>
+                            <Button icon="delete" type="danger" size="small"></Button>
                             {/* <a href="javascript:;">删除</a> */}
                         </Popconfirm>
                         {/* <Button size="small" onClick={() => this.deleteItem(record.id)}>删除</Button> */}
@@ -87,17 +78,18 @@ class ProductOptionListData extends PureComponent {
                 </Fragment>
             )
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 120,
-            sorter: true,
-            defaultSortOrder: 'descend',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 120,
+        //     sorter: true,
+        //     defaultSortOrder: 'descend',
+        // },
         {
             title: '值',
             dataIndex: 'value',
             sorter: true,
+            width: 120,
         },
         {
             title: '显示',
@@ -411,7 +403,20 @@ class ProductOptionListData extends PureComponent {
                 <Button
                     onClick={this.showModal}
                     type="primary"
-                    icon="plus">新增</Button>
+                    icon="plus">添加</Button>
+            </Fragment>
+        );
+        const rollback = (
+            <Fragment>
+                <Button
+                    onClick={this.showModal}
+                    type="primary"
+                    icon="plus">添加</Button>
+                <Link to="./list">
+                    <Button>
+                        <Icon type="rollback" />
+                    </Button>
+                </Link>
             </Fragment>
         );
         return (
@@ -420,9 +425,9 @@ class ProductOptionListData extends PureComponent {
                     <Card bordered={false}
                     // extra={extraContent}
                     >
-                        <div style={{ marginBottom: '20px' }} >
+                        {/* <div style={{ marginBottom: '20px' }} >
                             {action}
-                        </div>
+                        </div> */}
                         <StandardTable
                             pagination={pagination}
                             loading={this.state.loading}
@@ -443,7 +448,7 @@ class ProductOptionListData extends PureComponent {
                     </Card>
                 </div>
                 <Modal
-                    title={`选项值 - ${this.state.current.id ? '编辑' : '新增'}`}
+                    title={`选项值 - ${this.state.current.id ? '编辑' : '添加'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>

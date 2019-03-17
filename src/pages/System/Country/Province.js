@@ -29,7 +29,7 @@ class ProvinceList extends PureComponent {
             search: {},
             pageNum: 1,
             pageSize: 10,
-            predicate: 'id',
+            predicate: '',
             reverse: true,
             pageData: {
                 list: [],
@@ -61,13 +61,13 @@ class ProvinceList extends PureComponent {
                 </Fragment>
             )
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 100,
-            sorter: true,
-            defaultSortOrder: 'descend',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 100,
+        //     sorter: true,
+        //     defaultSortOrder: 'descend',
+        // },
         {
             title: '类型',
             dataIndex: 'level',

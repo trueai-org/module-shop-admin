@@ -32,11 +32,11 @@ class UnitList extends PureComponent {
                 </Fragment>
             )
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 120
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 120
+        // },
         {
             title: '单位名称',
             dataIndex: 'name',
@@ -168,7 +168,7 @@ class UnitList extends PureComponent {
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="单位" action={action}>
+            <PageHeaderWrapper title="商品单位" action={action}>
                 <div>
                     <Card bordered={false}>
                         <Table
