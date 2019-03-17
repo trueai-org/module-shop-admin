@@ -67,7 +67,7 @@ export default {
   'component.noticeIcon.cleared': '清空了',
   'component.noticeIcon.empty': '暂无数据',
   'menu.home': '首页',
-  'menu.dashboard': 'Dashboard',
+  'menu.dashboard': '后台首页',
   'menu.dashboard.analysis': '分析页',
   'menu.dashboard.monitor': '监控页',
   'menu.dashboard.workplace': '工作台',
@@ -311,7 +311,7 @@ export default {
   'menu.catalog.unit': '商品单位',
   'menu.catalog.unit.list': '列表',
 
-  'menu.system': '系统',
+  'menu.system': '系统配置',
   'menu.system.country': '国家',
   'menu.system.country.list': '列表',
   'menu.system.country.add': '添加',
@@ -326,16 +326,18 @@ export default {
   'menu.system.freight-template.list': '列表',
   'menu.system.freight-template.setting': '运费配置',
 
-
-  'menu.sale': '销售',
+  'menu.sale': '销售管理',
   'menu.sale.order': '订单',
   'menu.sale.order.list': '列表',
   'menu.sale.order.add': '添加',
   'menu.sale.order.edit': '编辑',
+  'menu.sale.order.shipment': '发货',
 
-
-  'menu.sale': '销售',
   'menu.sale.shipment': '发货',
   'menu.sale.shipment.list': '记录',
   'menu.sale.shipment.add': '订单发货',
+
+  'form.admin.comment.help': '管理员备注、仅内部使用',
+  'form.admin.remark.help': '管理员备注、仅内部使用',
+  'form.admin.note.help': '管理员备注、仅内部使用',
 };

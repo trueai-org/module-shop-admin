@@ -41,101 +41,7 @@ export default [
           },
         ],
       },
-      // forms
-      {
-        path: '/form',
-        icon: 'form',
-        name: 'form',
-        routes: [
-          {
-            path: '/form/basic-form',
-            name: 'basicform',
-            component: './Forms/BasicForm',
-          },
-          {
-            path: '/form/step-form',
-            name: 'stepform',
-            component: './Forms/StepForm',
-            hideChildrenInMenu: true,
-            routes: [
-              {
-                path: '/form/step-form',
-                redirect: '/form/step-form/info',
-              },
-              {
-                path: '/form/step-form/info',
-                name: 'info',
-                component: './Forms/StepForm/Step1',
-              },
-              {
-                path: '/form/step-form/confirm',
-                name: 'confirm',
-                component: './Forms/StepForm/Step2',
-              },
-              {
-                path: '/form/step-form/result',
-                name: 'result',
-                component: './Forms/StepForm/Step3',
-              },
-            ],
-          },
-          {
-            path: '/form/advanced-form',
-            name: 'advancedform',
-            authority: ['admin'],
-            component: './Forms/AdvancedForm',
-          },
-        ],
-      },
-      // list
-      {
-        path: '/list',
-        icon: 'table',
-        name: 'list',
-        routes: [
-          {
-            path: '/list/table-list',
-            name: 'searchtable',
-            component: './List/TableList',
-          },
-          {
-            path: '/list/basic-list',
-            name: 'basiclist',
-            component: './List/BasicList',
-          },
-          {
-            path: '/list/card-list',
-            name: 'cardlist',
-            component: './List/CardList',
-          },
-          {
-            path: '/list/search',
-            name: 'searchlist',
-            component: './List/List',
-            routes: [
-              {
-                path: '/list/search',
-                redirect: '/list/search/articles',
-              },
-              {
-                path: '/list/search/articles',
-                name: 'articles',
-                component: './List/Articles',
-              },
-              {
-                path: '/list/search/projects',
-                name: 'projects',
-                component: './List/Projects',
-              },
-              {
-                path: '/list/search/applications',
-                name: 'applications',
-                component: './List/Applications',
-              },
-            ],
-          },
-        ],
-      },
+
       {
         path: '/profile',
         name: 'profile',
@@ -155,10 +61,13 @@ export default [
           },
         ],
       },
+
+      //结果页，隐藏
       {
         name: 'result',
         icon: 'check-circle-o',
         path: '/result',
+        hideInMenu: true,
         routes: [
           // result
           {
@@ -169,10 +78,13 @@ export default [
           { path: '/result/fail', name: 'fail', component: './Result/Error' },
         ],
       },
+
+      //异常页，隐藏
       {
         name: 'exception',
         icon: 'warning',
         path: '/exception',
+        hideInMenu: true,
         routes: [
           // exception
           {
@@ -198,10 +110,13 @@ export default [
           },
         ],
       },
+
+      //个人页，隐藏
       {
         name: 'account',
         icon: 'user',
         path: '/account',
+        hideInMenu: true,
         routes: [
           {
             path: '/account/center',
@@ -274,7 +189,7 @@ export default [
               {
                 path: '/catalog/product/list',
                 name: 'list',
-                component: './Catalog/Product/List'
+                component: './Catalog/Product/List',
               },
               // {
               //   path: '/catalog/product/add',
@@ -289,9 +204,9 @@ export default [
               {
                 path: '/catalog/product/info',
                 name: 'info',
-                component: './Catalog/Product/Info'
+                component: './Catalog/Product/Info',
               },
-            ]
+            ],
           },
           {
             path: '/catalog/category',
@@ -305,19 +220,19 @@ export default [
               {
                 path: '/catalog/category/list',
                 name: 'list',
-                component: './Catalog/Category/List'
+                component: './Catalog/Category/List',
               },
               {
                 path: '/catalog/category/add',
                 name: 'add',
-                component: './Catalog/Category/Add'
+                component: './Catalog/Category/Add',
               },
               {
                 path: '/catalog/category/edit',
                 name: 'edit',
                 component: './Catalog/Category/Edit',
               },
-            ]
+            ],
           },
           {
             path: '/catalog/brand',
@@ -343,8 +258,8 @@ export default [
                 path: '/catalog/product-option/data',
                 name: 'data',
                 component: './Catalog/ProductOption/Data',
-              }
-            ]
+              },
+            ],
           },
           {
             path: '/catalog/product-attribute-group',
@@ -370,8 +285,8 @@ export default [
                 path: '/catalog/product-attribute/data',
                 name: 'data',
                 component: './Catalog/ProductAttribute/Data',
-              }
-            ]
+              },
+            ],
           },
           {
             path: '/catalog/product-attribute-template',
@@ -385,107 +300,6 @@ export default [
           },
         ],
       },
-
-
-      // 系统
-      {
-        name: 'system',
-        icon: 'table',
-        path: '/system',
-        routes: [
-          {
-            path: '/system/country',
-            name: 'country',
-            hideChildrenInMenu: true,
-            routes: [
-              {
-                path: '/system/country',
-                redirect: '/system/country/list',
-              },
-              {
-                path: '/system/country/list',
-                name: 'list',
-                component: './System/Country/List'
-              },
-              {
-                path: '/system/country/add',
-                name: 'add',
-                component: './System/Country/Add'
-              },
-              {
-                path: '/system/country/edit',
-                name: 'edit',
-                component: './System/Country/Edit'
-              },
-              {
-                path: '/system/country/province',
-                name: 'province',
-                component: './System/Country/Province'
-              },
-            ]
-          },
-
-          //用户
-          {
-            path: '/system/user',
-            name: 'user',
-            hideChildrenInMenu: true,
-            routes: [
-              {
-                path: '/system/user',
-                redirect: '/system/user/list',
-              },
-              {
-                path: '/system/user/list',
-                name: 'list',
-                component: './System/User/List'
-              }
-            ]
-          },
-
-          //仓库
-          {
-            path: '/system/warehouse',
-            name: 'warehouse',
-            hideChildrenInMenu: true,
-            routes: [
-              {
-                path: '/system/warehouse',
-                redirect: '/system/warehouse/list',
-              },
-              {
-                path: '/system/warehouse/list',
-                name: 'list',
-                component: './System/Warehouse/List'
-              }
-            ]
-          },
-
-          //运费模板
-          {
-            path: '/system/freight-template',
-            name: 'freight-template',
-            hideChildrenInMenu: true,
-            routes: [
-              {
-                path: '/system/freight-template',
-                redirect: '/system/freight-template/list',
-              },
-              {
-                path: '/system/freight-template/list',
-                name: 'list',
-                component: './System/FreightTemplate/List'
-              },
-              {
-                path: '/system/freight-template/setting',
-                name: 'setting',
-                component: './System/FreightTemplate/Setting'
-              }
-            ]
-          },
-        ],
-      },
-
 
       // 销售
       {
@@ -505,19 +319,24 @@ export default [
               {
                 path: '/sale/order/list',
                 name: 'list',
-                component: './Sale/Order/List'
+                component: './Sale/Order/List',
               },
               {
                 path: '/sale/order/add',
                 name: 'add',
-                component: './Sale/Order/Add'
+                component: './Sale/Order/Add',
               },
               {
                 path: '/sale/order/edit',
                 name: 'edit',
-                component: './Sale/Order/Edit'
+                component: './Sale/Order/Edit',
               },
-            ]
+              {
+                path: '/sale/order/shipment',
+                name: 'shipment',
+                component: './Sale/Order/Shipment',
+              },
+            ],
           },
           {
             path: '/sale/shipment',
@@ -533,14 +352,112 @@ export default [
               //   name: 'list',
               //   component: './Sale/Shipment/List'
               // },
+              // {
+              //   path: '/sale/shipment/add',
+              //   name: 'add',
+              //   component: './Sale/Shipment/Add'
+              // },
+            ],
+          },
+        ],
+      },
+
+      // 系统
+      {
+        name: 'system',
+        icon: 'table',
+        path: '/system',
+        routes: [
+          {
+            path: '/system/country',
+            name: 'country',
+            hideChildrenInMenu: true,
+            routes: [
               {
-                path: '/sale/shipment/add',
-                name: 'add',
-                component: './Sale/Shipment/Add'
+                path: '/system/country',
+                redirect: '/system/country/list',
               },
-            ]
+              {
+                path: '/system/country/list',
+                name: 'list',
+                component: './System/Country/List',
+              },
+              {
+                path: '/system/country/add',
+                name: 'add',
+                component: './System/Country/Add',
+              },
+              {
+                path: '/system/country/edit',
+                name: 'edit',
+                component: './System/Country/Edit',
+              },
+              {
+                path: '/system/country/province',
+                name: 'province',
+                component: './System/Country/Province',
+              },
+            ],
           },
 
+          //用户
+          {
+            path: '/system/user',
+            name: 'user',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/system/user',
+                redirect: '/system/user/list',
+              },
+              {
+                path: '/system/user/list',
+                name: 'list',
+                component: './System/User/List',
+              },
+            ],
+          },
+
+          //仓库
+          {
+            path: '/system/warehouse',
+            name: 'warehouse',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/system/warehouse',
+                redirect: '/system/warehouse/list',
+              },
+              {
+                path: '/system/warehouse/list',
+                name: 'list',
+                component: './System/Warehouse/List',
+              },
+            ],
+          },
+
+          //运费模板
+          {
+            path: '/system/freight-template',
+            name: 'freight-template',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/system/freight-template',
+                redirect: '/system/freight-template/list',
+              },
+              {
+                path: '/system/freight-template/list',
+                name: 'list',
+                component: './System/FreightTemplate/List',
+              },
+              {
+                path: '/system/freight-template/setting',
+                name: 'setting',
+                component: './System/FreightTemplate/Setting',
+              },
+            ],
+          },
         ],
       },
 

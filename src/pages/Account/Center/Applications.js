@@ -3,7 +3,7 @@ import { List, Card, Icon, Dropdown, Menu, Avatar, Tooltip } from 'antd';
 import numeral from 'numeral';
 import { connect } from 'dva';
 import { formatWan } from '@/utils/utils';
-import stylesApplications from '../../List/Applications.less';
+// import stylesApplications from '../../List/Applications.less';
 
 @connect(({ list }) => ({
   list,
@@ -33,7 +33,9 @@ class Center extends PureComponent {
       </Menu>
     );
     const CardInfo = ({ activeUser, newUser }) => (
-      <div className={stylesApplications.cardInfo}>
+      <div
+      // className={stylesApplications.cardInfo}
+      >
         <div>
           <p>活跃用户</p>
           <p>{activeUser}</p>
@@ -47,7 +49,7 @@ class Center extends PureComponent {
     return (
       <List
         rowKey="id"
-        className={stylesApplications.filterCardList}
+        // className={stylesApplications.filterCardList}
         grid={{ gutter: 24, xxl: 3, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }}
         dataSource={list}
         renderItem={item => (
@@ -71,7 +73,9 @@ class Center extends PureComponent {
               ]}
             >
               <Card.Meta avatar={<Avatar size="small" src={item.avatar} />} title={item.title} />
-              <div className={stylesApplications.cardItemContent}>
+              <div
+              // className={stylesApplications.cardItemContent}
+              >
                 <CardInfo
                   activeUser={formatWan(item.activeUser)}
                   newUser={numeral(item.newUser).format('0,0')}

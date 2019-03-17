@@ -44,13 +44,6 @@ export async function updateRule(params) {
   });
 }
 
-export async function fakeSubmitForm(params) {
-  return request('/api/forms', {
-    method: 'POST',
-    body: params,
-  });
-}
-
 export async function fakeChartData() {
   return request('/api/fake_chart_data');
 }
@@ -65,43 +58,6 @@ export async function queryBasicProfile() {
 
 export async function queryAdvancedProfile() {
   return request('/api/profile/advanced');
-}
-
-export async function queryFakeList(params) {
-  return request(`/api/fake_list?${stringify(params)}`);
-}
-
-export async function removeFakeList(params) {
-  const { count = 5, ...restParams } = params;
-  return request(`/api/fake_list?count=${count}`, {
-    method: 'POST',
-    body: {
-      ...restParams,
-      method: 'delete',
-    },
-  });
-}
-
-export async function addFakeList(params) {
-  const { count = 5, ...restParams } = params;
-  return request(`/api/fake_list?count=${count}`, {
-    method: 'POST',
-    body: {
-      ...restParams,
-      method: 'post',
-    },
-  });
-}
-
-export async function updateFakeList(params) {
-  const { count = 5, ...restParams } = params;
-  return request(`/api/fake_list?count=${count}`, {
-    method: 'POST',
-    body: {
-      ...restParams,
-      method: 'update',
-    },
-  });
 }
 
 export async function fakeAccountLogin(params) {
@@ -127,8 +83,8 @@ export async function getFakeCaptcha(mobile) {
 }
 
 /**
- * add 
- * 
+ * add
+ *
  */
 export async function loginAdmin(params) {
   return request('/api/token/create', {
@@ -140,7 +96,6 @@ export async function loginAdmin(params) {
 export async function currentAccount() {
   return request('/api/account');
 }
-
 
 // 分类
 
@@ -157,13 +112,13 @@ export async function queryCategory(params) {
 
 export async function categoryInMenuSwitch(params) {
   return request(`/api/categories/switch/${params.id}`, {
-    method: 'PUT'
+    method: 'PUT',
   });
 }
 
 export async function deleteCategory(params) {
   return request(`/api/categories/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
@@ -174,14 +129,14 @@ export async function firstCategory(params) {
 export async function addCategory(params) {
   return request(`/api/categories`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editCategory(params) {
   return request(`/api/categories/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
@@ -200,7 +155,7 @@ export async function queryBrandAll() {
 
 export async function deleteBrand(params) {
   return request(`/api/brands/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
@@ -211,14 +166,14 @@ export async function firstBrand(params) {
 export async function addBrand(params) {
   return request(`/api/brands`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editBrand(params) {
   return request(`/api/brands/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
@@ -227,14 +182,14 @@ export async function editBrand(params) {
 export async function uploadImage(params) {
   return requestUpload(`/api/upload`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function uploadMultipleImage(params) {
   return requestUpload(`/api/upload/multiple`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
@@ -250,27 +205,27 @@ export async function queryProductOption(params) {
 export async function queryProductOptionGrid(params) {
   return request(`/api/product-options/grid`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteProductOption(params) {
   return request(`/api/product-options/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
 export async function addProductOption(params) {
   return request(`/api/product-options`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editProductOption(params) {
   return request(`/api/product-options/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
@@ -283,26 +238,26 @@ export async function queryProductOptionData(params) {
 export async function queryProductOptionDataGrid(params) {
   return request(`/api/product-options/data/${params.optionId}/grid`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 export async function addProductOptionData(params) {
   return request(`/api/product-options/data/${params.optionId}`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editProductOptionData(params) {
   return request(`/api/product-options/data/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteProductOptionData(params) {
   return request(`/api/product-options/data/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
@@ -314,21 +269,21 @@ export async function queryProductAGS(params) {
 
 export async function deleteProductAGS(params) {
   return request(`/api/product-attribute-groups/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
 export async function addProductAGS(params) {
   return request(`/api/product-attribute-groups`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editProductAGS(params) {
   return request(`/api/product-attribute-groups/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
@@ -342,31 +297,30 @@ export async function queryProductAttributeGroupArray() {
   return request('/api/product-attributes/group-array');
 }
 
-
 export async function queryProductAttrGrid(params) {
   return request(`/api/product-attributes/grid`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteProductAttr(params) {
   return request(`/api/product-attributes/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
 export async function addProductAttr(params) {
   return request(`/api/product-attributes`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editProductAttr(params) {
   return request(`/api/product-attributes/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
@@ -379,30 +333,29 @@ export async function queryProductAttrData(params) {
 export async function queryProductAttrDataGrid(params) {
   return request(`/api/product-attributes/data/${params.attributeId}/grid`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function addProductAttrData(params) {
   return request(`/api/product-attributes/data/${params.attributeId}`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editProductAttrData(params) {
   return request(`/api/product-attributes/data/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteProductAttrData(params) {
   return request(`/api/product-attributes/data/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
-
 
 //产品
 export async function queryProductFirst(params) {
@@ -412,51 +365,50 @@ export async function queryProductFirst(params) {
 export async function queryProductGrid(params) {
   return request(`/api/products/grid`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function addProduct(params) {
   return request(`/api/products`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editProduct(params) {
   return request(`/api/products/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteProduct(params) {
   return request(`/api/products/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
 export async function publishProduct(params) {
   return request(`/api/products/${params.id}/publish`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function unpublishProduct(params) {
   return request(`/api/products/${params.id}/unpublish`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function copyProduct(params) {
   return request(`/api/products/${params.id}/clone`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
-
 
 // 产品属性模板
 
@@ -471,27 +423,27 @@ export async function queryProductAttributeTemplates() {
 export async function queryProductAttributeTemplateGrid(params) {
   return request(`/api/product-attribute-templates/grid`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteProductAttributeTemplate(params) {
   return request(`/api/product-attribute-templates/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
 export async function addProductAttributeTemplate(params) {
   return request(`/api/product-attribute-templates`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editProductAttributeTemplate(params) {
   return request(`/api/product-attribute-templates/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
@@ -507,27 +459,27 @@ export async function queryCountryAll(params) {
 export async function queryCountryGrid(params) {
   return request(`/api/countries/grid`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function addCountry(params) {
   return request(`/api/countries`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editCountry(params) {
   return request(`/api/countries/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteCountry(params) {
   return request(`/api/countries/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
@@ -544,27 +496,27 @@ export async function queryProvinceTree(params) {
 export async function queryProvinceGrid(params) {
   return request(`/api/countries/provinces/grid/${params.countryId}`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function addProvince(params) {
   return request(`/api/countries/provinces/${params.countryId}`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editProvince(params) {
   return request(`/api/countries/provinces/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteProvince(params) {
   return request(`/api/countries/provinces/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
@@ -574,7 +526,9 @@ export async function queryUserAddresses(params) {
 }
 
 export async function queryUserQuickSearch(params) {
-  return request(`/api/users/quick-search?take=${params.take || 20}&nameOrPhone=${params.nameOrPhone || ''}`);
+  return request(
+    `/api/users/quick-search?take=${params.take || 20}&nameOrPhone=${params.nameOrPhone || ''}`
+  );
 }
 
 export async function firstUser(params) {
@@ -584,27 +538,27 @@ export async function firstUser(params) {
 export async function queryUserGrid(params) {
   return request(`/api/users/grid`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function addUser(params) {
   return request(`/api/users`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editUser(params) {
   return request(`/api/users/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteUser(params) {
   return request(`/api/users/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
@@ -620,27 +574,27 @@ export async function firstWarehouse(params) {
 export async function queryWarehouseGrid(params) {
   return request(`/api/warehouses/grid`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function addWarehouse(params) {
   return request(`/api/warehouses`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editWarehouse(params) {
   return request(`/api/warehouses/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteWarehouse(params) {
   return request(`/api/warehouses/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
@@ -648,7 +602,7 @@ export async function deleteWarehouse(params) {
 export async function queryStockHistoryGrid(params) {
   return request(`/api/stocks-histories/grid`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
@@ -660,20 +614,20 @@ export async function queryUnitAll() {
 export async function addUnit(params) {
   return request(`/api/units`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editUnit(params) {
   return request(`/api/units/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteUnit(params) {
   return request(`/api/units/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
@@ -685,27 +639,27 @@ export async function queryFreightTemplateAll() {
 export async function queryFreightTemplateGrid(params) {
   return request(`/api/shippings/freight-templates/grid`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function addFreightTemplate(params) {
   return request(`/api/shippings/freight-templates`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editFreightTemplate(params) {
   return request(`/api/shippings/freight-templates/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteFreightTemplate(params) {
   return request(`/api/shippings/freight-templates/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
@@ -713,36 +667,35 @@ export async function deleteFreightTemplate(params) {
 export async function queryPriceAndDestinationGrid(params) {
   return request(`/api/shippings/price-destinations/grid/${params.freightTemplateId}`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function addPriceAndDestination(params) {
   return request(`/api/shippings/price-destinations/${params.freightTemplateId}`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editPriceAndDestination(params) {
   return request(`/api/shippings/price-destinations/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function deletePriceAndDestination(params) {
   return request(`/api/shippings/price-destinations/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
-
 
 // 订单
 export async function queryOrderGrid(params) {
   return request(`/api/orders/grid`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
@@ -757,41 +710,41 @@ export async function firstOrderByNo(params) {
 export async function addOrder(params) {
   return request(`/api/orders`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
 
 export async function editOrder(params) {
   return request(`/api/orders/${params.id}`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function deleteOrder(params) {
   return request(`/api/orders/${params.id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   });
 }
 
 export async function cancelOrder(params) {
   return request(`/api/orders/${params.id}/cancel`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function onHoldOrder(params) {
   return request(`/api/orders/${params.id}/on-hold`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
 export async function paymentOrder(params) {
   return request(`/api/orders/${params.id}/payment`, {
     method: 'PUT',
-    body: params
+    body: params,
   });
 }
 
@@ -799,11 +752,11 @@ export async function queryOrderHistory(params) {
   return request(`/api/orders/history/${params.orderId}`);
 }
 
-
-// 发货
-export async function addShipment(params) {
-  return request(`/api/shipments`, {
+export async function orderShipment(params) {
+  return request(`/api/orders/${params.id}/shipment`, {
     method: 'POST',
-    body: params
+    body: params,
   });
 }
+
+// 发货
