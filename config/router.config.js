@@ -42,26 +42,6 @@ export default [
         ],
       },
 
-      {
-        path: '/profile',
-        name: 'profile',
-        icon: 'profile',
-        routes: [
-          // profile
-          {
-            path: '/profile/basic',
-            name: 'basic',
-            component: './Profile/BasicProfile',
-          },
-          {
-            path: '/profile/advanced',
-            name: 'advanced',
-            authority: ['admin'],
-            component: './Profile/AdvancedProfile',
-          },
-        ],
-      },
-
       //结果页，隐藏
       {
         name: 'result',
@@ -330,6 +310,11 @@ export default [
                 path: '/sale/order/edit',
                 name: 'edit',
                 component: './Sale/Order/Edit',
+              },
+              {
+                path: '/sale/order/detail',
+                name: 'detail',
+                component: './Sale/Order/Detail',
               },
               {
                 path: '/sale/order/shipment',

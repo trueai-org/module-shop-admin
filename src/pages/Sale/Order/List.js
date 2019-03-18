@@ -103,7 +103,7 @@ class OrderList extends PureComponent {
       render: (text, record) => (
         <Fragment>
           <Button.Group>
-            <Button icon="eye" size="small" onClick={() => this.handleEdit(record.id)} />
+            <Button icon="eye" size="small" onClick={() => this.handleDetail(record.id)} />
             <Button icon="edit" size="small" onClick={() => this.handleEdit(record.id)} />
             <Dropdown
               overlay={
@@ -515,6 +515,15 @@ class OrderList extends PureComponent {
   handleEdit = id => {
     router.push({
       pathname: './edit',
+      query: {
+        id: id,
+      },
+    });
+  };
+
+  handleDetail = id => {
+    router.push({
+      pathname: './detail',
       query: {
         id: id,
       },
