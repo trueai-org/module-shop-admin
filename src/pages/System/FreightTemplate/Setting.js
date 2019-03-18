@@ -30,7 +30,7 @@ class FreightTemplateSettingList extends PureComponent {
             search: {},
             pageNum: 1,
             pageSize: 10,
-            predicate: 'id',
+            predicate: '',
             reverse: true,
             pageData: {
                 list: [],
@@ -65,13 +65,13 @@ class FreightTemplateSettingList extends PureComponent {
                 </Fragment>
             )
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 100,
-            sorter: true,
-            defaultSortOrder: 'descend',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 100,
+        //     sorter: true,
+        //     defaultSortOrder: 'descend',
+        // },
         {
             title: '国家',
             dataIndex: 'countryName',

@@ -25,7 +25,7 @@ class FreightTemplateList extends PureComponent {
         search: {},
         pageNum: 1,
         pageSize: 5,
-        predicate: 'updatedOn',
+        predicate: '',
         reverse: true,
         pageData: {
             list: [],
