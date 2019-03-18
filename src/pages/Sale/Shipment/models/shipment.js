@@ -1,5 +1,5 @@
 import {
-    addShipment, firstOrderByNo
+    shipmentGrid
 } from '@/services/api';
 
 export default {
@@ -7,17 +7,13 @@ export default {
     state: {
     },
     effects: {
-        *add({ payload }, { call, put }) {
+        *grid({ payload }, { call, put }) {
             const { resolve, params } = payload;
-            const response = yield call(addShipment, params);
+            const response = yield call(shipmentGrid, params);
             !!resolve && resolve(response);
         },
 
-        *getByNo({ payload }, { call, put }) {
-            const { resolve, params } = payload;
-            const response = yield call(firstOrderByNo, params);
-            !!resolve && resolve(response);
-        },
+
     },
     reducers: {
     },

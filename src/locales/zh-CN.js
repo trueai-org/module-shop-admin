@@ -333,9 +333,9 @@ export default {
   'menu.sale.order.edit': '编辑',
   'menu.sale.order.shipment': '发货',
 
-  'menu.sale.shipment': '发货',
-  'menu.sale.shipment.list': '记录',
-  'menu.sale.shipment.add': '订单发货',
+  'menu.sale.shipment': '已发货',
+  'menu.sale.shipment.list': '发货记录',
+
 
   'form.admin.comment.help': '管理员备注、仅内部使用',
   'form.admin.remark.help': '管理员备注、仅内部使用',

@@ -343,15 +343,15 @@ export default [
             name: 'shipment',
             hideChildrenInMenu: true,
             routes: [
-              // {
-              //   path: '/sale/shipment',
-              //   redirect: '/sale/shipment/list',
-              // },
-              // {
-              //   path: '/sale/shipment/list',
-              //   name: 'list',
-              //   component: './Sale/Shipment/List'
-              // },
+              {
+                path: '/sale/shipment',
+                redirect: '/sale/shipment/list',
+              },
+              {
+                path: '/sale/shipment/list',
+                name: 'list',
+                component: './Sale/Shipment/List'
+              },
               // {
               //   path: '/sale/shipment/add',
               //   name: 'add',

@@ -760,3 +760,9 @@ export async function orderShipment(params) {
 }
 
 // 发货
+export async function shipmentGrid(params) {
+  return request(`/api/shipments/grid`, {
+    method: 'POST',
+    body: params,
+  });
+}
