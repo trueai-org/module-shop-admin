@@ -286,6 +286,9 @@ export default {
   /**
    * add 20190128
    */
+
+  'menu.index': '后台首页',
+
   'menu.catalog': '商品目录',
   'menu.catalog.product': '商品',
   'menu.catalog.product.list': '列表',
