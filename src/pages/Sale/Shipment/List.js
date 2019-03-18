@@ -4,7 +4,7 @@ import moment from 'moment';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select,
     Tag, Icon, Redio, Menu, Dropdown, Switch, Row, Col, InputNumber, DatePicker, Checkbox, Spin,
-    Tooltip
+    Tooltip, Badge, Avatar
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -53,34 +53,11 @@ class ShipmentList extends PureComponent {
                 pagination: {},
             },
 
-            expandForm: false,
             queryParam: {},
-
-            users: [],
-            usersLoading: false,
-
-            onHoldReason: '',
-            cancelReason: '',
         };
     }
 
     columns = [
-        {
-            title: '操作',
-            key: 'operation',
-            fixed: 'left',
-            align: 'center',
-            width: 60,
-            render: (text, record) => (
-                <Fragment>
-                    <Button.Group>
-                        <Tooltip title="详情">
-                            <Button icon="eye" size="small" onClick={() => this.handleEdit(record.id)} />
-                        </Tooltip>
-                    </Button.Group>
-                </Fragment>
-            ),
-        },
         // {
         //     title: 'ID',
         //     dataIndex: 'id',
@@ -129,7 +106,7 @@ class ShipmentList extends PureComponent {
             },
         },
         {
-            title: '重量/kg',
+            title: '总重量/kg',
             dataIndex: 'totalWeight',
             sorter: true,
         },
@@ -157,124 +134,6 @@ class ShipmentList extends PureComponent {
         this.queryData(this.state.queryParam);
     }
 
-    handleQueryUsers = nameOrPhone => {
-        const { dispatch } = this.props;
-        this.setState({ usersLoading: true });
-        new Promise(resolve => {
-            dispatch({
-                type: 'system/users',
-                payload: {
-                    resolve,
-                    params: { nameOrPhone },
-                },
-            });
-        }).then(res => {
-            this.setState({ usersLoading: false });
-            if (res.success === true) {
-                this.setState({ users: res.data });
-            } else {
-                notification.error({ message: res.message });
-            }
-        });
-    };
-
-    deleteItem = id => {
-        this.setState({ loading: true });
-        const { dispatch } = this.props;
-        const params = { id };
-        new Promise(resolve => {
-            dispatch({
-                type: 'order/delete',
-                payload: {
-                    resolve,
-                    params,
-                },
-            });
-        }).then(res => {
-            this.setState({ loading: false });
-            if (res.success === true) {
-                this.queryData();
-            } else {
-                notification.error({ message: res.message });
-            }
-        });
-    };
-
-    paymentItem = id => {
-        this.setState({ loading: true });
-        const { dispatch } = this.props;
-        const params = { id };
-        new Promise(resolve => {
-            dispatch({
-                type: 'order/payment',
-                payload: {
-                    resolve,
-                    params,
-                },
-            });
-        }).then(res => {
-            this.setState({ loading: false });
-            if (res.success === true) {
-                this.queryData();
-            } else {
-                notification.error({ message: res.message });
-            }
-        });
-    };
-
-    handleDelivery = no => {
-        router.push({
-            pathname: './shipment',
-            query: {
-                no: no,
-            },
-        });
-    };
-
-    cancelItem = id => {
-        this.setState({ loading: true });
-        const { dispatch } = this.props;
-        const params = { id, reason: this.state.cancelReason };
-        new Promise(resolve => {
-            dispatch({
-                type: 'order/cancel',
-                payload: {
-                    resolve,
-                    params,
-                },
-            });
-        }).then(res => {
-            this.setState({ loading: false });
-            if (res.success === true) {
-                this.queryData();
-            } else {
-                notification.error({ message: res.message });
-            }
-        });
-    };
-
-    onHoldItem = id => {
-        this.setState({ loading: true });
-        const { dispatch } = this.props;
-        const params = { id };
-        new Promise(resolve => {
-            dispatch({
-                type: 'order/onHold',
-                payload: {
-                    resolve,
-                    params,
-                },
-            });
-        }).then(res => {
-            this.setState({ loading: false });
-            if (res.success === true) {
-                this.queryData();
-            } else {
-                notification.error({ message: res.message });
-            }
-        });
-    };
-
     queryDataFirst = () => {
         this.setState(
             {
@@ -298,11 +157,11 @@ class ShipmentList extends PureComponent {
             };
 
             //特价时间处理
-            if (search.createdOn && search.createdOn.length == 2) {
-                search.createdOnStart = search.createdOn[0].format('YYYY-MM-DD');
-                search.createdOnEnd = search.createdOn[1].format('YYYY-MM-DD');
-                search.createdOn = {};
-            }
+            // if (search.createdOn && search.createdOn.length == 2) {
+            //     search.createdOnStart = search.createdOn[0].format('YYYY-MM-DD');
+            //     search.createdOnEnd = search.createdOn[1].format('YYYY-MM-DD');
+            //     search.createdOn = {};
+            // }
             this.setState({ queryParam: search });
         });
 
@@ -356,42 +215,13 @@ class ShipmentList extends PureComponent {
     };
 
     handleStandardTableChange = (pagination, filtersArg, sorter) => {
-        var firstPage = sorter.field != this.state.predicate;
-        this.setState(
-            {
-                pageNum: pagination.current,
-                pageSize: pagination.pageSize,
-            },
-            () => {
-                if (sorter.field) {
-                    this.setState(
-                        {
-                            predicate: sorter.field,
-                            reverse: sorter.order == 'descend',
-                        },
-                        () => {
-                            if (firstPage) this.queryDataFirst();
-                            else this.queryData();
-                        }
-                    );
-                } else {
-                    if (firstPage) this.queryDataFirst();
-                    else this.queryData();
-                }
-            }
-        );
-    };
-
-    handleAdd = () => {
-        router.push('./add');
-    };
-
-    handleEdit = id => {
-        router.push({
-            pathname: './edit',
-            query: {
-                id: id,
-            },
+        this.setState({
+            pageNum: pagination.current,
+            pageSize: pagination.pageSize,
+            predicate: sorter.field ? sorter.field : this.state.predicate,
+            reverse: sorter.order == 'descend',
+        }, () => {
+            this.queryData();
         });
     };
 
@@ -438,13 +268,48 @@ class ShipmentList extends PureComponent {
         );
     }
 
-
     handleFormReset = () => {
         const { form, dispatch } = this.props;
         form.resetFields();
         this.setState({
             formValues: {},
         });
+    };
+
+    expandedRowRender = (record) => {
+        const columns = [
+            {
+                title: '图片',
+                dataIndex: 'productMediaUrl',
+                align: 'center',
+                width: 64,
+                render: (text) => <Avatar shape="square" size={32} src={text} />
+            },
+            {
+                title: '发货数量',
+                dataIndex: 'quantity',
+                width: 120
+            },
+            {
+                title: <Tooltip title="已发货数量/下单数量">已发/下单</Tooltip>,
+                dataIndex: 'shippedQuantity',
+                width: 160,
+                render: (text, itemRecord) => (text + '/' + itemRecord.orderedQuantity)
+            },
+            {
+                title: '商品名称',
+                dataIndex: 'productName'
+            },
+        ];
+        return (
+            <Table
+                columns={columns}
+                dataSource={record.items}
+                pagination={false}
+                bordered={false}
+                rowKey={(record, index) => `shipment_item_${record.id}_i_${index}`}
+            />
+        );
     };
 
     render() {
@@ -461,6 +326,7 @@ class ShipmentList extends PureComponent {
                 return `${range[0]}-${range[1]} 条 , 共 ${total} 条`;
             },
         };
+
         return (
             <PageHeaderWrapper title="发货记录"  >
                 <div>
@@ -472,9 +338,10 @@ class ShipmentList extends PureComponent {
                             data={this.state.pageData}
                             rowKey={record => record.id}
                             columns={this.columns}
-                            bordered
+                            bordered={false}
                             onChange={this.handleStandardTableChange}
                             scroll={{ x: 1260 }}
+                            expandedRowRender={this.expandedRowRender}
                         />
                     </Card>
                 </div>

@@ -293,7 +293,7 @@ class ProvinceList extends PureComponent {
     }
 
     handleStandardTableChange = (pagination, filtersArg, sorter) => {
-        var firstPage = sorter.field != this.state.predicate;
+        var firstPage = this.state.predicate && sorter.field != this.state.predicate;
         this.setState({
             pageNum: pagination.current,
             pageSize: pagination.pageSize,
