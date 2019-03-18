@@ -119,14 +119,14 @@ class ShipmentList extends PureComponent {
             dataIndex: 'shippedOn',
             sorter: true,
             width: 120,
-            render: val => val ? <span>{moment(val).format('YYYY-MM-DD')}</span> : null,
+            render: val => val ? <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span> : null,
         },
         {
             title: '收货时间',
             dataIndex: 'deliveredOn',
             sorter: true,
             width: 120,
-            render: val => val ? <span>{moment(val).format('YYYY-MM-DD')}</span> : null,
+            render: val => val ? <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span> : null,
         }
     ];
 
@@ -156,12 +156,11 @@ class ShipmentList extends PureComponent {
                 ...fieldsValue,
             };
 
-            //特价时间处理
-            // if (search.createdOn && search.createdOn.length == 2) {
-            //     search.createdOnStart = search.createdOn[0].format('YYYY-MM-DD');
-            //     search.createdOnEnd = search.createdOn[1].format('YYYY-MM-DD');
-            //     search.createdOn = {};
-            // }
+            if (search.shippedOn && search.shippedOn.length == 2) {
+                search.shippedOnStart = search.shippedOn[0].format('YYYY-MM-DD HH:mm:ss');
+                search.shippedOnEnd = search.shippedOn[1].format('YYYY-MM-DD HH:mm:ss');
+                search.shippedOn = {};
+            }
             this.setState({ queryParam: search });
         });
 
@@ -232,33 +231,29 @@ class ShipmentList extends PureComponent {
         return (
             <Form onSubmit={this.handleSearch} layout="inline">
                 <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-                    <Col md={12} sm={24}>
+                    <Col span={12}>
                         <FormItem label="配送单号">
                             {getFieldDecorator('trackingNumber')(
-                                <Input style={{ width: '100%' }} allowClear placeholder="配送单号" />
+                                <Input style={{}} allowClear placeholder="配送单号" />
                             )}
                         </FormItem>
                     </Col>
-                    <Col md={12} sm={24}>
+                    <Col span={12}>
                         <FormItem label="订单编号">
                             {getFieldDecorator('orderNo')(
-                                <Input style={{ width: '100%' }} allowClear placeholder="订单编号" />
+                                <Input style={{}} allowClear placeholder="订单编号" />
                             )}
                         </FormItem>
                     </Col>
                 </Row>
                 <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-                    <Col >
-                        <FormItem label="发货时间">{getFieldDecorator('createdOn')(<RangePicker />)}</FormItem>
+                    <Col>
+                        <FormItem label="发货时间">{getFieldDecorator('shippedOn')(<RangePicker showTime format="YYYY-MM-DD HH:mm:ss" />)}</FormItem>
                     </Col>
                 </Row>
-                <Row >
+                <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
                     <Col span={12}>
-                        <span style={{
-                            display: 'block',
-                            whiteSpace: 'nowrap',
-                            marginBottom: 24,
-                        }}>
+                        <span>
                             <Button type="primary" htmlType="submit" icon="search">查询</Button>
                             <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset} icon="undo">重置</Button>
                         </span>
