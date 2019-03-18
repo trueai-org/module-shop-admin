@@ -27,7 +27,7 @@ const links = [
 
 const copyright = (
   <Fragment>
-    Copyright <Icon type="copyright" /> 2018 蚂蚁金服体验技术部出品
+    Copyright <Icon type="copyright" /> 2019 <a href="https://trueai.org/" target="_blank">TRUEAI.ORG</a>
   </Fragment>
 );
 
@@ -56,10 +56,15 @@ class UserLayout extends React.PureComponent {
             <div className={styles.header}>
               <Link to="/">
                 <img alt="logo" className={styles.logo} src={logo} />
-                <span className={styles.title}>Ant Design</span>
+                <span className={styles.title}>Module Shop</span>
               </Link>
             </div>
-            <div className={styles.desc}>Ant Design 是西湖区最具影响力的 Web 设计规范</div>
+            <div className={styles.desc}>
+              <p>Module Shop是一个基于.NET Core的电子商务系统。</p>
+              <p>它是免费的、简单的、易于定制的。</p>
+              {/* <p>通过它的模块化架构，您可以轻松地为自己的业务开发自己的模块或在市场上安装模块。</p>
+              <p>Module Shop可以部署在docker容器、Windows、Linux以及任何云提供商中。</p> */}
+            </div>
           </div>
           {children}
         </div>
