@@ -79,7 +79,21 @@ export async function getFakeCaptcha(mobile) {
  *
  */
 export async function loginAdmin(params) {
-  return request('/api/token/create', {
+  return request('/api/account/login', {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function loginPhoneGetCaptcha(params) {
+  return request('/api/account/login-phone-captcha', {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function loginPhone(params) {
+  return request('/api/account/login-phone', {
     method: 'POST',
     body: params,
   });
@@ -88,6 +102,25 @@ export async function loginAdmin(params) {
 export async function currentAccount() {
   return request('/api/account');
 }
+
+// 注册
+
+// 验证注册手机号，并发送短信验证码
+export async function registerVerifyPhoneAndGetCaptcha(params) {
+  return request('/api/account/register-verify-phone', {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 手机号注册
+export async function registerByPhone(params) {
+  return request('/api/account/register-by-phone', {
+    method: 'POST',
+    body: params,
+  });
+}
+
 
 // 分类
 

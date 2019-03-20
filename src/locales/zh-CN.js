@@ -344,4 +344,9 @@ export default {
   'form.admin.comment.help': '管理员备注、仅内部使用',
   'form.admin.remark.help': '管理员备注、仅内部使用',
   'form.admin.note.help': '管理员备注、仅内部使用',
+
+
+  'app.register-phone-result.msg': '你的账户：{phone} 注册成功',
+  'app.register-result.back-login': '返回登录',
+  'form.email.placeholder-null': '邮箱(选填)',
 };

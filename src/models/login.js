@@ -1,9 +1,10 @@
 import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';
-import { fakeAccountLogin, getFakeCaptcha, loginAdmin } from '@/services/api';
+import { fakeAccountLogin, loginAdmin, loginPhone, loginPhoneGetCaptcha } from '@/services/api';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { reloadAuthorized } from '@/utils/Authorized';
+import { message } from 'antd';
 import token from '../utils/token';
 
 export default {
@@ -16,8 +17,13 @@ export default {
   effects: {
     *loginAdmin({ payload }, { call, put }) {
       console.log(payload);
+      let response = {};
+      if (payload.type === 'account') {
+        response = yield call(loginAdmin, payload);
+      } else {
+        response = yield call(loginPhone, payload);
+      }
 
-      const response = yield call(loginAdmin, payload);
       if (!response) {
         return;
       }
@@ -29,6 +35,8 @@ export default {
           type: 'changeLoginStatus',
           payload: response,
         });
+      } else {
+        message.warning(response.message)
       }
 
       // Login successfully
@@ -83,8 +91,10 @@ export default {
       }
     },
 
-    *getCaptcha({ payload }, { call }) {
-      yield call(getFakeCaptcha, payload);
+    *getCaptcha({ payload }, { call, put }) {
+      const { resolve, params } = payload;
+      const response = yield call(loginPhoneGetCaptcha, params);
+      return response;
     },
 
     *logout(_, { put }) {

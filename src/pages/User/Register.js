@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi/locale';
 import Link from 'umi/link';
 import router from 'umi/router';
-import { Form, Input, Button, Select, Row, Col, Popover, Progress } from 'antd';
+import { Form, Input, Button, Select, Row, Col, Popover, Progress, message } from 'antd';
 import styles from './Register.less';
 
 const FormItem = Form.Item;
@@ -50,10 +50,10 @@ class Register extends Component {
 
   componentDidUpdate() {
     const { form, register } = this.props;
-    const account = form.getFieldValue('mail');
-    if (register.status === 'ok') {
+    const account = form.getFieldValue('mobile');
+    if (register.status === true) {
       router.push({
-        pathname: '/user/register-result',
+        pathname: '/user/register-phone-result',
         state: {
           account,
         },
@@ -66,15 +66,35 @@ class Register extends Component {
   }
 
   onGetCaptcha = () => {
-    let count = 59;
-    this.setState({ count });
-    this.interval = setInterval(() => {
-      count -= 1;
-      this.setState({ count });
-      if (count === 0) {
-        clearInterval(this.interval);
-      }
-    }, 1000);
+    const { form: { validateFields }, dispatch } = this.props;
+    validateFields(["mobile"], (errors, values) => {
+      if (errors) return;
+      let phoneNumber = values["mobile"];
+      new Promise(resolve => {
+        dispatch({
+          type: 'register/getCaptcha',
+          payload: {
+            resolve,
+            params: { phoneNumber }
+          },
+        });
+      }).then(res => {
+        if (res.success === true) {
+          message.info("发送成功!");
+          let count = 59;
+          this.setState({ count });
+          this.interval = setInterval(() => {
+            count -= 1;
+            this.setState({ count });
+            if (count === 0) {
+              clearInterval(this.interval);
+            }
+          }, 1000);
+        } else {
+          message.warning(res.message);
+        }
+      });
+    })
   };
 
   getPasswordStatus = () => {
@@ -95,15 +115,15 @@ class Register extends Component {
     form.validateFields({ force: true }, (err, values) => {
       if (!err) {
         const { prefix } = this.state;
-
-        console.log(values);
-        console.log(prefix);
-
-        return;
         dispatch({
           type: 'register/submit',
           payload: {
-            ...values,
+            // ...values,
+            phone: values['mobile'],
+            captcha: values['captcha'],
+            password: values['password'],
+            confirmPassword: values['confirm'],
+            email: values['email'],
             prefix,
           },
         });
@@ -297,7 +317,7 @@ class Register extends Component {
             )}
           </FormItem>
           <FormItem>
-            {getFieldDecorator('mail', {
+            {getFieldDecorator('email', {
               rules: [
                 // {
                 //   required: true,
@@ -309,7 +329,7 @@ class Register extends Component {
                 },
               ],
             })(
-              <Input size="large" placeholder={formatMessage({ id: 'form.email.placeholder' })+'(可选)'} />
+              <Input size="large" placeholder={formatMessage({ id: 'form.email.placeholder-null' })} />
             )}
           </FormItem>
           <FormItem>
