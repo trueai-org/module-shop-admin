@@ -99,6 +99,23 @@ export async function loginPhone(params) {
   });
 }
 
+// 双因子登录 - 发送验证码
+export async function loginVerifyTwoFactor(params) {
+  return request('/api/account/login-verify-two-factor', {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 双因子登录
+export async function loginTwoFactor(params) {
+  return request('/api/account/login-two-factor', {
+    method: 'POST',
+    body: params,
+  });
+}
+
+
 export async function currentAccount() {
   return request('/api/account');
 }

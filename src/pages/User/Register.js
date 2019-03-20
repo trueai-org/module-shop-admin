@@ -69,6 +69,17 @@ class Register extends Component {
     const { form: { validateFields }, dispatch } = this.props;
     validateFields(["mobile"], (errors, values) => {
       if (errors) return;
+
+      let count = 59;
+      this.setState({ count });
+      this.interval = setInterval(() => {
+        count -= 1;
+        this.setState({ count });
+        if (count === 0) {
+          clearInterval(this.interval);
+        }
+      }, 1000);
+
       let phoneNumber = values["mobile"];
       new Promise(resolve => {
         dispatch({
@@ -81,15 +92,6 @@ class Register extends Component {
       }).then(res => {
         if (res.success === true) {
           message.info("发送成功!");
-          let count = 59;
-          this.setState({ count });
-          this.interval = setInterval(() => {
-            count -= 1;
-            this.setState({ count });
-            if (count === 0) {
-              clearInterval(this.interval);
-            }
-          }, 1000);
         } else {
           message.warning(res.message);
         }
