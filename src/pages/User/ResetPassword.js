@@ -165,7 +165,6 @@ class ResetPassword extends Component {
         ) : null;
     };
 
-
     render() {
         const { form } = this.props;
         const { getFieldDecorator } = form;

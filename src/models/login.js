@@ -1,6 +1,6 @@
 import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';
-import { fakeAccountLogin, loginAdmin, loginPhone, loginPhoneGetCaptcha, loginVerifyTwoFactor, loginTwoFactor } from '@/services/api';
+import { fakeAccountLogin, loginAdmin, loginPhone, loginPhoneGetCaptcha, loginVerifyTwoFactor, loginTwoFactor, logoutAdmin } from '@/services/api';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { reloadAuthorized } from '@/utils/Authorized';
@@ -172,23 +172,28 @@ export default {
       });
     },
 
-    *logout(_, { put }) {
-      yield put({
-        type: 'changeLoginStatus',
-        payload: {
-          status: false,
-          currentAuthority: 'guest',
-        },
-      });
-      reloadAuthorized();
-      yield put(
-        routerRedux.push({
-          pathname: '/user/login',
-          search: stringify({
-            redirect: window.location.href,
-          }),
-        })
-      );
+    *logout(_, { call, put }) {
+      const response = yield call(logoutAdmin);
+      if (response.success === true) {
+        yield put({
+          type: 'changeLoginStatus',
+          payload: {
+            status: false,
+            currentAuthority: 'guest',
+          },
+        });
+        reloadAuthorized();
+        yield put(
+          routerRedux.push({
+            pathname: '/user/login',
+            search: stringify({
+              redirect: window.location.href,
+            }),
+          })
+        );
+      } else {
+        message.error(response.message);
+      }
     },
   },
 

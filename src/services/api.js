@@ -75,13 +75,20 @@ export async function getFakeCaptcha(mobile) {
 }
 
 /**
- * add ----------------------
+ * 
  *
  */
 export async function loginAdmin(params) {
   return request('/api/account/login', {
     method: 'POST',
     body: params,
+  });
+}
+
+// 退出
+export async function logoutAdmin() {
+  return request('/api/account/logout', {
+    method: 'POST'
   });
 }
 
@@ -189,6 +196,52 @@ export async function removePhone(params) {
 export async function removeEmail(params) {
   return request(`/api/account/remove-email`, {
     method: 'POST',
+    body: params,
+  });
+}
+
+// 添加绑定
+// 添加手机绑定 - 获取验证码
+export async function addPhoneGetCaptcha(params) {
+  return request(`/api/account/add-phone-captcha`, {
+    method: 'POST',
+    body: params,
+  });
+}
+// 添加手机绑定
+export async function addPhone(params) {
+  return request(`/api/account/add-phone`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 添加邮箱绑定 - 发送绑定链接
+export async function addEmailSendToken(params) {
+  return request(`/api/account/add-email`, {
+    method: 'POST',
+    body: params,
+  });
+}
+// 邮箱已绑定，但未验证 - 发送确认邮件
+export async function sendConfirmEmail(params) {
+  return request(`/api/account/send-confirm-email`, {
+    method: 'POST',
+    body: params,
+  });
+}
+// 添加邮箱绑定
+export async function addEmail(params) {
+  return request(`/api/account/add-email`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 修改密码
+export async function changePassword(params) {
+  return request(`/api/account/change-password`, {
+    method: 'PUT',
     body: params,
   });
 }

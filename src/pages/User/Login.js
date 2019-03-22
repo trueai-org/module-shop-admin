@@ -157,14 +157,12 @@ class LoginPage extends Component {
   );
 
   render() {
-    const { login, submitting } = this.props;
+    const { login, submitting, form } = this.props;
     const { type, autoLogin } = this.state;
 
     const { providers } = login;
-    const { count, prefix, help, visible } = this.state;
-
-    const { form } = this.props;
     const { getFieldDecorator } = form;
+    const { count, prefix, help, visible } = this.state;
 
     return (
       <div className={styles.main}>
@@ -287,6 +285,7 @@ class LoginPage extends Component {
             </FormItem>
           </Form>
         </Modal>
+
       </div>
     );
   }

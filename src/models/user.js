@@ -2,7 +2,11 @@ import { query as queryUsers, queryCurrent, updateCurrent } from '@/services/use
 import {
   confirmEmail,
   getForgotPassword, forgotPasswordSendEmail, resetPasswordByEmail, forgotPasswordSendPhone, resetPasswordByPhone,
-  removePhone, removeEmail
+  removePhone, removeEmail,
+  addPhoneGetCaptcha, addPhone,
+  addEmailSendToken, addEmail,
+  sendConfirmEmail,
+  changePassword
 } from '@/services/api';
 
 export default {
@@ -100,6 +104,48 @@ export default {
         type: 'saveCurrentUser',
         payload: res.data,
       });
+    },
+
+    *addPhoneGetCaptcha({ payload }, { call, put }) {
+      const { resolve, params } = payload;
+      const response = yield call(addPhoneGetCaptcha, params);
+      !!resolve && resolve(response);
+    },
+
+    *addPhone({ payload }, { call, put }) {
+      const { resolve, params } = payload;
+      const response = yield call(addPhone, params);
+      !!resolve && resolve(response);
+
+      const res = yield call(queryCurrent);
+      yield put({
+        type: 'saveCurrentUser',
+        payload: res.data,
+      });
+    },
+
+    *addEmailSendToken({ payload }, { call, put }) {
+      const { resolve, params } = payload;
+      const response = yield call(addEmailSendToken, params);
+      !!resolve && resolve(response);
+    },
+
+    *sendConfirmEmail({ payload }, { call, put }) {
+      const { resolve, params } = payload;
+      const response = yield call(sendConfirmEmail, params);
+      !!resolve && resolve(response);
+    },
+
+    *addEmail({ payload }, { call, put }) {
+      const { resolve, params } = payload;
+      const response = yield call(addEmail, params);
+      !!resolve && resolve(response);
+    },
+
+    *changePassword({ payload }, { call, put }) {
+      const { resolve, params } = payload;
+      const response = yield call(changePassword, params);
+      !!resolve && resolve(response);
     },
   },
 
