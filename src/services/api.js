@@ -138,6 +138,13 @@ export async function registerByPhone(params) {
   });
 }
 
+// 邮箱激活验证
+export async function confirmEmail(params) {
+  return request(`/api/account/${params.id}/confirm-email`, {
+    method: 'PUT',
+    body: params,
+  });
+}
 
 // 分类
 

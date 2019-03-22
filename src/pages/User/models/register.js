@@ -14,7 +14,8 @@ export default {
     *submit({ payload }, { call, put }) {
       const res = yield call(registerByPhone, payload);
       if (res.success === true) {
-        message.info("注册成功!");
+        message.info('注册成功');
+
         yield put({
           type: 'registerHandle',
           payload: res,
@@ -33,8 +34,9 @@ export default {
 
   reducers: {
     registerHandle(state, { payload }) {
-      setAuthority('user');
-      reloadAuthorized();
+      // 不自动登录处理
+      // setAuthority('user');
+      // reloadAuthorized();
       return {
         ...state,
         status: payload.success,

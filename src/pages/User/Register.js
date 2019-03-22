@@ -51,11 +51,13 @@ class Register extends Component {
   componentDidUpdate() {
     const { form, register } = this.props;
     const account = form.getFieldValue('mobile');
+    const email = form.getFieldValue('email');
     if (register.status === true) {
       router.push({
-        pathname: '/user/register-phone-result',
+        pathname: '/user/register-result',
         state: {
           account,
+          email
         },
       });
     }
@@ -80,18 +82,17 @@ class Register extends Component {
         }
       }, 1000);
 
-      let phoneNumber = values["mobile"];
       new Promise(resolve => {
         dispatch({
           type: 'register/getCaptcha',
           payload: {
             resolve,
-            params: { phoneNumber }
+            params: { phone: values["mobile"] }
           },
         });
       }).then(res => {
         if (res.success === true) {
-          message.info("发送成功!");
+          message.info("发送成功");
         } else {
           message.warning(res.message);
         }
@@ -120,7 +121,6 @@ class Register extends Component {
         dispatch({
           type: 'register/submit',
           payload: {
-            // ...values,
             phone: values['mobile'],
             captcha: values['captcha'],
             password: values['password'],
