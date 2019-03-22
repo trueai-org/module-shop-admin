@@ -7,7 +7,7 @@ import { Button, message } from 'antd';
 import styles from './Register.less';
 
 @connect()
-class Register extends Component {
+class ConfirmEmail extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -69,4 +69,4 @@ class Register extends Component {
     }
 }
 
-export default Register;
+export default ConfirmEmail;

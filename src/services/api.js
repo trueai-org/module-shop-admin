@@ -146,6 +146,59 @@ export async function confirmEmail(params) {
   });
 }
 
+// 找回密码
+export async function getForgotPassword(params) {
+  return request(`/api//account/forgot-password?name=${params.name}`);
+}
+
+// 邮箱找回 - 发送密码重置邮件
+export async function forgotPasswordSendEmail(params) {
+  return request(`/api/account/forgot-password-email`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 邮箱找回 - 重置密码
+export async function resetPasswordByEmail(params) {
+  return request(`/api/account/reset-password-email`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 手机找回 - 发送验证码
+export async function forgotPasswordSendPhone(params) {
+  return request(`/api/account/forgot-password-phone`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 手机找回 - 重置密码
+export async function resetPasswordByPhone(params) {
+  return request(`/api/account/reset-password-phone`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 移除手机绑定
+export async function removePhone(params) {
+  return request(`/api/account/remove-phone`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+// 移除邮箱绑定
+export async function removeEmail(params) {
+  return request(`/api/account/remove-email`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
 // 分类
 
 export async function categories() {
