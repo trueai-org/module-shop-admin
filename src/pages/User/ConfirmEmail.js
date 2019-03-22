@@ -32,7 +32,7 @@ class Register extends Component {
                 payload: {
                     resolve,
                     params: {
-                        id: this.state.id,
+                        userId: this.state.id,
                         code: this.state.code
                     },
                 },
