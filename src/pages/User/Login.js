@@ -6,6 +6,7 @@ import { Checkbox, Alert, Icon } from 'antd';
 import Login from '@/components/Login';
 import styles from './Login.less';
 import { message, Modal, Select, Input, Form, Row, Col, Button } from 'antd';
+import router from 'umi/router';
 
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
 const { Option } = Select;
@@ -156,6 +157,10 @@ class LoginPage extends Component {
     <Alert style={{ marginBottom: 24 }} message={content} type="error" showIcon />
   );
 
+  forgotPassword = () => {
+    router.push('/user/forgot-password')
+  }
+
   render() {
     const { login, submitting, form } = this.props;
     const { type, autoLogin } = this.state;
@@ -200,13 +205,10 @@ class LoginPage extends Component {
             <Checkbox checked={autoLogin} onChange={this.changeAutoLogin}>
               <FormattedMessage id="app.login.remember-me" />
             </Checkbox>
-            <Link to="/user/forgot-password">
-              <a style={{ float: 'right' }} href="">
-                <FormattedMessage id="app.login.forgot-password" />
-              </a>
-            </Link>
+            <a style={{ float: 'right' }} onClick={this.forgotPassword}>
+              <FormattedMessage id="app.login.forgot-password" />
+            </a>
           </div>
-
           <Submit loading={submitting}>
             <FormattedMessage id="app.login.login" />
           </Submit>
