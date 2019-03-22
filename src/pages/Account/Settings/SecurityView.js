@@ -5,7 +5,7 @@ import { connect } from 'dva';
 import { Popconfirm } from 'antd';
 import { message, Modal, Select, Input, Form, Row, Col, Button } from 'antd';
 
-const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
+
 const { Option } = Select;
 const InputGroup = Input.Group;
 const FormItem = Form.Item;
