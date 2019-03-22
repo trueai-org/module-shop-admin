@@ -1,4 +1,4 @@
-import { query as queryUsers, queryCurrent } from '@/services/user';
+import { query as queryUsers, queryCurrent, updateCurrent } from '@/services/user';
 import {
   confirmEmail,
   getForgotPassword, forgotPasswordSendEmail, resetPasswordByEmail, forgotPasswordSendPhone, resetPasswordByPhone,
@@ -22,12 +22,23 @@ export default {
       });
     },
 
-
     *fetchCurrent(_, { call, put }) {
       const response = yield call(queryCurrent);
       yield put({
         type: 'saveCurrentUser',
         payload: response.data,
+      });
+    },
+
+    *updateCurrent({ payload }, { call, put }) {
+      const { resolve, params } = payload;
+      const response = yield call(updateCurrent, params);
+      !!resolve && resolve(response);
+
+      const res = yield call(queryCurrent);
+      yield put({
+        type: 'saveCurrentUser',
+        payload: res.data,
       });
     },
 
@@ -71,12 +82,24 @@ export default {
       const { resolve, params } = payload;
       const response = yield call(removePhone, params);
       !!resolve && resolve(response);
+
+      const res = yield call(queryCurrent);
+      yield put({
+        type: 'saveCurrentUser',
+        payload: res.data,
+      });
     },
 
     *removeEmail({ payload }, { call, put }) {
       const { resolve, params } = payload;
       const response = yield call(removeEmail, params);
       !!resolve && resolve(response);
+
+      const res = yield call(queryCurrent);
+      yield put({
+        type: 'saveCurrentUser',
+        payload: res.data,
+      });
     },
   },
 

@@ -75,7 +75,7 @@ export async function getFakeCaptcha(mobile) {
 }
 
 /**
- * add
+ * add ----------------------
  *
  */
 export async function loginAdmin(params) {
@@ -115,13 +115,7 @@ export async function loginTwoFactor(params) {
   });
 }
 
-
-export async function currentAccount() {
-  return request('/api/account');
-}
-
 // 注册
-
 // 验证注册手机号，并发送短信验证码
 export async function registerVerifyPhoneAndGetCaptcha(params) {
   return request('/api/account/register-verify-phone', {

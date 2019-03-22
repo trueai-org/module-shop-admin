@@ -8,19 +8,19 @@ const FooterView = () => (
     <GlobalFooter
       links={[
         {
-          key: 'github',
+          key: 'Admin Web',
           title: <span><Icon type="github" />Admin Web</span>,
           href: 'https://github.com/trueai-org/module-shop-admin-web',
           blankTarget: true,
         },
         {
-          key: 'github',
+          key: 'Api',
           title: <span><Icon type="github" />Api</span>,
           href: 'https://github.com/trueai-org/module-shop-api',
           blankTarget: true,
         },
         {
-          key: 'github',
+          key: 'Mini Program',
           title: <span><Icon type="github" />Mini Program</span>,
           href: 'https://github.com/trueai-org/module-shop-mini-program',
           blankTarget: true,
