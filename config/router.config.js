@@ -33,7 +33,7 @@ export default [
         component: './Home/Index'
       },
 
-      //结果页，隐藏
+      //结果页
       {
         name: 'result',
         icon: 'check-circle-o',
@@ -50,7 +50,7 @@ export default [
         ],
       },
 
-      //异常页，隐藏
+      //异常页
       {
         name: 'exception',
         icon: 'warning',
@@ -82,36 +82,13 @@ export default [
         ],
       },
 
-      //个人页，隐藏
+      //个人页
       {
         name: 'account',
         icon: 'user',
         path: '/account',
         hideInMenu: true,
         routes: [
-          {
-            path: '/account/center',
-            name: 'center',
-            component: './Account/Center/Center',
-            routes: [
-              {
-                path: '/account/center',
-                redirect: '/account/center/articles',
-              },
-              {
-                path: '/account/center/articles',
-                component: './Account/Center/Articles',
-              },
-              {
-                path: '/account/center/applications',
-                component: './Account/Center/Applications',
-              },
-              {
-                path: '/account/center/projects',
-                component: './Account/Center/Projects',
-              },
-            ],
-          },
           {
             path: '/account/settings',
             name: 'settings',
