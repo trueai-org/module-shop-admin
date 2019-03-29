@@ -1,33 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { formatMessage, FormattedMessage } from 'umi/locale';
-import { Form, Input, Upload, Select, Button } from 'antd';
+import { Form, Input, Upload, Select, Button, message } from 'antd';
 import { connect } from 'dva';
 import styles from './BaseView.less';
-import GeographicView from './GeographicView';
 import PhoneView from './PhoneView';
 // import { getTimeDistance } from '@/utils/utils';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-
-// 头像组件 方便以后独立，增加裁剪之类的功能
-const AvatarView = ({ avatar }) => (
-  <Fragment>
-    <div className={styles.avatar_title}>
-      <FormattedMessage id="app.settings.basic.avatar" defaultMessage="Avatar" />
-    </div>
-    <div className={styles.avatar}>
-      <img src={avatar} alt="avatar" />
-    </div>
-    <Upload fileList={[]}>
-      <div className={styles.button_view}>
-        <Button icon="upload">
-          <FormattedMessage id="app.settings.basic.change-avatar" defaultMessage="Change avatar" />
-        </Button>
-      </div>
-    </Upload>
-  </Fragment>
-);
 
 const validatorGeographic = (rule, value, callback) => {
   const { province, city } = value;
@@ -56,6 +36,13 @@ const validatorPhone = (rule, value, callback) => {
 }))
 @Form.create()
 class BaseView extends Component {
+  state = {
+    submitting: false,
+    mediaId: undefined,
+    mediaUrl: '',
+    uploading: false
+  };
+
   componentDidMount() {
     this.setBaseInfo();
   }
@@ -70,6 +57,8 @@ class BaseView extends Component {
   };
 
   getAvatarURL() {
+    if (this.state.mediaUrl)
+      return this.state.mediaUrl;
     const { currentUser } = this.props;
     if (currentUser.avatar) {
       return currentUser.avatar;
@@ -78,102 +67,127 @@ class BaseView extends Component {
     return url;
   }
 
+  handleSubmit = e => {
+    e.preventDefault();
+    const { form, dispatch } = this.props;
+    form.validateFields({ force: true }, (err, values) => {
+      if (err) {
+        return;
+      }
+      this.setState({ submitting: true });
+      new Promise(resolve => {
+        dispatch({
+          type: 'user/updateCurrent',
+          payload: {
+            resolve,
+            params: {
+              ...values,
+              mediaId: this.state.mediaId,
+            }
+          },
+        });
+      }).then(res => {
+        this.setState({ submitting: false });
+        if (res.success === true) {
+          message.info("更新基本信息成功");
+        } else {
+          message.warning(res.message);
+        }
+      });
+    });
+  };
+
   getViewDom = ref => {
     this.view = ref;
   };
 
+  handleUpload = file => {
+    const { dispatch } = this.props;
+    const formData = new FormData();
+    formData.append('file', file);
+    this.setState({ uploading: true });
+    new Promise(resolve => {
+      dispatch({
+        type: 'upload/uploadImage',
+        payload: {
+          resolve,
+          params: formData,
+        },
+      });
+    }).then(res => {
+      this.setState({ uploading: false });
+      if (res.success === true) {
+        this.setState({
+          mediaId: res.data.id,
+          mediaUrl: res.data.url,
+        });
+      } else {
+        message.error(res.message);
+      }
+    });
+  };
+
   render() {
-    const {
-      form: { getFieldDecorator },
-    } = this.props;
+    const { form: { getFieldDecorator }, } = this.props;
+
+    // 头像组件 方便以后独立，增加裁剪之类的功能
+    const AvatarView = ({ avatar }) => (
+      <Fragment>
+        <div className={styles.avatar_title}>
+          <FormattedMessage id="app.settings.basic.avatar" defaultMessage="Avatar" />
+        </div>
+        <div className={styles.avatar}>
+          <img src={avatar} alt="avatar" />
+        </div>
+        <Upload
+          fileList={[]}
+          showUploadList={false}
+          action={this.handleUpload}
+        >
+          <div className={styles.button_view}>
+            <Button icon="upload" loading={this.state.uploading} >
+              <FormattedMessage id="app.settings.basic.change-avatar" defaultMessage="Change avatar" />
+            </Button>
+          </div>
+        </Upload>
+      </Fragment>
+    );
+
     return (
       <div className={styles.baseView} ref={this.getViewDom}>
         <div className={styles.left}>
           <Form layout="vertical" onSubmit={this.handleSubmit} hideRequiredMark>
-            <FormItem label={formatMessage({ id: 'app.settings.basic.email' })}>
-              {getFieldDecorator('email', {
+            <FormItem label='昵称'>
+              {getFieldDecorator('fullName', {
                 rules: [
                   {
                     required: true,
-                    message: formatMessage({ id: 'app.settings.basic.email-message' }, {}),
+                    message: '请输入您的昵称/全名',
                   },
                 ],
               })(<Input />)}
             </FormItem>
-            <FormItem label={formatMessage({ id: 'app.settings.basic.nickname' })}>
-              {getFieldDecorator('name', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'app.settings.basic.nickname-message' }, {}),
-                  },
-                ],
-              })(<Input />)}
-            </FormItem>
-            <FormItem label={formatMessage({ id: 'app.settings.basic.profile' })}>
-              {getFieldDecorator('profile', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'app.settings.basic.profile-message' }, {}),
-                  },
-                ],
-              })(
+            {/* <FormItem label='管理员备注'>
+              {getFieldDecorator('adminRemark')(
                 <Input.TextArea
-                  placeholder={formatMessage({ id: 'app.settings.basic.profile-placeholder' })}
+                  placeholder='管理员备注'
+                  rows={4}
+                />
+              )}
+            </FormItem> */}
+            <FormItem label='备注'>
+              {getFieldDecorator('adminRemark')(
+                <Input.TextArea
+                  placeholder='备注'
                   rows={4}
                 />
               )}
             </FormItem>
-            <FormItem label={formatMessage({ id: 'app.settings.basic.country' })}>
-              {getFieldDecorator('country', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'app.settings.basic.country-message' }, {}),
-                  },
-                ],
-              })(
-                <Select style={{ maxWidth: 220 }}>
-                  <Option value="China">中国</Option>
-                </Select>
-              )}
-            </FormItem>
-            <FormItem label={formatMessage({ id: 'app.settings.basic.geographic' })}>
-              {getFieldDecorator('geographic', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'app.settings.basic.geographic-message' }, {}),
-                  },
-                  {
-                    validator: validatorGeographic,
-                  },
-                ],
-              })(<GeographicView />)}
-            </FormItem>
-            <FormItem label={formatMessage({ id: 'app.settings.basic.address' })}>
-              {getFieldDecorator('address', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'app.settings.basic.address-message' }, {}),
-                  },
-                ],
-              })(<Input />)}
-            </FormItem>
-            <FormItem label={formatMessage({ id: 'app.settings.basic.phone' })}>
-              {getFieldDecorator('phone', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'app.settings.basic.phone-message' }, {}),
-                  },
-                  { validator: validatorPhone },
-                ],
-              })(<PhoneView />)}
-            </FormItem>
-            <Button type="primary">
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={this.state.submitting}
+            >
               <FormattedMessage
                 id="app.settings.basic.update"
                 defaultMessage="Update Information"

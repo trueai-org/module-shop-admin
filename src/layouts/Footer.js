@@ -8,27 +8,27 @@ const FooterView = () => (
     <GlobalFooter
       links={[
         {
-          key: 'Pro 首页',
-          title: 'Pro 首页',
-          href: 'https://pro.ant.design',
+          key: 'Admin Web',
+          title: <span><Icon type="github" />Admin Web</span>,
+          href: 'https://github.com/trueai-org/module-shop-admin-web',
           blankTarget: true,
         },
         {
-          key: 'github',
-          title: <Icon type="github" />,
-          href: 'https://github.com/ant-design/ant-design-pro',
+          key: 'Api',
+          title: <span><Icon type="github" />Api</span>,
+          href: 'https://github.com/trueai-org/module-shop-api',
           blankTarget: true,
         },
         {
-          key: 'Ant Design',
-          title: 'Ant Design',
-          href: 'https://ant.design',
+          key: 'Mini Program',
+          title: <span><Icon type="github" />Mini Program</span>,
+          href: 'https://github.com/trueai-org/module-shop-mini-program',
           blankTarget: true,
         },
       ]}
       copyright={
         <Fragment>
-          Copyright <Icon type="copyright" /> 2018 蚂蚁金服体验技术部出品
+          Copyright <Icon type="copyright" /> 2019 <a href="https://trueai.org/" target="_blank">TRUEAI.ORG</a>
         </Fragment>
       }
     />

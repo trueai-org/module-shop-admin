@@ -214,7 +214,7 @@ class CategoryAdd extends PureComponent {
         );
 
         return (
-            <PageHeaderWrapper title="商品分类 - 新增" action={action}>
+            <PageHeaderWrapper title="商品分类 - 添加" action={action}>
                 <Card bordered={false}>
                     <Form onSubmit={this.handleSubmit} hideRequiredMark style={{ marginTop: 8 }}>
                         <FormItem

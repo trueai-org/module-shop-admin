@@ -3,7 +3,8 @@ import { connect } from 'dva';
 import moment from 'moment';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown, Switch
+    Redio, Menu, Dropdown, Switch,
+    Row, Col, InputNumber, DatePicker, Checkbox
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -12,10 +13,10 @@ import StandardTable from '@/components/StandardTable';
 import router from 'umi/router';
 import Link from 'umi/link';
 
+import styles from './List.less';
+
 const FormItem = Form.Item;
 const Option = Select.Option;
-
-//queryProductGrid, addProduct, editProduct, deleteProduct
 
 @connect()
 @Form.create()
@@ -32,13 +33,19 @@ class ProductList extends PureComponent {
             children: [],
 
             pageNum: 1,
-            pageSize: 5,
+            pageSize: 10,
             predicate: 'id',
             reverse: true,
             pageData: {
                 list: [],
                 pagination: {}
             },
+
+            expandForm: false,
+            queryParam: {},
+
+            categoryLoading: false, //类别加载中
+            categories: [],
         };
     }
 
@@ -48,25 +55,17 @@ class ProductList extends PureComponent {
             key: 'operation',
             fixed: 'left',
             align: 'center',
-            width: 180,
+            width: 135,
             render: (text, record) => (
                 <Fragment>
-
                     <Button.Group>
-                        <Button icon="edit" size="small" onClick={() => this.showEditModal(record)}></Button>
-                        <Button style={{ color: record.isPublished == true ? "#1890ff" : "#f5222d" }} icon={record.isPublished == true ? "pause-circle" : "play-circle"} size="small" onClick={() => this.showEditModal(record)}></Button>
+                        <Button icon="edit" size="small" onClick={() => this.handleEdit(record.id)}></Button>
+                        <Button style={{ color: record.isPublished == true ? "#f5222d" : "#1890ff" }} icon={record.isPublished == true ? "pause-circle" : "play-circle"} size="small"
+                            onClick={() => this.handlePublish(record.id, !record.isPublished)}></Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
                             <Button icon="delete" type="danger" size="small"></Button>
-                            {/* <a href="javascript:;">删除</a> */}
                         </Popconfirm>
-                        {/* <Button size="small" onClick={() => this.deleteItem(record.id)}>删除</Button> */}
                     </Button.Group>
-
-                    {/* <a onClick={() => this.handleEditCategory(text, record)}>编辑</a>
-                    <Divider type="vertical" />
-                    <Popconfirm title="确定要删除吗？" onConfirm={() => this.handleDelete(text, record)}>
-                        <a href="javascript:;">删除</a>
-                    </Popconfirm> */}
                 </Fragment>
             )
         },
@@ -82,10 +81,15 @@ class ProductList extends PureComponent {
             title: '名称',
             dataIndex: 'name',
             sorter: true,
-            // width: 260,
+            // render: (text, record) => (
+            //     <Fragment>
+            //         {text}
+            //         {record.isFeatured ? <Tag color="red">精品</Tag> : null}
+            //     </Fragment>
+            // )
         },
         {
-            title: '价格',
+            title: '价格/￥',
             dataIndex: 'price',
             sorter: true,
             width: 120,
@@ -96,9 +100,15 @@ class ProductList extends PureComponent {
             sorter: true,
             width: 120,
             align: 'center',
-            // render: (val) => <Switch checked={val} disabled />
-            render: (val) => <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />
-            // render: (val) => <Icon type={val == true ? "check-square" : "close-square"} />
+            render: (val) => this.boolFormat(val)
+        },
+        {
+            title: '允许订购',
+            dataIndex: 'isAllowToOrder',
+            sorter: true,
+            width: 120,
+            align: 'center',
+            render: (val) => this.boolFormat(val)
         },
         {
             title: '有选项',
@@ -106,28 +116,23 @@ class ProductList extends PureComponent {
             sorter: true,
             width: 120,
             align: 'center',
-            render: (val) => <Switch checked={val} disabled />,
+            render: (val) => this.boolFormat(val)
         },
         {
             title: '单独可见',
             dataIndex: 'isVisibleIndividually',
             sorter: true,
             width: 120,
-            render: (val) => <Switch checked={val} disabled />,
+            align: 'center',
+            render: (val) => this.boolFormat(val)
         },
         {
             title: '精品',
             dataIndex: 'isFeatured',
             sorter: true,
             width: 120,
-            render: (val) => <Switch checked={val} disabled />,
-        },
-        {
-            title: '允许订购',
-            dataIndex: 'isAllowToOrder',
-            sorter: true,
-            width: 120,
-            render: (val) => <Switch checked={val} disabled />,
+            align: 'center',
+            render: (val) => this.boolFormat(val)
         },
         {
             title: '库存',
@@ -151,84 +156,32 @@ class ProductList extends PureComponent {
         }
     ];
 
+
+    boolFormat(val) {
+        //(val) => <Switch checked={val} disabled />,
+        return <Icon style={{ color: val == true ? "#1890ff" : "#f5222d" }} type={val == true ? "check" : "close"} />;
+    }
+
     componentDidMount() {
-        this.handleSearchFirst();
-    }
-
-    showModal = () => {
-        this.setState({
-            visible: true,
-            current: {},
-        });
-    };
-
-    showEditModal = item => {
-        this.setState({
-            visible: true,
-            current: item,
-        });
-    };
-
-    handleCancel = () => {
-        this.setState({
-            visible: false,
-        });
-    };
-
-    handleData = (text, record) => {
-        router.push({
-            pathname: './data',
-            query: {
-                id: record.id,
-            },
-        });
-    }
-
-    handleSubmit = e => {
-        e.preventDefault();
-        const { dispatch, form } = this.props;
-        const id = this.state.current ? this.state.current.id : '';
-
-        form.validateFields((err, values) => {
-            if (err) return;
-
-            var params = {
-                ...values
-            };
-
-            let bt = 'product/addProductOption';
-            if (id) {
-                params.id = id;
-                bt = 'product/editProductOption';
-            }
-
-            // console.log(params);
-
-            if (this.state.submitting === true)
-                return;
-            this.setState({ submitting: true });
-            new Promise(resolve => {
-                dispatch({
-                    type: bt,
-                    payload: {
-                        resolve,
-                        params
-                    },
-                });
-            }).then(res => {
-                this.setState({ submitting: false });
-                if (res.success === true) {
-                    form.resetFields();
-                    this.setState({ visible: false });
-                    this.handleSearch();
-                } else {
-                    notification.error({
-                        message: res.message,
-                    });
-                }
+        const { dispatch } = this.props;
+        new Promise(resolve => {
+            dispatch({
+                type: 'catalog/categories',
+                payload: {
+                    resolve,
+                },
             });
+        }).then(res => {
+            this.setState({ categoryLoading: false });
+            if (res.success === true) {
+                this.setState({ categories: res.data });
+            } else {
+                notification.error({ message: res.message });
+            }
         });
-    };
+
+        this.queryData(this.state.queryParam);
+    }
 
     deleteItem = id => {
         this.setState({
@@ -238,7 +191,7 @@ class ProductList extends PureComponent {
         const params = { id };
         new Promise(resolve => {
             dispatch({
-                type: 'product/deleteProductOption',
+                type: 'product/delete',
                 payload: {
                     resolve,
                     params,
@@ -249,7 +202,35 @@ class ProductList extends PureComponent {
                 loading: false,
             });
             if (res.success === true) {
-                this.handleSearch();
+                this.queryData();
+            } else {
+                notification.error({
+                    message: res.message,
+                });
+            }
+        });
+    };
+
+    handlePublish = (id, isPublish) => {
+        this.setState({
+            loading: true,
+        });
+        const { dispatch } = this.props;
+        const params = { id };
+        new Promise(resolve => {
+            dispatch({
+                type: isPublish ? 'product/publish' : 'product/unpublish',
+                payload: {
+                    resolve,
+                    params,
+                },
+            });
+        }).then(res => {
+            this.setState({
+                loading: false,
+            });
+            if (res.success === true) {
+                this.queryData();
             } else {
                 notification.error({
                     message: res.message,
@@ -268,13 +249,29 @@ class ProductList extends PureComponent {
         });
     };
 
-    handleSearch = () => {
+    queryDataFirst = () => {
         this.setState({
-            loading: true,
+            pageNum: 1
+        }, () => {
+            this.queryData();
         });
-        const { dispatch } = this.props;
-        const params =
-        {
+    }
+
+    queryData = () => {
+        this.setState({ loading: true });
+        const { dispatch, form } = this.props;
+
+        let search = this.state.queryParam;
+        form.validateFields((err, fieldsValue) => {
+            if (err) return;
+            search = {
+                ...fieldsValue,
+            };
+            this.setState({ queryParam: search });
+        });
+
+        let params = {
+            search: search,
             pagination: {
                 current: this.state.pageNum,
                 pageSize: this.state.pageSize
@@ -287,16 +284,16 @@ class ProductList extends PureComponent {
 
         new Promise(resolve => {
             dispatch({
-                type: 'product/queryProductGrid',
+                type: 'product/grid',
                 payload: {
                     resolve,
                     params,
                 },
             });
         }).then(res => {
+            this.setState({ loading: false });
             if (res.success === true) {
                 this.setState({
-                    loading: false,
                     pageData: res.data
                 });
             } else {
@@ -305,18 +302,24 @@ class ProductList extends PureComponent {
                 });
             }
         });
-    };
-
-    handleSearchFirst = () => {
-        this.setState({
-            pageNum: 1
-        }, () => {
-            this.handleSearch();
-        });
     }
 
+    handleSearch = e => {
+        const { form } = this.props;
+        e.preventDefault();
+        form.validateFields((err, fieldsValue) => {
+            if (err) return;
+            let search = {
+                ...fieldsValue,
+            };
+            this.setState({ queryParam: search }, () => {
+                this.queryData();
+            });
+        });
+    };
+
     handleStandardTableChange = (pagination, filtersArg, sorter) => {
-        var firstPage = sorter.field != this.state.predicate;
+        var firstPage = this.state.predicate && sorter.field != this.state.predicate;
         this.setState({
             pageNum: pagination.current,
             pageSize: pagination.pageSize
@@ -327,49 +330,171 @@ class ProductList extends PureComponent {
                     reverse: sorter.order == 'descend'
                 }, () => {
                     if (firstPage)
-                        this.handleSearchFirst();
+                        this.queryDataFirst();
                     else
-                        this.handleSearch();
+                        this.queryData();
                 });
             } else {
                 if (firstPage)
-                    this.handleSearchFirst();
+                    this.queryDataFirst();
                 else
-                    this.handleSearch();
+                    this.queryData();
             }
         });
     };
 
     handleAdd = () => {
-        router.push('./add');
+        router.push('./info');
     }
 
-
-    handleEdit = (text, record) => {
+    handleEdit = (id) => {
         router.push({
-            pathname: './edit',
+            pathname: './info',
             query: {
-                id: record.id,
+                id: id,
             },
         });
     }
 
-    render() {
+    renderForm() {
         const { form: { getFieldDecorator }, } = this.props;
-        const modalFooter = { okText: '保存', onOk: this.handleSubmit, onCancel: this.handleCancel };
-        const extraContent = (
-            <div>
-                <Button
-                    onClick={this.handleAdd}
-                    type="primary"
-                    icon="plus">
-                    新增</Button>
-            </div>
+        return (
+            <Form onSubmit={this.handleSearch} layout="inline">
+                <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                    <Col md={8} sm={24}>
+                        <FormItem label="商品名称">
+                            {getFieldDecorator('name')(<Input
+                                allowClear
+                                placeholder="商品名称" />)}
+                        </FormItem>
+                    </Col>
+                    <Col md={8} sm={24}>
+                        <FormItem label="是否发布">
+                            {getFieldDecorator('isPublished')(
+                                <Select
+                                    allowClear
+                                    placeholder="是否发布">
+                                    <Option value={'false'}>否</Option>
+                                    <Option value={'true'}>是</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    </Col>
+                    <Col md={8} sm={24}>
+                        <FormItem label="有选项">
+                            {getFieldDecorator('hasOptions')(
+                                <Select
+                                    allowClear
+                                    placeholder="有选项">
+                                    <Option value={'false'}>否</Option>
+                                    <Option value={'true'}>是</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    </Col>
+                </Row>
+                {this.state.expandForm ? this.getAdvancedFields() : null}
+                <Row>
+                    <Col span={12} >
+                        <span className={styles.submitButtons}>
+                            <Button type="primary" htmlType="submit" icon="search">查询</Button>
+                            <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset} icon="undo">重置</Button>
+                            <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
+                                {this.state.expandForm ? '收起' : '展开'}
+                                <Icon type={this.state.expandForm ? 'up' : 'down'} />
+                            </a>
+                        </span>
+                    </Col>
+                    {/* <Col span={12} style={{ textAlign: 'right' }}>
+                        <span >
+                        </span>
+                    </Col> */}
+                </Row>
+
+            </Form>
         );
-        const formLayout = {
-            labelCol: { span: 7 },
-            wrapperCol: { span: 13 },
-        };
+    }
+
+    getAdvancedFields() {
+        const { form: { getFieldDecorator }, } = this.props;
+        return (
+            <Fragment>
+                <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                    <Col md={8} sm={24}>
+                        <FormItem label="单独可见">
+                            {getFieldDecorator('isVisibleIndividually')(
+                                <Select
+                                    allowClear
+                                    placeholder="单独可见">
+                                    <Option value={'false'}>否</Option>
+                                    <Option value={'true'}>是</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    </Col>
+                    <Col md={8} sm={24}>
+                        <FormItem label="允许订购">
+                            {getFieldDecorator('isAllowToOrder')(
+                                <Select
+                                    allowClear
+                                    placeholder="允许订购">
+                                    <Option value={'false'}>否</Option>
+                                    <Option value={'true'}>是</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    </Col>
+                    <Col md={8} sm={24}>
+                        <FormItem label="SKU">
+                            {getFieldDecorator('sku')(<Input
+                                allowClear
+                                placeholder="SKU" />)}
+                        </FormItem>
+                    </Col>
+                </Row>
+                <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                    <Col md={16} sm={24}>
+                        <FormItem
+                            label={<span>商品分类</span>}>
+                            {getFieldDecorator('categoryIds')
+                                (<Select
+                                    mode="multiple"
+                                    placeholder="请选择商品分类"
+                                    allowClear={true}>
+                                    {
+                                        this.state.categories.map(c => {
+                                            return <Option value={c.id} key={c.id}>{c.name}</Option>;
+                                        })
+                                    }
+                                </Select>)}
+                        </FormItem>
+                    </Col>
+                    <Col md={8} sm={24}>
+                        <FormItem >
+                            {getFieldDecorator('includeSubCategories')(<Checkbox>自动搜索子类别</Checkbox>)}
+                        </FormItem>
+                    </Col>
+                </Row>
+            </Fragment>
+        );
+    }
+
+    handleFormReset = () => {
+        const { form, dispatch } = this.props;
+        form.resetFields();
+        this.setState({
+            formValues: {},
+        });
+    };
+
+    toggleForm = () => {
+        const { expandForm } = this.state;
+        this.setState({
+            expandForm: !expandForm,
+        });
+    };
+
+    render() {
         const pagination = {
             showQuickJumper: true,
             showSizeChanger: true,
@@ -383,35 +508,27 @@ class ProductList extends PureComponent {
                 return `${range[0]}-${range[1]} 条 , 共 ${total} 条`;
             }
         };
-        const getModalContent = () => {
-            return (
-                <Form onSubmit={this.handleSubmit}>
-                    <FormItem label="名称" {...formLayout}>
-                        {getFieldDecorator('name', {
-                            rules: [{ required: true, message: '请输入选项名称' }],
-                            initialValue: this.state.current.name || '',
-                        })(<Input placeholder="请输入" />)}
-                    </FormItem>
-                </Form>
-            );
-        };
         const action = (
             <Fragment>
-                <Button
-                    onClick={this.handleAdd}
+                <Button onClick={this.handleAdd}
                     type="primary"
-                    icon="plus">新增</Button>
+                    icon="plus">添加</Button>
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="商品 - 列表">
+            <PageHeaderWrapper title="商品" action={
+                <Button
+                    onClick={this.handleAdd}
+                    type="primary"
+                    icon="plus"
+                >添加</Button>
+            }>
                 <div>
-                    <Card bordered={false}
-                    // extra={extraContent}
-                    >
-                        <div style={{ marginBottom: '20px' }} >
+                    <Card bordered={false}>
+                        <div className={styles.tableListForm}>{this.renderForm()}</div>
+                        {/* <div style={{ marginBottom: '20px' }} >
                             {action}
-                        </div>
+                        </div> */}
                         <StandardTable
                             pagination={pagination}
                             loading={this.state.loading}
@@ -424,13 +541,6 @@ class ProductList extends PureComponent {
                         />
                     </Card>
                 </div>
-                <Modal
-                    title={`商品选项 - ${this.state.current.id ? '编辑' : '新增'}`}
-                    destroyOnClose
-                    visible={this.state.visible}
-                    {...modalFooter}>
-                    {getModalContent()}
-                </Modal>
             </PageHeaderWrapper>
         );
     }

@@ -29,7 +29,7 @@ class ProductAttributeTemplateList extends PureComponent {
 
         pageNum: 1,
         pageSize: 5,
-        predicate: 'id',
+        predicate: '',
         reverse: true,
         pageData: {
             list: [],
@@ -48,19 +48,18 @@ class ProductAttributeTemplateList extends PureComponent {
                         <Button icon="edit" size="small" onClick={() => this.showEditModal(record)}></Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
                             <Button icon="delete" type="danger" size="small"></Button>
-                            {/* <a href="javascript:;">删除</a> */}
                         </Popconfirm>
                     </Button.Group>
                 </Fragment>
             )
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 120,
-            sorter: true,
-            defaultSortOrder: 'descend',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 120,
+        //     sorter: true,
+        //     defaultSortOrder: 'descend',
+        // },
         {
             title: '模板名称',
             dataIndex: 'name',
@@ -281,7 +280,7 @@ class ProductAttributeTemplateList extends PureComponent {
     }
 
     handleStandardTableChange = (pagination, filtersArg, sorter) => {
-        var firstPage = sorter.field != this.state.predicate;
+        var firstPage = this.state.predicate && sorter.field != this.state.predicate;
         this.setState({
             pageNum: pagination.current,
             pageSize: pagination.pageSize
@@ -308,15 +307,6 @@ class ProductAttributeTemplateList extends PureComponent {
     render() {
         const { form: { getFieldDecorator }, } = this.props;
         const modalFooter = { okText: '保存', onOk: this.handleSubmit, onCancel: this.handleCancel };
-        const extraContent = (
-            <div>
-                <Button
-                    onClick={this.showModal}
-                    type="primary"
-                    icon="plus">
-                    新增</Button>
-            </div>
-        );
         const formLayout = {
             labelCol: { span: 7 },
             wrapperCol: { span: 13 },
@@ -365,18 +355,13 @@ class ProductAttributeTemplateList extends PureComponent {
                 <Button
                     onClick={this.showModal}
                     type="primary"
-                    icon="plus">新增</Button>
+                    icon="plus">添加</Button>
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="商品属性模板">
+            <PageHeaderWrapper title="商品属性模板" action={action}>
                 <div>
-                    <Card bordered={false}
-                    // extra={extraContent}
-                    >
-                        <div style={{ marginBottom: '20px' }} >
-                            {action}
-                        </div>
+                    <Card bordered={false}>
                         <StandardTable
                             pagination={pagination}
                             loading={this.state.loading}
@@ -397,7 +382,7 @@ class ProductAttributeTemplateList extends PureComponent {
                     </Card>
                 </div>
                 <Modal
-                    title={`商品属性模板 - ${this.state.current.id ? '编辑' : '新增'}`}
+                    title={`商品属性模板 - ${this.state.current.id ? '编辑' : '添加'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>

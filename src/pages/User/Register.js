@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi/locale';
 import Link from 'umi/link';
 import router from 'umi/router';
-import { Form, Input, Button, Select, Row, Col, Popover, Progress } from 'antd';
+import { Form, Input, Button, Select, Row, Col, Popover, Progress, message } from 'antd';
 import styles from './Register.less';
 
 const FormItem = Form.Item;
@@ -50,12 +50,14 @@ class Register extends Component {
 
   componentDidUpdate() {
     const { form, register } = this.props;
-    const account = form.getFieldValue('mail');
-    if (register.status === 'ok') {
+    const account = form.getFieldValue('mobile');
+    const email = form.getFieldValue('email');
+    if (register.status === true) {
       router.push({
         pathname: '/user/register-result',
         state: {
           account,
+          email
         },
       });
     }
@@ -66,15 +68,36 @@ class Register extends Component {
   }
 
   onGetCaptcha = () => {
-    let count = 59;
-    this.setState({ count });
-    this.interval = setInterval(() => {
-      count -= 1;
+    const { form: { validateFields }, dispatch } = this.props;
+    validateFields(["mobile"], (errors, values) => {
+      if (errors) return;
+
+      let count = 59;
       this.setState({ count });
-      if (count === 0) {
-        clearInterval(this.interval);
-      }
-    }, 1000);
+      this.interval = setInterval(() => {
+        count -= 1;
+        this.setState({ count });
+        if (count === 0) {
+          clearInterval(this.interval);
+        }
+      }, 1000);
+
+      new Promise(resolve => {
+        dispatch({
+          type: 'register/getCaptcha',
+          payload: {
+            resolve,
+            params: { phone: values["mobile"] }
+          },
+        });
+      }).then(res => {
+        if (res.success === true) {
+          message.info("发送成功");
+        } else {
+          message.warning(res.message);
+        }
+      });
+    })
   };
 
   getPasswordStatus = () => {
@@ -98,7 +121,11 @@ class Register extends Component {
         dispatch({
           type: 'register/submit',
           payload: {
-            ...values,
+            phone: values['mobile'],
+            captcha: values['captcha'],
+            password: values['password'],
+            confirmPassword: values['confirm'],
+            email: values['email'],
             prefix,
           },
         });
@@ -184,72 +211,6 @@ class Register extends Component {
         </h3>
         <Form onSubmit={this.handleSubmit}>
           <FormItem>
-            {getFieldDecorator('mail', {
-              rules: [
-                {
-                  required: true,
-                  message: formatMessage({ id: 'validation.email.required' }),
-                },
-                {
-                  type: 'email',
-                  message: formatMessage({ id: 'validation.email.wrong-format' }),
-                },
-              ],
-            })(
-              <Input size="large" placeholder={formatMessage({ id: 'form.email.placeholder' })} />
-            )}
-          </FormItem>
-          <FormItem help={help}>
-            <Popover
-              getPopupContainer={node => node.parentNode}
-              content={
-                <div style={{ padding: '4px 0' }}>
-                  {passwordStatusMap[this.getPasswordStatus()]}
-                  {this.renderPasswordProgress()}
-                  <div style={{ marginTop: 10 }}>
-                    <FormattedMessage id="validation.password.strength.msg" />
-                  </div>
-                </div>
-              }
-              overlayStyle={{ width: 240 }}
-              placement="right"
-              visible={visible}
-            >
-              {getFieldDecorator('password', {
-                rules: [
-                  {
-                    validator: this.checkPassword,
-                  },
-                ],
-              })(
-                <Input
-                  size="large"
-                  type="password"
-                  placeholder={formatMessage({ id: 'form.password.placeholder' })}
-                />
-              )}
-            </Popover>
-          </FormItem>
-          <FormItem>
-            {getFieldDecorator('confirm', {
-              rules: [
-                {
-                  required: true,
-                  message: formatMessage({ id: 'validation.confirm-password.required' }),
-                },
-                {
-                  validator: this.checkConfirm,
-                },
-              ],
-            })(
-              <Input
-                size="large"
-                type="password"
-                placeholder={formatMessage({ id: 'form.confirm-password.placeholder' })}
-              />
-            )}
-          </FormItem>
-          <FormItem>
             <InputGroup compact>
               <Select
                 size="large"
@@ -310,6 +271,68 @@ class Register extends Component {
                 </Button>
               </Col>
             </Row>
+          </FormItem>
+          <FormItem help={help}>
+            <Popover
+              getPopupContainer={node => node.parentNode}
+              content={
+                <div style={{ padding: '4px 0' }}>
+                  {passwordStatusMap[this.getPasswordStatus()]}
+                  {this.renderPasswordProgress()}
+                  <div style={{ marginTop: 10 }}>
+                    <FormattedMessage id="validation.password.strength.msg" />
+                  </div>
+                </div>
+              }
+              overlayStyle={{ width: 240 }}
+              placement="right"
+              visible={visible}
+            >
+              {getFieldDecorator('password', {
+                rules: [{ validator: this.checkPassword, },],
+              })(
+                <Input
+                  size="large"
+                  type="password"
+                  placeholder={formatMessage({ id: 'form.password.placeholder' })}
+                />
+              )}
+            </Popover>
+          </FormItem>
+          <FormItem>
+            {getFieldDecorator('confirm', {
+              rules: [
+                {
+                  required: true,
+                  message: formatMessage({ id: 'validation.confirm-password.required' }),
+                },
+                {
+                  validator: this.checkConfirm,
+                },
+              ],
+            })(
+              <Input
+                size="large"
+                type="password"
+                placeholder={formatMessage({ id: 'form.confirm-password.placeholder' })}
+              />
+            )}
+          </FormItem>
+          <FormItem>
+            {getFieldDecorator('email', {
+              rules: [
+                // {
+                //   required: true,
+                //   message: formatMessage({ id: 'validation.email.required' }),
+                // },
+                {
+                  type: 'email',
+                  message: formatMessage({ id: 'validation.email.wrong-format' }),
+                },
+              ],
+            })(
+              <Input size="large" placeholder={formatMessage({ id: 'form.email.placeholder-null' })} />
+            )}
           </FormItem>
           <FormItem>
             <Button

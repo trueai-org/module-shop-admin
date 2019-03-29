@@ -25,7 +25,7 @@ class CategoryList extends PureComponent {
       keyword: '',
       pageNum: 1,
       pageSize: 5,
-      predicate: 'id',
+      predicate: '',
       reverse: true,
 
       data: {
@@ -45,23 +45,28 @@ class CategoryList extends PureComponent {
       width: 120,
       render: (text, record) => (
         <Fragment>
-          <a onClick={() => this.handleEditCategory(text, record)}>编辑</a>
+          <Button.Group>
+            <Button icon="edit" size="small" onClick={() => this.handleEditCategory(text, record)}></Button>
+            <Popconfirm title="确定要删除吗？" onConfirm={() => this.handleDelete(text, record)}>
+              <Button icon="delete" type="danger" size="small"></Button>
+            </Popconfirm>
+          </Button.Group>
+          {/* <a onClick={() => this.handleEditCategory(text, record)}>编辑</a>
           <Divider type="vertical" />
           <Popconfirm title="确定要删除吗？" onConfirm={() => this.handleDelete(text, record)}>
             <a href="javascript:;">删除</a>
-          </Popconfirm>
+          </Popconfirm> */}
         </Fragment>
       )
     },
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      fixed: 'left',
-      sorter: true,
-      defaultSortOrder: 'descend',
-      width: 120,
-    },
-
+    // {
+    //   title: 'ID',
+    //   dataIndex: 'id',
+    //   fixed: 'left',
+    //   sorter: true,
+    //   defaultSortOrder: 'descend',
+    //   width: 120,
+    // },
     {
       title: '名称',
       dataIndex: 'name',
@@ -88,7 +93,7 @@ class CategoryList extends PureComponent {
       width: 120,
       render: (val) => <Switch checked={val} disabled />
     },
-   
+
     // {
     //   title: '创建时间',
     //   dataIndex: 'createdOn',
@@ -150,7 +155,7 @@ class CategoryList extends PureComponent {
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    var firstPage = sorter.field != this.state.predicate;
+    var firstPage = this.state.predicate && sorter.field != this.state.predicate;
     this.setState({
       pageNum: pagination.current,
       pageSize: pagination.pageSize
@@ -292,14 +297,14 @@ class CategoryList extends PureComponent {
                 icon="search">
                 查询</Button>
             </span>
-            <span>
+            {/* <span>
               <Button
                 style={{ marginTop: '3px', marginLeft: '20px' }}
                 onClick={this.handleAddCategory}
                 type="primary"
                 icon="plus">
                 新增</Button>
-            </span>
+            </span> */}
           </Col>
         </Row>
       </Form>
@@ -323,7 +328,14 @@ class CategoryList extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper title="商品分类">
+      <PageHeaderWrapper title="商品分类" action={
+        <Button
+          // style={{ marginTop: '3px', marginLeft: '20px' }}
+          onClick={this.handleAddCategory}
+          type="primary"
+          icon="plus">
+          添加</Button>
+      }>
         <Card bordered={false}>
           <div className="">
             <div className="">{this.renderSimpleForm()}</div>
