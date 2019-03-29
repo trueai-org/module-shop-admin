@@ -315,107 +315,107 @@ export default [
         ],
       },
 
-      // 系统
+      // 商城配置
       {
-        name: 'system',
+        name: 'configuration',
         icon: 'setting',
-        path: '/system',
+        path: '/configuration',
         routes: [
           {
-            path: '/system/country',
+            path: '/configuration/country',
             name: 'country',
             hideChildrenInMenu: true,
             routes: [
               {
-                path: '/system/country',
-                redirect: '/system/country/list',
+                path: '/configuration/country',
+                redirect: '/configuration/country/list',
               },
               {
-                path: '/system/country/list',
+                path: '/configuration/country/list',
                 name: 'list',
-                component: './System/Country/List',
+                component: './Configuration/Country/List',
               },
               {
-                path: '/system/country/add',
+                path: '/configuration/country/add',
                 name: 'add',
-                component: './System/Country/Add',
+                component: './Configuration/Country/Add',
               },
               {
-                path: '/system/country/edit',
+                path: '/configuration/country/edit',
                 name: 'edit',
-                component: './System/Country/Edit',
+                component: './Configuration/Country/Edit',
               },
               {
-                path: '/system/country/province',
+                path: '/configuration/country/province',
                 name: 'province',
-                component: './System/Country/Province',
+                component: './Configuration/Country/Province',
               },
             ],
           },
 
           //用户
           {
-            path: '/system/user',
+            path: '/configuration/user',
             name: 'user',
             hideChildrenInMenu: true,
             routes: [
               {
-                path: '/system/user',
-                redirect: '/system/user/list',
+                path: '/configuration/user',
+                redirect: '/configuration/user/list',
               },
               {
-                path: '/system/user/list',
+                path: '/configuration/user/list',
                 name: 'list',
-                component: './System/User/List',
+                component: './Configuration/User/List',
               },
             ],
           },
 
           //仓库
           {
-            path: '/system/warehouse',
+            path: '/configuration/warehouse',
             name: 'warehouse',
             hideChildrenInMenu: true,
             routes: [
               {
-                path: '/system/warehouse',
-                redirect: '/system/warehouse/list',
+                path: '/configuration/warehouse',
+                redirect: '/configuration/warehouse/list',
               },
               {
-                path: '/system/warehouse/list',
+                path: '/configuration/warehouse/list',
                 name: 'list',
-                component: './System/Warehouse/List',
+                component: './Configuration/Warehouse/List',
               },
             ],
           },
 
           //运费模板
           {
-            path: '/system/freight-template',
+            path: '/configuration/freight-template',
             name: 'freight-template',
             hideChildrenInMenu: true,
             routes: [
               {
-                path: '/system/freight-template',
-                redirect: '/system/freight-template/list',
+                path: '/configuration/freight-template',
+                redirect: '/configuration/freight-template/list',
               },
               {
-                path: '/system/freight-template/list',
+                path: '/configuration/freight-template/list',
                 name: 'list',
-                component: './System/FreightTemplate/List',
+                component: './Configuration/FreightTemplate/List',
               },
               {
-                path: '/system/freight-template/setting',
+                path: '/configuration/freight-template/setting',
                 name: 'setting',
-                component: './System/FreightTemplate/Setting',
+                component: './Configuration/FreightTemplate/Setting',
               },
             ],
           },
           //高级设置
           {
-            path: '/system/setting',
+            path: '/configuration/setting',
             name: 'setting',
-            component: './System/Setting/List',
+            component: './Configuration/Setting/List',
           }
         ],
       },
