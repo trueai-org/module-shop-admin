@@ -915,3 +915,17 @@ export async function shipmentGrid(params) {
     body: params,
   });
 }
+
+// 系统配置
+// 获取全部及配置
+export async function appsettings() {
+  return request(`/api/appsettings`);
+}
+
+// 更新配置
+export async function appsettingPut(params) {
+  return request(`/api/appsettings`, {
+    method: 'PUT',
+    body: params,
+  });
+}

@@ -411,6 +411,12 @@ export default [
               },
             ],
           },
+          //高级设置
+          {
+            path: '/system/setting',
+            name: 'setting',
+            component: './System/Setting/List',
+          }
         ],
       },
 

@@ -314,6 +314,8 @@ export default {
   'menu.system.freight-template.list': '列表',
   'menu.system.freight-template.setting': '运费配置',
 
+  'menu.system.setting': '高级设置',
+
   'menu.sale': '销售管理',
   'menu.sale.order': '订单',
   'menu.sale.order.list': '列表',
