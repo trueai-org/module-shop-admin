@@ -24,11 +24,11 @@ class BrandComponent extends React.Component {
         };
         return (
             <div>
-                <Modal title={this.props.brand.id ? '编辑品牌' : '新增品牌'}
+                <Modal title={this.props.brand.id ? '编辑品牌' : '添加品牌'}
                     visible={this.props.visible}
                     onOk={this.props.onCreate}
                     onCancel={this.props.handleCancel}>
-                    <Form >
+                    <Form>
                         <FormItem>
                             {getFieldDecorator('id', { initialValue: this.props.brand.id, })(<Input type="hidden" />)}
                         </FormItem>

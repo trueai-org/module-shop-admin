@@ -8,8 +8,13 @@ export default [
       { path: '/user/login', component: './User/Login' },
       { path: '/user/register', component: './User/Register' },
       { path: '/user/register-result', component: './User/RegisterResult' },
+      { path: '/user/confirm-email', component: './User/ConfirmEmail' },
+      { path: '/user/forgot-password', component: './User/ForgotPassword' },
+      { path: '/user/reset-password', component: './User/ResetPassword' },
+      { path: '/user/add-email', component: './User/AddEmail' }
     ],
   },
+
   // app
   {
     path: '/',
@@ -17,148 +22,23 @@ export default [
     Routes: ['src/pages/Authorized'],
     authority: ['admin', 'user'],
     routes: [
-      // dashboard
-      { path: '/', redirect: '/dashboard/analysis' },
+
+      { path: '/', redirect: '/index' },
+
+      //后台首页
       {
-        path: '/dashboard',
-        name: 'dashboard',
-        icon: 'dashboard',
-        routes: [
-          {
-            path: '/dashboard/analysis',
-            name: 'analysis',
-            component: './Dashboard/Analysis',
-          },
-          {
-            path: '/dashboard/monitor',
-            name: 'monitor',
-            component: './Dashboard/Monitor',
-          },
-          {
-            path: '/dashboard/workplace',
-            name: 'workplace',
-            component: './Dashboard/Workplace',
-          },
-        ],
+        name: 'index',
+        icon: 'home',
+        path: '/index',
+        component: './Home/Index'
       },
-      // forms
-      {
-        path: '/form',
-        icon: 'form',
-        name: 'form',
-        routes: [
-          {
-            path: '/form/basic-form',
-            name: 'basicform',
-            component: './Forms/BasicForm',
-          },
-          {
-            path: '/form/step-form',
-            name: 'stepform',
-            component: './Forms/StepForm',
-            hideChildrenInMenu: true,
-            routes: [
-              {
-                path: '/form/step-form',
-                redirect: '/form/step-form/info',
-              },
-              {
-                path: '/form/step-form/info',
-                name: 'info',
-                component: './Forms/StepForm/Step1',
-              },
-              {
-                path: '/form/step-form/confirm',
-                name: 'confirm',
-                component: './Forms/StepForm/Step2',
-              },
-              {
-                path: '/form/step-form/result',
-                name: 'result',
-                component: './Forms/StepForm/Step3',
-              },
-            ],
-          },
-          {
-            path: '/form/advanced-form',
-            name: 'advancedform',
-            authority: ['admin'],
-            component: './Forms/AdvancedForm',
-          },
-        ],
-      },
-      // list
-      {
-        path: '/list',
-        icon: 'table',
-        name: 'list',
-        routes: [
-          {
-            path: '/list/table-list',
-            name: 'searchtable',
-            component: './List/TableList',
-          },
-          {
-            path: '/list/basic-list',
-            name: 'basiclist',
-            component: './List/BasicList',
-          },
-          {
-            path: '/list/card-list',
-            name: 'cardlist',
-            component: './List/CardList',
-          },
-          {
-            path: '/list/search',
-            name: 'searchlist',
-            component: './List/List',
-            routes: [
-              {
-                path: '/list/search',
-                redirect: '/list/search/articles',
-              },
-              {
-                path: '/list/search/articles',
-                name: 'articles',
-                component: './List/Articles',
-              },
-              {
-                path: '/list/search/projects',
-                name: 'projects',
-                component: './List/Projects',
-              },
-              {
-                path: '/list/search/applications',
-                name: 'applications',
-                component: './List/Applications',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        path: '/profile',
-        name: 'profile',
-        icon: 'profile',
-        routes: [
-          // profile
-          {
-            path: '/profile/basic',
-            name: 'basic',
-            component: './Profile/BasicProfile',
-          },
-          {
-            path: '/profile/advanced',
-            name: 'advanced',
-            authority: ['admin'],
-            component: './Profile/AdvancedProfile',
-          },
-        ],
-      },
+
+      //结果页
       {
         name: 'result',
         icon: 'check-circle-o',
         path: '/result',
+        hideInMenu: true,
         routes: [
           // result
           {
@@ -169,10 +49,13 @@ export default [
           { path: '/result/fail', name: 'fail', component: './Result/Error' },
         ],
       },
+
+      //异常页
       {
         name: 'exception',
         icon: 'warning',
         path: '/exception',
+        hideInMenu: true,
         routes: [
           // exception
           {
@@ -198,34 +81,14 @@ export default [
           },
         ],
       },
+
+      //个人页
       {
         name: 'account',
         icon: 'user',
         path: '/account',
+        hideInMenu: true,
         routes: [
-          {
-            path: '/account/center',
-            name: 'center',
-            component: './Account/Center/Center',
-            routes: [
-              {
-                path: '/account/center',
-                redirect: '/account/center/articles',
-              },
-              {
-                path: '/account/center/articles',
-                component: './Account/Center/Articles',
-              },
-              {
-                path: '/account/center/applications',
-                component: './Account/Center/Applications',
-              },
-              {
-                path: '/account/center/projects',
-                component: './Account/Center/Projects',
-              },
-            ],
-          },
           {
             path: '/account/settings',
             name: 'settings',
@@ -259,7 +122,7 @@ export default [
       // 商品目录
       {
         name: 'catalog',
-        icon: 'table',
+        icon: 'inbox',
         path: '/catalog',
         routes: [
           {
@@ -274,19 +137,24 @@ export default [
               {
                 path: '/catalog/product/list',
                 name: 'list',
-                component: './Catalog/Product/List'
+                component: './Catalog/Product/List',
               },
+              // {
+              //   path: '/catalog/product/add',
+              //   name: 'add',
+              //   component: './Catalog/Product/Add'
+              // },
+              // {
+              //   path: '/catalog/product/edit',
+              //   name: 'edit',
+              //   component: './Catalog/Product/Edit'
+              // },
               {
-                path: '/catalog/product/add',
-                name: 'add',
-                component: './Catalog/Product/Add'
+                path: '/catalog/product/info',
+                name: 'info',
+                component: './Catalog/Product/Info',
               },
-              {
-                path: '/catalog/product/edit',
-                name: 'edit',
-                component: './Catalog/Product/Edit'
-              },
-            ]
+            ],
           },
           {
             path: '/catalog/category',
@@ -300,19 +168,19 @@ export default [
               {
                 path: '/catalog/category/list',
                 name: 'list',
-                component: './Catalog/Category/List'
+                component: './Catalog/Category/List',
               },
               {
                 path: '/catalog/category/add',
                 name: 'add',
-                component: './Catalog/Category/Add'
+                component: './Catalog/Category/Add',
               },
               {
                 path: '/catalog/category/edit',
                 name: 'edit',
                 component: './Catalog/Category/Edit',
               },
-            ]
+            ],
           },
           {
             path: '/catalog/brand',
@@ -338,8 +206,8 @@ export default [
                 path: '/catalog/product-option/data',
                 name: 'data',
                 component: './Catalog/ProductOption/Data',
-              }
-            ]
+              },
+            ],
           },
           {
             path: '/catalog/product-attribute-group',
@@ -365,15 +233,184 @@ export default [
                 path: '/catalog/product-attribute/data',
                 name: 'data',
                 component: './Catalog/ProductAttribute/Data',
-              }
-            ]
+              },
+            ],
           },
           {
             path: '/catalog/product-attribute-template',
             name: 'product-attribute-template',
             component: './Catalog/ProductAttributeTemplate/List',
           },
+          {
+            path: '/catalog/unit',
+            name: 'unit',
+            component: './Catalog/Unit/List',
+          },
+        ],
+      },
 
+      // 销售
+      {
+        name: 'sale',
+        icon: 'shopping',
+        path: '/sale',
+        routes: [
+          {
+            path: '/sale/order',
+            name: 'order',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/sale/order',
+                redirect: '/sale/order/list',
+              },
+              {
+                path: '/sale/order/list',
+                name: 'list',
+                component: './Sale/Order/List',
+              },
+              {
+                path: '/sale/order/add',
+                name: 'add',
+                component: './Sale/Order/Add',
+              },
+              {
+                path: '/sale/order/edit',
+                name: 'edit',
+                component: './Sale/Order/Edit',
+              },
+              {
+                path: '/sale/order/detail',
+                name: 'detail',
+                component: './Sale/Order/Detail',
+              },
+              {
+                path: '/sale/order/shipment',
+                name: 'shipment',
+                component: './Sale/Order/Shipment',
+              },
+            ],
+          },
+          {
+            path: '/sale/shipment',
+            name: 'shipment',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/sale/shipment',
+                redirect: '/sale/shipment/list',
+              },
+              {
+                path: '/sale/shipment/list',
+                name: 'list',
+                component: './Sale/Shipment/List'
+              },
+              // {
+              //   path: '/sale/shipment/add',
+              //   name: 'add',
+              //   component: './Sale/Shipment/Add'
+              // },
+            ],
+          },
+        ],
+      },
+
+      // 系统
+      {
+        name: 'system',
+        icon: 'setting',
+        path: '/system',
+        routes: [
+          {
+            path: '/system/country',
+            name: 'country',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/system/country',
+                redirect: '/system/country/list',
+              },
+              {
+                path: '/system/country/list',
+                name: 'list',
+                component: './System/Country/List',
+              },
+              {
+                path: '/system/country/add',
+                name: 'add',
+                component: './System/Country/Add',
+              },
+              {
+                path: '/system/country/edit',
+                name: 'edit',
+                component: './System/Country/Edit',
+              },
+              {
+                path: '/system/country/province',
+                name: 'province',
+                component: './System/Country/Province',
+              },
+            ],
+          },
+
+          //用户
+          {
+            path: '/system/user',
+            name: 'user',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/system/user',
+                redirect: '/system/user/list',
+              },
+              {
+                path: '/system/user/list',
+                name: 'list',
+                component: './System/User/List',
+              },
+            ],
+          },
+
+          //仓库
+          {
+            path: '/system/warehouse',
+            name: 'warehouse',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/system/warehouse',
+                redirect: '/system/warehouse/list',
+              },
+              {
+                path: '/system/warehouse/list',
+                name: 'list',
+                component: './System/Warehouse/List',
+              },
+            ],
+          },
+
+          //运费模板
+          {
+            path: '/system/freight-template',
+            name: 'freight-template',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/system/freight-template',
+                redirect: '/system/freight-template/list',
+              },
+              {
+                path: '/system/freight-template/list',
+                name: 'list',
+                component: './System/FreightTemplate/List',
+              },
+              {
+                path: '/system/freight-template/setting',
+                name: 'setting',
+                component: './System/FreightTemplate/Setting',
+              },
+            ],
+          },
         ],
       },
 

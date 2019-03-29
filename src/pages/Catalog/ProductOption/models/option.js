@@ -1,6 +1,7 @@
 import {
-    queryProductOptionGrid,deleteProductOption, addProductOption, editProductOption,
-    queryProductOptionDataGrid, addProductOptionData, editProductOptionData, deleteProductOptionData
+    firstProductOption,
+    queryProductOptionGrid, deleteProductOption, addProductOption, editProductOption,
+    queryProductOptionDataGrid, addProductOptionData, editProductOptionData, deleteProductOptionData,
 } from '@/services/api';
 
 export default {
@@ -8,6 +9,12 @@ export default {
     state: {
     },
     effects: {
+        *get({ payload }, { call, put }) {
+            const { resolve, params } = payload;
+            const response = yield call(firstProductOption, params);
+            !!resolve && resolve(response);
+        },
+
         *queryProductOptionGrid({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(queryProductOptionGrid, params);

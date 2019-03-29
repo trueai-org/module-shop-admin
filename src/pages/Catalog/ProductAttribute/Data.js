@@ -12,15 +12,6 @@ import Link from 'umi/link';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-const rollback = (
-    <Fragment>
-        <Link to="./list">
-            <Button>
-                <Icon type="rollback" />
-            </Button>
-        </Link>
-    </Fragment>
-);
 
 @connect()
 @Form.create()
@@ -38,7 +29,7 @@ class ProductAttributeListData extends PureComponent {
 
             pageNum: 1,
             pageSize: 5,
-            predicate: 'id',
+            predicate: '',
             reverse: true,
             pageData: {
                 list: [],
@@ -54,13 +45,13 @@ class ProductAttributeListData extends PureComponent {
             title: '操作',
             align: 'center',
             key: 'operation',
-            width: 150,
+            width: 120,
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
-                        <Button size="small" onClick={() => this.showEditModal(record)}>编辑</Button>
+                        <Button icon="edit" size="small" onClick={() => this.showEditModal(record)}></Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
-                            <Button type="danger" size="small">删除</Button>
+                            <Button icon="delete" type="danger" size="small"></Button>
                             {/* <a href="javascript:;">删除</a> */}
                         </Popconfirm>
                         {/* <Button size="small" onClick={() => this.deleteItem(record.id)}>删除</Button> */}
@@ -68,17 +59,18 @@ class ProductAttributeListData extends PureComponent {
                 </Fragment>
             )
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 120,
-            sorter: true,
-            defaultSortOrder: 'descend',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 120,
+        //     sorter: true,
+        //     defaultSortOrder: 'descend',
+        // },
         {
             title: '值',
             dataIndex: 'value',
             sorter: true,
+            width: 200,
         },
         {
             title: '描述',
@@ -308,7 +300,7 @@ class ProductAttributeListData extends PureComponent {
     }
 
     handleStandardTableChange = (pagination, filtersArg, sorter) => {
-        var firstPage = sorter.field != this.state.predicate;
+        var firstPage = this.state.predicate && sorter.field != this.state.predicate;
         this.setState({
             pageNum: pagination.current,
             pageSize: pagination.pageSize
@@ -388,7 +380,20 @@ class ProductAttributeListData extends PureComponent {
                 <Button
                     onClick={this.showModal}
                     type="primary"
-                    icon="plus">新增</Button>
+                    icon="plus">添加</Button>
+            </Fragment>
+        );
+        const rollback = (
+            <Fragment>
+                <Button
+                    onClick={this.showModal}
+                    type="primary"
+                    icon="plus">添加</Button>
+                <Link to="./list">
+                    <Button>
+                        <Icon type="rollback" />
+                    </Button>
+                </Link>
             </Fragment>
         );
         return (
@@ -397,9 +402,9 @@ class ProductAttributeListData extends PureComponent {
                     <Card bordered={false}
                     // extra={extraContent}
                     >
-                        <div style={{ marginBottom: '20px' }} >
+                        {/* <div style={{ marginBottom: '20px' }} >
                             {action}
-                        </div>
+                        </div> */}
                         <StandardTable
                             pagination={pagination}
                             loading={this.state.loading}
@@ -420,7 +425,7 @@ class ProductAttributeListData extends PureComponent {
                     </Card>
                 </div>
                 <Modal
-                    title={`属性值 - ${this.state.current.id ? '编辑' : '新增'}`}
+                    title={`属性值 - ${this.state.current.id ? '编辑' : '添加'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>

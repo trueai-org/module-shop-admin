@@ -67,25 +67,10 @@ export default {
   'component.noticeIcon.cleared': '清空了',
   'component.noticeIcon.empty': '暂无数据',
   'menu.home': '首页',
-  'menu.dashboard': 'Dashboard',
+  'menu.dashboard': '仪表板',
   'menu.dashboard.analysis': '分析页',
   'menu.dashboard.monitor': '监控页',
   'menu.dashboard.workplace': '工作台',
-  'menu.form': '表单页',
-  'menu.form.basicform': '基础表单',
-  'menu.form.stepform': '分步表单',
-  'menu.form.stepform.info': '分步表单（填写转账信息）',
-  'menu.form.stepform.confirm': '分步表单（确认转账信息）',
-  'menu.form.stepform.result': '分步表单（完成）',
-  'menu.form.advancedform': '高级表单',
-  'menu.list': '列表页',
-  'menu.list.searchtable': '查询表格',
-  'menu.list.basiclist': '标准列表',
-  'menu.list.cardlist': '卡片列表',
-  'menu.list.searchlist': '搜索列表',
-  'menu.list.searchlist.articles': '搜索列表（文章）',
-  'menu.list.searchlist.projects': '搜索列表（项目）',
-  'menu.list.searchlist.applications': '搜索列表（应用）',
   'menu.profile': '详情页',
   'menu.profile.basic': '基础详情页',
   'menu.profile.advanced': '高级详情页',
@@ -286,15 +271,19 @@ export default {
   /**
    * add 20190128
    */
+
+  'menu.index': '后台首页',
+
   'menu.catalog': '商品目录',
   'menu.catalog.product': '商品',
   'menu.catalog.product.list': '列表',
-  'menu.catalog.product.add': '新增',
-  'menu.catalog.product.edit': '编辑',
+  // 'menu.catalog.product.add': '添加',
+  // 'menu.catalog.product.edit': '编辑',
+  'menu.catalog.product.info': '信息',
 
   'menu.catalog.category': '商品分类',
   'menu.catalog.category.list': '列表',
-  'menu.catalog.category.add': '新增',
+  'menu.catalog.category.add': '添加',
   'menu.catalog.category.edit': '编辑',
 
   'menu.catalog.brand': '商品品牌',
@@ -306,4 +295,44 @@ export default {
   'menu.catalog.product-attribute.list': '列表',
   'menu.catalog.product-attribute.data': '属性值',
   'menu.catalog.product-attribute-template': '商品属性模板',
+
+  'menu.catalog.unit': '商品单位',
+  'menu.catalog.unit.list': '列表',
+
+  'menu.system': '系统配置',
+  'menu.system.country': '国家',
+  'menu.system.country.list': '列表',
+  'menu.system.country.add': '添加',
+  'menu.system.country.edit': '编辑',
+  'menu.system.country.province': '省市区',
+  'menu.system.user': '用户',
+  'menu.system.user.list': '列表',
+  'menu.system.warehouse': '仓库',
+  'menu.system.warehouse.list': '列表',
+
+  'menu.system.freight-template': '运费模板',
+  'menu.system.freight-template.list': '列表',
+  'menu.system.freight-template.setting': '运费配置',
+
+  'menu.sale': '销售管理',
+  'menu.sale.order': '订单',
+  'menu.sale.order.list': '列表',
+  'menu.sale.order.add': '添加',
+  'menu.sale.order.edit': '编辑',
+  'menu.sale.order.detail': '详情',
+  'menu.sale.order.shipment': '发货',
+
+  'menu.sale.shipment': '已发货',
+  'menu.sale.shipment.list': '发货记录',
+
+
+  'form.admin.comment.help': '管理员备注、仅内部使用',
+  'form.admin.remark.help': '管理员备注、仅内部使用',
+  'form.admin.note.help': '管理员备注、仅内部使用',
+
+
+  'app.register-phone-result.msg': '你的账户：{phone} 注册成功',
+  'app.register-result.back-login': '返回登录',
+  'form.email.placeholder-null': '邮箱(选填)',
+  'app.register-phone-result.activation-email': '激活邮件已发送到你的邮箱：{email}，邮件有效期为24小时。请及时登录邮箱，点击邮件中的链接激活帐户，激活后可使用邮箱登录。',
 };

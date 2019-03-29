@@ -2,25 +2,17 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown, Checkbox, Switch
+    Menu, Dropdown, Checkbox, Switch, Badge, Tooltip
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import StandardTable from '@/components/StandardTable';
 import router from 'umi/router';
 import Link from 'umi/link';
+import { SketchPicker } from 'react-color'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-const rollback = (
-    <Fragment>
-        <Link to="./list">
-            <Button>
-                <Icon type="rollback" />
-            </Button>
-        </Link>
-    </Fragment>
-);
 
 @connect()
 @Form.create()
@@ -38,29 +30,47 @@ class ProductOptionListData extends PureComponent {
 
             pageNum: 1,
             pageSize: 5,
-            predicate: 'id',
+            predicate: '',
             reverse: true,
             pageData: {
                 list: [],
                 pagination: {}
             },
 
+            option: {},
             optionId: props.location.query.id,
+
+            displayColorPicker: false,
+            color: '',
         };
     }
+
+    handleClick = () => {
+        this.setState({ displayColorPicker: !this.state.displayColorPicker })
+    };
+
+    handleClose = () => {
+        this.setState({ displayColorPicker: false })
+    };
+
+    handleChange = (color) => {
+        this.setState({
+            color: color.hex
+        })
+    };
 
     columns = [
         {
             title: '操作',
             align: 'center',
             key: 'operation',
-            width: 150,
+            width: 120,
             render: (text, record) => (
                 <Fragment>
                     <Button.Group>
-                        <Button size="small" onClick={() => this.showEditModal(record)}>编辑</Button>
+                        <Button icon="edit" size="small" onClick={() => this.showEditModal(record)}></Button>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
-                            <Button type="danger" size="small">删除</Button>
+                            <Button icon="delete" type="danger" size="small"></Button>
                             {/* <a href="javascript:;">删除</a> */}
                         </Popconfirm>
                         {/* <Button size="small" onClick={() => this.deleteItem(record.id)}>删除</Button> */}
@@ -68,21 +78,42 @@ class ProductOptionListData extends PureComponent {
                 </Fragment>
             )
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 120,
-            sorter: true,
-            defaultSortOrder: 'descend',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 120,
+        //     sorter: true,
+        //     defaultSortOrder: 'descend',
+        // },
         {
             title: '值',
             dataIndex: 'value',
             sorter: true,
+            width: 120,
+        },
+        {
+            title: '显示',
+            dataIndex: 'display',
+            sorter: true,
+            width: 120,
+            render: (text, record) => {
+                if (record.optionDisplayType == 1 && text) {
+                    return <Fragment>
+                        <Tooltip placement="topLeft" title={text}>
+                            <Tag style={{ backgroundColor: (record.optionDisplayType == 1 ? text : '') }}>
+                                {text}
+                            </Tag>
+                        </Tooltip>
+                    </Fragment>;
+                }
+                return text;
+            }
+
         },
         {
             title: '描述',
-            dataIndex: 'description'
+            dataIndex: 'description',
+            sorter: true,
         },
         {
             title: '是否发布',
@@ -94,6 +125,25 @@ class ProductOptionListData extends PureComponent {
     ];
 
     componentDidMount() {
+        const { dispatch } = this.props;
+        this.setState({ loading: true });
+        new Promise(resolve => {
+            dispatch({
+                type: 'option/get',
+                payload: {
+                    resolve,
+                    params: { id: this.state.optionId },
+                },
+            });
+        }).then(res => {
+            this.setState({ loading: false });
+            if (res.success === true) {
+                this.setState({ option: res.data });
+            } else {
+                notification.error({ message: res.message, });
+            }
+        });
+
         this.handleSearchFirst();
     }
 
@@ -101,6 +151,8 @@ class ProductOptionListData extends PureComponent {
         this.setState({
             visible: true,
             current: {},
+            color: '',
+            displayColorPicker: false
         });
     };
 
@@ -108,12 +160,15 @@ class ProductOptionListData extends PureComponent {
         this.setState({
             visible: true,
             current: item,
+            color: item.display,
+            displayColorPicker: false
         });
     };
 
     handleCancel = () => {
         this.setState({
             visible: false,
+            displayColorPicker: false
         });
     };
 
@@ -153,7 +208,7 @@ class ProductOptionListData extends PureComponent {
                 this.setState({ submitting: false });
                 if (res.success === true) {
                     form.resetFields();
-                    this.setState({ visible: false });
+                    this.setState({ visible: false, displayColorPicker: false });
                     this.handleSearch();
                 } else {
                     notification.error({
@@ -251,7 +306,7 @@ class ProductOptionListData extends PureComponent {
     }
 
     handleStandardTableChange = (pagination, filtersArg, sorter) => {
-        var firstPage = sorter.field != this.state.predicate;
+        var firstPage = this.state.predicate && sorter.field != this.state.predicate;
         this.setState({
             pageNum: pagination.current,
             pageSize: pagination.pageSize
@@ -313,6 +368,23 @@ class ProductOptionListData extends PureComponent {
                             initialValue: this.state.current.value || '',
                         })(<Input placeholder="请输入" />)}
                     </FormItem>
+                    <FormItem label="显示" {...formLayout}>
+                        {getFieldDecorator('display', {
+                            initialValue: (this.state.option.displayType == 1) ? this.state.color || ''
+                                : this.state.current.display || '',
+                        })(<Input onClick={this.handleClick}
+                            style={{
+                                backgroundColor: this.state.color || ''
+                            }}
+                        />
+                        )}
+                        {
+                            (this.state.option.displayType == 1 && this.state.displayColorPicker) ? <div>
+                                <div onClick={this.handleClose} />
+                                <SketchPicker color={this.state.color} onChange={this.handleChange} />
+                            </div> : null
+                        }
+                    </FormItem>
                     <FormItem label="描述" {...formLayout}>
                         {getFieldDecorator('description', {
                             initialValue: this.state.current.description || '',
@@ -331,7 +403,20 @@ class ProductOptionListData extends PureComponent {
                 <Button
                     onClick={this.showModal}
                     type="primary"
-                    icon="plus">新增</Button>
+                    icon="plus">添加</Button>
+            </Fragment>
+        );
+        const rollback = (
+            <Fragment>
+                <Button
+                    onClick={this.showModal}
+                    type="primary"
+                    icon="plus">添加</Button>
+                <Link to="./list">
+                    <Button>
+                        <Icon type="rollback" />
+                    </Button>
+                </Link>
             </Fragment>
         );
         return (
@@ -340,9 +425,9 @@ class ProductOptionListData extends PureComponent {
                     <Card bordered={false}
                     // extra={extraContent}
                     >
-                        <div style={{ marginBottom: '20px' }} >
+                        {/* <div style={{ marginBottom: '20px' }} >
                             {action}
-                        </div>
+                        </div> */}
                         <StandardTable
                             pagination={pagination}
                             loading={this.state.loading}
@@ -363,7 +448,7 @@ class ProductOptionListData extends PureComponent {
                     </Card>
                 </div>
                 <Modal
-                    title={`选项值 - ${this.state.current.id ? '编辑' : '新增'}`}
+                    title={`选项值 - ${this.state.current.id ? '编辑' : '添加'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>

@@ -27,19 +27,25 @@ class ProductAttributeGroupList extends PureComponent {
             width: 120,
             render: (text, record) => (
                 <Fragment>
-                    <a onClick={() => this.showEditModal(record)}>编辑</a>
+                    <Button.Group>
+                        <Button icon="edit" size="small" onClick={() => this.showEditModal(record)}></Button>
+                        <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
+                            <Button icon="delete" type="danger" size="small"></Button>
+                        </Popconfirm>
+                    </Button.Group>
+                    {/* <a onClick={() => this.showEditModal(record)}>编辑</a>
                     <Divider type="vertical" />
                     <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteItem(record.id)}>
                         <a href="javascript:;">删除</a>
-                    </Popconfirm>
+                    </Popconfirm> */}
                 </Fragment>
             )
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 120,
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 120,
+        // },
         {
             title: '名称',
             dataIndex: 'name',
@@ -187,7 +193,7 @@ class ProductAttributeGroupList extends PureComponent {
                     onClick={this.showModal}
                     type="primary"
                     icon="plus">
-                    新增</Button>
+                    添加</Button>
             </div>
         );
         const formLayout = {
@@ -211,18 +217,18 @@ class ProductAttributeGroupList extends PureComponent {
                 <Button
                     onClick={this.showModal}
                     type="primary"
-                    icon="plus">新增</Button>
+                    icon="plus">添加</Button>
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="商品属性组">
+            <PageHeaderWrapper title="商品属性组" action={action}>
                 <div>
                     <Card bordered={false}
-                        // extra={extraContent}
+                    // extra={extraContent}
                     >
-                        <div style={{ marginBottom: '20px' }} >
+                        {/* <div style={{ marginBottom: '20px' }} >
                             {action}
-                        </div>
+                        </div> */}
                         <Table bordered
                             rowKey={record => record.id}
                             pagination={false}
@@ -233,7 +239,7 @@ class ProductAttributeGroupList extends PureComponent {
                     </Card>
                 </div>
                 <Modal
-                    title={`商品属性组 - ${this.state.current.id ? '编辑' : '新增'}`}
+                    title={`商品属性组 - ${this.state.current.id ? '编辑' : '添加'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>

@@ -95,7 +95,7 @@ class Info extends Component {
 
   render() {
     const { children, currentUser } = this.props;
-    if (!currentUser.userid) {
+    if (!currentUser.userId) {
       return '';
     }
     const { mode, selectKey } = this.state;

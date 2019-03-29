@@ -1,7 +1,7 @@
 import atob from 'atob';
 import _ from 'lodash';
 
-const STORAGE_TOKEN_NAME = 'TOKEN';
+const STORAGE_TOKEN_NAME = 'MODULE_SHOP_TOKEN';
 
 /**
  * JWT的方案
@@ -29,12 +29,14 @@ export default {
     }
   },
   get() {
-    return sessionStorage.getItem(STORAGE_TOKEN_NAME);
+    //localStorage
+    //sessionStorage 浏览器页签变更时会清除
+    return localStorage.getItem(STORAGE_TOKEN_NAME);
   },
   save(token) {
-    sessionStorage.setItem(STORAGE_TOKEN_NAME, token);
+    localStorage.setItem(STORAGE_TOKEN_NAME, token);
   },
   remove() {
-    sessionStorage.removeItem(STORAGE_TOKEN_NAME);
+    localStorage.removeItem(STORAGE_TOKEN_NAME);
   },
 };

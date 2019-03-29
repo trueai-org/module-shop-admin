@@ -2,7 +2,7 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import {
     List, Card, Input, Button, Modal, Form, notification, Table, Popconfirm, Divider, Select, Tag, Icon,
-    Redio, Menu, Dropdown
+    Menu, Dropdown, Radio
 } from 'antd';
 
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -23,12 +23,12 @@ class ProductOptionList extends PureComponent {
         data: [],
         current: {},
         submitting: false,
-     
+
         children: [],
 
         pageNum: 1,
         pageSize: 5,
-        predicate: 'id',
+        predicate: '',
         reverse: true,
         pageData: {
             list: [],
@@ -54,6 +54,7 @@ class ProductOptionList extends PureComponent {
                     </Menu>}
                     // placement="topRight"
                     >
+                    
                         <a onClick={() => this.handleData(text, record)}>选项值</a>
                     </Dropdown.Button>
                     {/* <Button type="primary" size="small" onClick={() => this.showEditModal(record)}>编辑</Button> */}
@@ -69,12 +70,20 @@ class ProductOptionList extends PureComponent {
                 </Fragment>
             )
         },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     width: 120,
+        //     sorter: true,
+        //     defaultSortOrder: 'descend',
+        // },
         {
-            title: 'ID',
-            dataIndex: 'id',
-            width: 120,
+            title: '类型',
+            dataIndex: 'displayType',
             sorter: true,
-            defaultSortOrder: 'descend',
+            width: 120,
+            // align: 'center',
+            render: (val) => <Tag color={val == 1 ? 'blue' : ''}>{val == 1 ? '颜色' : '文本'}</Tag>
         },
         {
             title: '名称',
@@ -248,7 +257,7 @@ class ProductOptionList extends PureComponent {
     }
 
     handleStandardTableChange = (pagination, filtersArg, sorter) => {
-        var firstPage = sorter.field != this.state.predicate;
+        var firstPage = this.state.predicate && sorter.field != this.state.predicate;
         this.setState({
             pageNum: pagination.current,
             pageSize: pagination.pageSize
@@ -304,11 +313,21 @@ class ProductOptionList extends PureComponent {
         const getModalContent = () => {
             return (
                 <Form onSubmit={this.handleSubmit}>
+                    <FormItem label="类型" {...formLayout}>
+                        {getFieldDecorator('displayType', {
+                            rules: [{ required: true, message: '显示类型' }],
+                            initialValue: this.state.current.displayType || 0,
+                        })(<Radio.Group>
+                            <Radio value={0}>文本</Radio>
+                            <Radio value={1}>颜色</Radio>
+                        </Radio.Group>)}
+                    </FormItem>
                     <FormItem label="名称" {...formLayout}>
                         {getFieldDecorator('name', {
                             rules: [{ required: true, message: '请输入选项名称' }],
                             initialValue: this.state.current.name || '',
                         })(<Input placeholder="请输入" />)}
+
                     </FormItem>
                 </Form>
             );
@@ -318,18 +337,18 @@ class ProductOptionList extends PureComponent {
                 <Button
                     onClick={this.showModal}
                     type="primary"
-                    icon="plus">新增</Button>
+                    icon="plus">添加</Button>
             </Fragment>
         );
         return (
-            <PageHeaderWrapper title="商品选项 - 列表">
+            <PageHeaderWrapper title="商品选项" action={action}>
                 <div>
                     <Card bordered={false}
                     // extra={extraContent}
                     >
-                        <div style={{ marginBottom: '20px' }} >
+                        {/* <div style={{ marginBottom: '20px' }} >
                             {action}
-                        </div>
+                        </div> */}
                         <StandardTable
                             pagination={pagination}
                             loading={this.state.loading}
@@ -350,7 +369,7 @@ class ProductOptionList extends PureComponent {
                     </Card>
                 </div>
                 <Modal
-                    title={`商品选项 - ${this.state.current.id ? '编辑' : '新增'}`}
+                    title={`商品选项 - ${this.state.current.id ? '编辑' : '添加'}`}
                     destroyOnClose
                     visible={this.state.visible}
                     {...modalFooter}>
