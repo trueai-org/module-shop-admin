@@ -46,7 +46,7 @@ class SettingList extends PureComponent {
             dataIndex: 'value',
             width: 200,
             render: (text, record) => record.formatType == 0 ? <Ellipsis length={30}>{text}</Ellipsis> :
-                <a onClick={() => { this.showEditModal(record) }}>[json]</a>
+                <a onClick={() => { this.showEditModal(record) }}>[object]</a>
         },
         {
             title: '格式',
