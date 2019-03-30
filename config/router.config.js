@@ -122,7 +122,7 @@ export default [
       // 商品目录
       {
         name: 'catalog',
-        icon: 'inbox',
+        icon: 'gold',
         path: '/catalog',
         routes: [
           {
@@ -315,10 +315,64 @@ export default [
         ],
       },
 
+      // 活动
+      {
+        name: 'promotion',
+        icon: 'tags',
+        path: '/promotion',
+        routes: [
+          {
+            path: 'discount',
+            name: 'discount',
+            component: './Promotion/Discount/List',
+          }
+        ],
+      },
+
+      // 内容管理
+      // {
+      //   name: 'content',
+      //   icon: 'profile',
+      //   path: '/content',
+      //   routes: [
+      //     {
+      //       path: '/configuration/country',
+      //       name: 'country',
+      //       hideChildrenInMenu: true,
+      //       routes: [
+      //         {
+      //           path: '/configuration/country',
+      //           redirect: '/configuration/country/list',
+      //         },
+      //         {
+      //           path: '/configuration/country/list',
+      //           name: 'list',
+      //           component: './Configuration/Country/List',
+      //         },
+      //         {
+      //           path: '/configuration/country/add',
+      //           name: 'add',
+      //           component: './Configuration/Country/Add',
+      //         },
+      //         {
+      //           path: '/configuration/country/edit',
+      //           name: 'edit',
+      //           component: './Configuration/Country/Edit',
+      //         },
+      //         {
+      //           path: '/configuration/country/province',
+      //           name: 'province',
+      //           component: './Configuration/Country/Province',
+      //         },
+      //       ],
+      //     },
+      //   ],
+      // },
+
       // 商城配置
       {
         name: 'configuration',
-        icon: 'setting',
+        icon: 'tool',
         path: '/configuration',
         routes: [
           {
@@ -416,6 +470,21 @@ export default [
             path: '/configuration/setting',
             name: 'setting',
             component: './Configuration/Setting/List',
+          }
+        ],
+      },
+
+      // 系统
+      {
+        name: 'system',
+        icon: 'deployment-unit',
+        path: '/system',
+        routes: [
+          // 系统信息
+          {
+            path: 'info',
+            name: 'info',
+            component: './System/Info',
           }
         ],
       },

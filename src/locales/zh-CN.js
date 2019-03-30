@@ -277,8 +277,6 @@ export default {
   'menu.catalog': '商品目录',
   'menu.catalog.product': '商品',
   'menu.catalog.product.list': '列表',
-  // 'menu.catalog.product.add': '添加',
-  // 'menu.catalog.product.edit': '编辑',
   'menu.catalog.product.info': '信息',
 
   'menu.catalog.category': '商品分类',
@@ -324,8 +322,17 @@ export default {
   'menu.sale.order.detail': '详情',
   'menu.sale.order.shipment': '发货',
 
+  'menu.promotion': '活动管理',
+  'menu.promotion.discount': '折扣',
+
   'menu.sale.shipment': '已发货',
   'menu.sale.shipment.list': '发货记录',
+
+  'menu.content': '内容管理',
+  'menu.content.widget': '首页配置',
+
+  'menu.system': '系统',
+  'menu.system.info': '系统信息',
 
 
   'form.admin.comment.help': '管理员备注、仅内部使用',

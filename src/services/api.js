@@ -916,7 +916,7 @@ export async function shipmentGrid(params) {
   });
 }
 
-// 系统配置
+// 商城配置
 // 获取全部及配置
 export async function appsettings() {
   return request(`/api/appsettings`);
@@ -928,4 +928,10 @@ export async function appsettingPut(params) {
     method: 'PUT',
     body: params,
   });
+}
+
+// 系统
+// 系统信息
+export async function systemInfo() {
+  return request(`/api/system/info`);
 }
