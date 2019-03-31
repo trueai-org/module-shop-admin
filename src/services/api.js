@@ -1000,3 +1000,54 @@ export async function editWidgetRecentlyViewed(params) {
     body: params,
   });
 }
+
+// 简单商品部件
+export async function getWidgetSimpleProduct(params) {
+  return request(`/api/widget-simple-products/${params.id}`);
+}
+export async function addWidgetSimpleProduct(params) {
+  return request(`/api/widget-simple-products`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function editWidgetSimpleProduct(params) {
+  return request(`/api/widget-simple-products/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 商品部件
+export async function getWidgetProduct(params) {
+  return request(`/api/widget-products/${params.id}`);
+}
+export async function addWidgetProduct(params) {
+  return request(`/api/widget-products`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function editWidgetProduct(params) {
+  return request(`/api/widget-products/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 轮播部件
+export async function getWidgetCarousel(params) {
+  return request(`/api/widget-carousels/${params.id}`);
+}
+export async function addWidgetCarousel(params) {
+  return request(`/api/widget-carousels`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function editWidgetCarousel(params) {
+  return request(`/api/widget-carousels/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}

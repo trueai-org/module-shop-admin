@@ -15,11 +15,11 @@ import Link from 'umi/link';
 const FormItem = Form.Item;
 const WidgetWithId = [
     { key: 1, value: "Category Widget", desc: "分类部件", createUrl: "widget-category-create" },
-    { key: 2, value: "Product Widget", desc: "产品部件", createUrl: "widget-product-create" },
-    { key: 3, value: "Simple Product Widget", desc: "简单产品部件", createUrl: "widget-simple-product-create" },
+    { key: 2, value: "Product Widget", desc: "商品部件", createUrl: "widget-product-create" },
+    { key: 3, value: "Simple Product Widget", desc: "简单商品部件", createUrl: "widget-simple-product-create" },
     { key: 4, value: "Html Widget", desc: "Html部件", createUrl: "widget-html-create" },
     { key: 5, value: "Carousel Widget", desc: "轮播部件", createUrl: "widget-carousel-create" },
-    { key: 6, value: "Space Bar Widget", desc: "空部件", createUrl: "widget-spacebar-create" },
+    // { key: 6, value: "Space Bar Widget", desc: "空部件", createUrl: "widget-spacebar-create" },
     { key: 7, value: "Recently Viewed Widget", desc: "最近浏览部件", createUrl: "widget-recently-viewed-create" }
 ];
 const WidgetZoneWithId = [

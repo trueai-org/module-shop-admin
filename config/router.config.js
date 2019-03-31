@@ -394,23 +394,52 @@ export default [
                 name: 'widget-recently-viewed',
                 component: './Content/Widget/WidgetRecentlyViewed',
               },
-              
-              //
-              // {
-              //   path: '/configuration/country/add',
-              //   name: 'add',
-              //   component: './Configuration/Country/Add',
-              // },
-              // {
-              //   path: '/configuration/country/edit',
-              //   name: 'edit',
-              //   component: './Configuration/Country/Edit',
-              // },
-              // {
-              //   path: '/configuration/country/province',
-              //   name: 'province',
-              //   component: './Configuration/Country/Province',
-              // },
+
+              // 简单商品部件
+              {
+                path: '/content/widget/widget-simple-product-create',
+                redirect: '/content/widget/widget-simple-product',
+              },
+              {
+                path: '/content/widget/widget-simple-product-edit/:id',
+                redirect: '/content/widget/widget-simple-product?id=:id',
+              },
+              {
+                path: '/content/widget/widget-simple-product',
+                name: 'widget-simple-product',
+                component: './Content/Widget/WidgetSimpleProduct',
+              },
+
+              // 商品部件
+              {
+                path: '/content/widget/widget-product-create',
+                redirect: '/content/widget/widget-product',
+              },
+              {
+                path: '/content/widget/widget-product-edit/:id',
+                redirect: '/content/widget/widget-product?id=:id',
+              },
+              {
+                path: '/content/widget/widget-product',
+                name: 'widget-product',
+                component: './Content/Widget/WidgetProduct',
+              },
+
+              // 轮播部件
+              {
+                path: '/content/widget/widget-carousel-create',
+                redirect: '/content/widget/widget-carousel',
+              },
+              {
+                path: '/content/widget/widget-carousel-edit/:id',
+                redirect: '/content/widget/widget-carousel?id=:id',
+              },
+              {
+                path: '/content/widget/widget-carousel',
+                name: 'widget-carousel',
+                component: './Content/Widget/WidgetCarousel',
+              },
+
             ],
           },
         ],

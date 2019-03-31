@@ -329,14 +329,14 @@ export default {
   'menu.sale.shipment.list': '发货记录',
 
   'menu.content': '内容管理',
-  'menu.content.widget': '小部件',
+  'menu.content.widget': '首页配置',
   'menu.content.widget.list': '列表',
   'menu.content.widget.widget-carousel': '轮播部件',
   'menu.content.widget.widget-html': 'Html部件',
-  'menu.content.widget.widget-product': '产品部件',
+  'menu.content.widget.widget-product': '商品部件',
   'menu.content.widget.widget-category': '分类部件',
   'menu.content.widget.widget-recently-viewed': '最近浏览部件',
-  'menu.content.widget.widget-simple-product': '简单产品部件',
+  'menu.content.widget.widget-simple-product': '简单商品部件',
   'menu.content.widget.widget-spacebar': '空部件',
 
   'menu.system': '系统',
