@@ -3,7 +3,8 @@ import { connect } from 'dva';
 import moment from 'moment';
 import {
     Form, Input, Select, Button, Card, InputNumber, Icon,
-    Checkbox, Upload, Modal, notification, Spin, DatePicker
+    Checkbox, Upload, Modal, notification, Spin, DatePicker,
+    Table, Radio, Avatar
 } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import router from 'umi/router';
@@ -29,12 +30,137 @@ class WidgetCarousel extends PureComponent {
             loading: false,
             data: {},
             submitting: false,
+
+            // 图片
+            images: [],
+            imagesLoading: false,
         };
     }
+
+    columnsImage = [
+        {
+            title: '标题',
+            dataIndex: 'caption',
+            render: (text, record) => (
+                <Fragment>
+                    <Input
+                        onChange={e => {
+                            record.caption = e.target.value;
+                        }}
+                        defaultValue={text} />
+                </Fragment>
+            ),
+        },
+        {
+            title: '子标题',
+            dataIndex: 'subCaption',
+            render: (text, record) => (
+                <Fragment>
+                    <Input
+                        onChange={e => {
+                            record.subCaption = e.target.value;
+                        }}
+                        defaultValue={text} />
+                </Fragment>
+            ),
+        },
+        {
+            title: '链接文本',
+            dataIndex: 'linkText',
+            render: (text, record) => (
+                <Fragment>
+                    <Input
+                        onChange={e => {
+                            record.linkText = e.target.value;
+                        }}
+                        defaultValue={text} />
+                </Fragment>
+            ),
+        },
+        {
+            title: '链接地址',
+            dataIndex: 'targetUrl',
+            render: (text, record) => (
+                <Fragment>
+                    <Input
+                        onChange={e => {
+                            record.targetUrl = e.target.value;
+                        }}
+                        defaultValue={text} />
+                </Fragment>
+            ),
+        },
+        {
+            title: '图片',
+            dataIndex: 'imageUrl',
+            align: 'center',
+            width: 64,
+            fixed: 'right',
+            render: (text, record) => (
+                <Fragment>
+                    <Upload
+                        action={(file) => {
+                            this.handleUploadMain(file, record);
+                        }}
+                        listType="picture-card"
+                        showUploadList={false}>
+                        {
+                            text ? <img style={{ height: 100 }} src={text} alt="avatar" />
+                                : <div className="ant-upload-text">上传</div>
+                        }
+                    </Upload>
+                </Fragment>
+            ),
+        },
+        {
+            title: '操作',
+            key: 'operation',
+            align: 'center',
+            width: 64,
+            fixed: 'right',
+            render: (text, record) => (
+                <Fragment>
+                    <Button.Group>
+                        <Button onClick={() => this.handleRemove(record)} icon="close" type="danger" size="small"></Button>
+                    </Button.Group>
+                </Fragment>
+            )
+        },
+    ];
 
     componentDidMount() {
         this.handleInit();
     }
+
+    handleUploadMain = (file, record) => {
+        const { dispatch } = this.props;
+        const formData = new FormData();
+        formData.append('file', file);
+        new Promise(resolve => {
+            dispatch({
+                type: 'upload/uploadImage',
+                payload: {
+                    resolve,
+                    params: formData,
+                },
+            });
+        }).then(res => {
+            if (res.success === true) {
+                let index = this.state.images.indexOf(record);
+                if (index >= 0) {
+                    let list = this.state.images.slice();
+                    list.splice(index, 1);
+                    record.imageId = res.data.id;
+                    record.imageUrl = res.data.url;
+                    list.splice(index, 0, record);
+                    this.setState({ images: list });
+                }
+            } else {
+                notification.error({ message: res.message });
+            }
+        });
+    };
+
 
     handleInitGet = () => {
         const { dispatch } = this.props;
@@ -50,7 +176,10 @@ class WidgetCarousel extends PureComponent {
         }).then(res => {
             this.setState({ loading: false });
             if (res.success === true) {
-                this.setState({ data: res.data });
+                this.setState({
+                    data: res.data,
+                    images: res.data.items
+                });
             } else {
                 notification.error({ message: res.message });
             }
@@ -70,6 +199,7 @@ class WidgetCarousel extends PureComponent {
                 this.setState({ submitting: true });
                 var params = {
                     id: this.state.id,
+                    items: this.state.images,
                     ...values
                 };
                 let type = 'widget/addWidgetCarousel';
@@ -94,6 +224,35 @@ class WidgetCarousel extends PureComponent {
             }
         });
     };
+
+
+    handleAdd = () => {
+        this.setState({ imagesLoading: true });
+        let pro = {
+            id: 0,
+            caption: '',
+            subCaption: '',
+            linkText: '',
+            targetUrl: '',
+            imageUrl: '',
+            imageId: null
+        };
+        this.setState({
+            imagesLoading: false,
+            images: [...this.state.images, pro],
+        });
+    }
+
+    handleRemove = (record) => {
+        this.setState(({ images }) => {
+            let index = images.indexOf(record);
+            let list = images.slice();
+            list.splice(index, 1);
+            return {
+                images: list,
+            };
+        });
+    }
 
     render() {
         const { form: { getFieldDecorator, getFieldValue }, } = this.props;
@@ -175,19 +334,19 @@ class WidgetCarousel extends PureComponent {
                                     )
                                 }
                             </FormItem>
-                            {/* <FormItem
+                            <FormItem
                                 {...formItemLayout}
-                                label={<span>商品</span>}>
-                                <Button icon="plus" type="primary" style={{ marginBottom: 16 }} onClick={this.showProductModal}>添加商品</Button>
+                                label={<span>图片</span>}>
+                                <Button icon="plus" type="primary" style={{ marginBottom: 16 }} onClick={this.handleAdd}>添加</Button>
                                 <Table bordered={false}
-                                    rowKey={(record, index) => `product_${record.id}_i_${index}`} //{record => record.id}
+                                    rowKey={(record, index) => `image_${record.id}_i_${index}`}
                                     pagination={false}
-                                    loading={this.state.productsLoading}
-                                    dataSource={this.state.products}
-                                    columns={this.columnsProduct}
-                                // scroll={{ x: 960 }}
+                                    loading={this.state.imagesLoading}
+                                    dataSource={this.state.images}
+                                    columns={this.columnsImage}
+                                    scroll={{ x: 960 }}
                                 />
-                            </FormItem> */}
+                            </FormItem>
                         </Form>
                     </Card>
                 </Spin>
