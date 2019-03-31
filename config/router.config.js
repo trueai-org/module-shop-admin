@@ -330,44 +330,91 @@ export default [
       },
 
       // 内容管理
-      // {
-      //   name: 'content',
-      //   icon: 'profile',
-      //   path: '/content',
-      //   routes: [
-      //     {
-      //       path: '/configuration/country',
-      //       name: 'country',
-      //       hideChildrenInMenu: true,
-      //       routes: [
-      //         {
-      //           path: '/configuration/country',
-      //           redirect: '/configuration/country/list',
-      //         },
-      //         {
-      //           path: '/configuration/country/list',
-      //           name: 'list',
-      //           component: './Configuration/Country/List',
-      //         },
-      //         {
-      //           path: '/configuration/country/add',
-      //           name: 'add',
-      //           component: './Configuration/Country/Add',
-      //         },
-      //         {
-      //           path: '/configuration/country/edit',
-      //           name: 'edit',
-      //           component: './Configuration/Country/Edit',
-      //         },
-      //         {
-      //           path: '/configuration/country/province',
-      //           name: 'province',
-      //           component: './Configuration/Country/Province',
-      //         },
-      //       ],
-      //     },
-      //   ],
-      // },
+      {
+        name: 'content',
+        icon: 'profile',
+        path: '/content',
+        routes: [
+          {
+            path: 'widget',
+            name: 'widget',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/content/widget',
+                redirect: '/content/widget/list',
+              },
+              {
+                path: '/content/widget/list',
+                name: 'list',
+                component: './Content/Widget/List',
+              },
+
+              // 分类部件
+              {
+                path: '/content/widget/widget-category-create',
+                redirect: '/content/widget/widget-category',
+              },
+              {
+                path: '/content/widget/widget-category-edit/:id',
+                redirect: '/content/widget/widget-category?id=:id',
+              },
+              {
+                path: '/content/widget/widget-category',
+                name: 'widget-category',
+                component: './Content/Widget/WidgetCategory',
+              },
+
+              // html部件
+              {
+                path: '/content/widget/widget-html-create',
+                redirect: '/content/widget/widget-html',
+              },
+              {
+                path: '/content/widget/widget-html-edit/:id',
+                redirect: '/content/widget/widget-html?id=:id',
+              },
+              {
+                path: '/content/widget/widget-html',
+                name: 'widget-html',
+                component: './Content/Widget/WidgetHtml',
+              },
+
+              // 最近浏览部件
+              {
+                path: '/content/widget/widget-recently-viewed-create',
+                redirect: '/content/widget/widget-recently-viewed',
+              },
+              {
+                path: '/content/widget/widget-recently-viewed-edit/:id',
+                redirect: '/content/widget/widget-recently-viewed?id=:id',
+              },
+              {
+                path: '/content/widget/widget-recently-viewed',
+                name: 'widget-recently-viewed',
+                component: './Content/Widget/WidgetRecentlyViewed',
+              },
+              
+              //
+              // {
+              //   path: '/configuration/country/add',
+              //   name: 'add',
+              //   component: './Configuration/Country/Add',
+              // },
+              // {
+              //   path: '/configuration/country/edit',
+              //   name: 'edit',
+              //   component: './Configuration/Country/Edit',
+              // },
+              // {
+              //   path: '/configuration/country/province',
+              //   name: 'province',
+              //   component: './Configuration/Country/Province',
+              // },
+            ],
+          },
+        ],
+      },
 
       // 商城配置
       {

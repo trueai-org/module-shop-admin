@@ -935,3 +935,68 @@ export async function appsettingPut(params) {
 export async function systemInfo() {
   return request(`/api/system/info`);
 }
+
+// 内容管理
+
+// 小部件
+export async function widgetInstances() {
+  return request(`/api/widget-instances`);
+}
+
+export async function deleteWidgetInstance(params) {
+  return request(`/api/widget-instances/${params.id}`, {
+    method: 'DELETE',
+  });
+}
+
+
+// 分类部件
+export async function getWidgetCategory(params) {
+  return request(`/api/widget-categories/${params.id}`);
+}
+export async function addWidgetCategory(params) {
+  return request(`/api/widget-categories`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function editWidgetCategory(params) {
+  return request(`/api/widget-categories/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// html部件
+export async function getWidgetHtml(params) {
+  return request(`/api/widget-html/${params.id}`);
+}
+export async function addWidgetHtml(params) {
+  return request(`/api/widget-html`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function editWidgetHtml(params) {
+  return request(`/api/widget-html/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 最近浏览部件
+export async function getWidgetRecentlyViewed(params) {
+  return request(`/api/widget-recently-viewed/${params.id}`);
+}
+export async function addWidgetRecentlyViewed(params) {
+  return request(`/api/widget-recently-viewed`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function editWidgetRecentlyViewed(params) {
+  return request(`/api/widget-recently-viewed/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
