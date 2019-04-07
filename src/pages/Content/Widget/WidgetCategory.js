@@ -203,11 +203,11 @@ class WidgetCategory extends PureComponent {
                             <FormItem
                                 {...formItemLayout}
                                 label={<span>商品分类</span>}>
-                                {getFieldDecorator('setting.categoryId', {
+                                {getFieldDecorator('setting.categoryIds', {
                                     rules: [{ required: true, message: '请选择商品分类' }],
-                                    initialValue: this.state.data.setting.categoryId || '',
+                                    initialValue: this.state.data.setting.categoryIds || '',
                                     valuePropName: 'value'
-                                })(<Select loading={this.state.categoriesLoading} allowClear={true}>
+                                })(<Select mode="multiple" loading={this.state.categoriesLoading} allowClear={true}>
                                     {this.state.categories.map(c => <Option value={c.id} key={c.id}>{c.name}</Option>)}
                                 </Select>)}
                             </FormItem>
