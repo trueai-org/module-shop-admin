@@ -442,6 +442,16 @@ export default [
 
             ],
           },
+          {
+            path: '/content/review',
+            name: 'review',
+            component: './Content/Review/List',
+          },
+          {
+            path: '/content/reply',
+            name: 'reply',
+            component: './Content/Reply/List',
+          }
         ],
       },
 

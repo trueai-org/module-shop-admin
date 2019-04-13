@@ -1051,3 +1051,45 @@ export async function editWidgetCarousel(params) {
     body: params,
   });
 }
+
+// 评论管理
+export async function reviewsGrid(params) {
+  return request(`/api/admin-reviews/grid`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function reviewsUpdate(params) {
+  return request(`/api/admin-reviews/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+export async function reviewsDelete(params) {
+  return request(`/api/admin-reviews/${params.id}`, {
+    method: 'DELETE',
+  });
+}
+
+// 回复管理
+export async function repliesGrid(params) {
+  return request(`/api/admin-replies/grid`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function repliesUpdate(params) {
+  return request(`/api/admin-replies/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+export async function repliesDelete(params) {
+  return request(`/api/admin-replies/${params.id}`, {
+    method: 'DELETE',
+  });
+}

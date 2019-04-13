@@ -339,6 +339,11 @@ export default {
   'menu.content.widget.widget-simple-product': '简单商品部件',
   'menu.content.widget.widget-spacebar': '空部件',
 
+  'menu.content.review': '评论管理',
+  'menu.content.review.list': '列表',
+  'menu.content.reply': '回复管理',
+  'menu.content.reply.list': '列表',
+
   'menu.system': '系统',
   'menu.system.info': '系统信息',
 
