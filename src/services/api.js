@@ -1093,3 +1093,11 @@ export async function repliesDelete(params) {
     method: 'DELETE',
   });
 }
+
+// 样本数据
+export async function resetSimpleData() {
+  return request(`/api/sample-data`, {
+    method: 'POST',
+    body: {},
+  });
+}

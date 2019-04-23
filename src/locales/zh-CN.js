@@ -346,6 +346,7 @@ export default {
 
   'menu.system': '系统',
   'menu.system.info': '系统信息',
+  'menu.system.simple-data': '样本数据',
 
 
   'form.admin.comment.help': '管理员备注、仅内部使用',

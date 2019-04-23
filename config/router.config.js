@@ -571,10 +571,15 @@ export default [
             path: 'info',
             name: 'info',
             component: './System/Info',
+          },
+          {
+            path: 'simple-data',
+            name: 'simple-data',
+            component: './System/SimpleData',
           }
         ],
       },
-
+      
       // 所有页面配置要放到404之前，否则会报404
       {
         component: '404',
