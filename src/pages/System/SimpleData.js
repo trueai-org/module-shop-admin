@@ -42,7 +42,7 @@ class SimpleData extends PureComponent {
             <PageHeaderWrapper title="样本数据管理">
                 <div>
                     <Card bordered={false}>
-                    <Popconfirm title="现有数据将被清空！确定要重置样本吗？" onConfirm={() => this.handleSubmit()}>
+                    <Popconfirm title="现有数据将被清空！确定要重置样本数据吗？" onConfirm={() => this.handleSubmit()}>
                     <Button type="danger" icon="reset" htmlType="submit" loading={this.state.loading}>重置样本数据</Button>
                     </Popconfirm>
                     </Card>
