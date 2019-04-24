@@ -1754,7 +1754,7 @@ class ProductInfo extends PureComponent {
     //         params: formData
     //     },
     // });
-    // console.log(upload);
+    // console.log(file);
     // console.log(uploadLoading);
     // return;
 
@@ -1877,6 +1877,46 @@ class ProductInfo extends PureComponent {
     );
   };
 
+  //https://www.yuque.com/braft-editor/be/gz44tn
+  myUploadFn = (param) => {
+    // console.log(param);
+    const { dispatch } = this.props;
+    const fd = new FormData()
+    fd.append('file', param.file)
+    new Promise(resolve => {
+      dispatch({
+        type: 'upload/uploadImage',
+        payload: {
+          resolve,
+          params: fd,
+        },
+      });
+    }).then(res => {
+      // console.log(res);
+      if (res.success === true) {
+        // 上传进度发生变化时调用param.progress
+        // param.progress(100)
+        param.success({
+          url: res.data.url,
+          meta: {
+            id: res.data.id,
+            title: res.data.fileName,
+            alt: res.data.fileName,
+            // loop: true, // 指定音视频是否循环播放
+            // autoPlay: true, // 指定音视频是否自动播放
+            // controls: true, // 指定音视频是否显示控制栏
+            poster: res.data.url, // 指定视频播放器的封面
+          }
+        })
+      } else {
+        notification.error({ message: res.message });
+        param.error({
+          msg: 'unable to upload.'
+        })
+      }
+    });
+  }
+
   render() {
     const {
       editorState,
@@ -1938,6 +1978,7 @@ class ProductInfo extends PureComponent {
 
       'remove-styles',
       'fullscreen',
+      'clear'
     ];
     const controlsEasy = [
       'bold',
@@ -2100,6 +2141,7 @@ class ProductInfo extends PureComponent {
                   <FormItem {...formItemLayout} label={<span>描述</span>}>
                     {getFieldDecorator('description')(
                       <BraftEditor
+                        media={{ uploadFn: this.myUploadFn }}
                         className={styles.myEditor}
                         controls={controls}
                         placeholder=""
