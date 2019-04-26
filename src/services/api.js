@@ -915,3 +915,189 @@ export async function shipmentGrid(params) {
     body: params,
   });
 }
+
+// 商城配置
+// 获取全部及配置
+export async function appsettings() {
+  return request(`/api/appsettings`);
+}
+
+// 更新配置
+export async function appsettingPut(params) {
+  return request(`/api/appsettings`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 系统
+// 系统信息
+export async function systemInfo() {
+  return request(`/api/system/info`);
+}
+
+// 内容管理
+
+// 小部件
+export async function widgetInstances() {
+  return request(`/api/widget-instances`);
+}
+
+export async function deleteWidgetInstance(params) {
+  return request(`/api/widget-instances/${params.id}`, {
+    method: 'DELETE',
+  });
+}
+
+
+// 分类部件
+export async function getWidgetCategory(params) {
+  return request(`/api/widget-categories/${params.id}`);
+}
+export async function addWidgetCategory(params) {
+  return request(`/api/widget-categories`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function editWidgetCategory(params) {
+  return request(`/api/widget-categories/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// html部件
+export async function getWidgetHtml(params) {
+  return request(`/api/widget-html/${params.id}`);
+}
+export async function addWidgetHtml(params) {
+  return request(`/api/widget-html`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function editWidgetHtml(params) {
+  return request(`/api/widget-html/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 最近浏览部件
+export async function getWidgetRecentlyViewed(params) {
+  return request(`/api/widget-recently-viewed/${params.id}`);
+}
+export async function addWidgetRecentlyViewed(params) {
+  return request(`/api/widget-recently-viewed`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function editWidgetRecentlyViewed(params) {
+  return request(`/api/widget-recently-viewed/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 简单商品部件
+export async function getWidgetSimpleProduct(params) {
+  return request(`/api/widget-simple-products/${params.id}`);
+}
+export async function addWidgetSimpleProduct(params) {
+  return request(`/api/widget-simple-products`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function editWidgetSimpleProduct(params) {
+  return request(`/api/widget-simple-products/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 商品部件
+export async function getWidgetProduct(params) {
+  return request(`/api/widget-products/${params.id}`);
+}
+export async function addWidgetProduct(params) {
+  return request(`/api/widget-products`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function editWidgetProduct(params) {
+  return request(`/api/widget-products/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 轮播部件
+export async function getWidgetCarousel(params) {
+  return request(`/api/widget-carousels/${params.id}`);
+}
+export async function addWidgetCarousel(params) {
+  return request(`/api/widget-carousels`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function editWidgetCarousel(params) {
+  return request(`/api/widget-carousels/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// 评论管理
+export async function reviewsGrid(params) {
+  return request(`/api/admin-reviews/grid`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function reviewsUpdate(params) {
+  return request(`/api/admin-reviews/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+export async function reviewsDelete(params) {
+  return request(`/api/admin-reviews/${params.id}`, {
+    method: 'DELETE',
+  });
+}
+
+// 回复管理
+export async function repliesGrid(params) {
+  return request(`/api/admin-replies/grid`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function repliesUpdate(params) {
+  return request(`/api/admin-replies/${params.id}`, {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+export async function repliesDelete(params) {
+  return request(`/api/admin-replies/${params.id}`, {
+    method: 'DELETE',
+  });
+}
+
+// 样本数据
+export async function resetSimpleData() {
+  return request(`/api/sample-data`, {
+    method: 'POST',
+    body: {},
+  });
+}
