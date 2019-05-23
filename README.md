@@ -1,126 +1,133 @@
-English | [简体中文](./README.zh-CN.md) | [Русский](./README.ru-RU.md)
+## ModuleShop
 
-<h1 align="center">Ant Design Pro</h1>
+一个基于 .NET Core构建的简单、跨平台、模块化的商城系统
 
-<div align="center">
+**跨平台**
 
-An out-of-box UI solution for enterprise applications as a React boilerplate.
+Docker, Windows, Linux, Mac. Microsoft SQL Server, PostgreSQL, MySQL, SQLite
 
-[![CircleCI Status](https://circleci.com/gh/ant-design/ant-design-pro.svg?style=svg)](https://circleci.com/gh/ant-design/ant-design-pro/)
-[![Build status](https://ci.appveyor.com/api/projects/status/67fxu2by3ibvqtat/branch/master?svg=true)](https://ci.appveyor.com/project/afc163/ant-design-pro/branch/master)
-[![Dependencies](https://img.shields.io/david/ant-design/ant-design-pro.svg)](https://david-dm.org/ant-design/ant-design-pro)
-[![DevDependencies](https://img.shields.io/david/dev/ant-design/ant-design-pro.svg)](https://david-dm.org/ant-design/ant-design-pro?type=dev)
-[![Gitter](https://img.shields.io/gitter/room/ant-design/pro-english.svg)](https://gitter.im/ant-design/pro-english?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)(🇺🇸)
-[![Gitter](https://img.shields.io/gitter/room/ant-design/ant-design-pro.svg?style=flat-square)](https://gitter.im/ant-design/ant-design-pro?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)(🇨🇳)
+**模块化**
+
+该应用程序分为许多自包含模块
+
+**免费并且开源**
+
+ModuleShop完全免费并且开源
+
+## 后台API
+
+项目地址：[https://github.com/trueai-org/module-shop-admin](https://github.com/trueai-org/module-shop-admin)
+
+在线预览：[https://shopapi.circle.ac.cn/swagger](https://shopapi.circle.ac.cn/swagger)
+
+### 项目结构
+
+![商品](https://gogs.circle.ac.cn/gogs/data/raw/master/images/devenv_2019-05-23_18-20-12.png)
+
+## 后台前端
+
+项目地址：[https://github.com/trueai-org/module-shop](https://github.com/trueai-org/module-shop)
+
+在线预览：[https://shop.circle.ac.cn](https://shop.circle.ac.cn) *admin/123456*
+
+前端框架：[Ant Design Pro](https://pro.ant.design)
+
+使用文档：http://pro.ant.design/docs/getting-started-cn
+
+### 项目截图
+
+![商品](https://gogs.circle.ac.cn/gogs/data/raw/master/images/chrome_2019-05-23_18-14-51.png)
+![订单](https://gogs.circle.ac.cn/gogs/data/raw/master/images/chrome_2019-05-23_18-14-19.png)
+![首页显示配置](https://gogs.circle.ac.cn/gogs/data/raw/master/images/chrome_2019-05-23_18-13-50.png)
+
+### 功能列表
+
++ 商品：分类、品牌、单位、选项（销售属性）、属性、属性模板、属性组
++ 销售：订单、物流
++ 内容：首页配置、评论、回复
++ 配置：国家、用户、仓库、运费、高级设置、~~主体化~~、~~本土化~~、~~税~~
++ 系统：样本数据
++ ~~活动：折扣~~
++ ~~首页：首页~~
+
+## 微信小程序
+
+项目地址：[https://github.com/trueai-org/module-shop-mini-program](https://github.com/trueai-org/module-shop-mini-program)
+
+在线预览（天网商城）：
+
+![小程序码](https://gogs.circle.ac.cn/gogs/data/raw/master/images/shop_mp_8.jpg)
+
+### 项目截图
+
+![首页](https://gogs.circle.ac.cn/gogs/data/raw/master/images/wechatdevtools_2019-04-26_17-44-30.png)
+
+![分类](https://gogs.circle.ac.cn/gogs/data/raw/master/images/wechatdevtools_2019-04-26_17-45-37.png)
+
+![购物车](https://gogs.circle.ac.cn/gogs/data/raw/master/images/wechatdevtools_2019-04-26_17-50-15.png)
+
+![商品详情](https://gogs.circle.ac.cn/gogs/data/raw/master/images/wechatdevtools_2019-04-26_17-50-50.png)
+
+![订单列表](https://gogs.circle.ac.cn/gogs/data/raw/master/images/wechatdevtools_2019-04-26_17-54-33.png)
+
+![评价](https://gogs.circle.ac.cn/gogs/data/raw/master/images/wechatdevtools_2019-04-26_17-56-43.png)
+
+![我的](https://gogs.circle.ac.cn/gogs/data/raw/master/images/wechatdevtools_2019-04-26_17-57-19.png)
 
 
-![](https://user-images.githubusercontent.com/8186664/44953195-581e3d80-aec4-11e8-8dcb-54b9db38ec11.png)
+### 功能列表
++ 首页
++ 分类首页、分类商品、新品首发、人气推荐、商品页面等、可通过后台配置
++ 商品详情页面，包含加入购物车、收藏商品、商品评论功能
++ 搜索功能
++ 完整的购物流程，商品的加入、编辑、删除、批量选择，收货地址的选择，下单支付
++ 会员中心（订单、收藏、足迹、收货地址、意见反馈）
+....
 
-</div>
-
-- Preview: http://preview.pro.ant.design
-- Home Page: http://pro.ant.design
-- Documentation: http://pro.ant.design/docs/getting-started
-- ChangeLog: http://pro.ant.design/docs/changelog
-- FAQ: http://pro.ant.design/docs/faq
-- Mirror Site in China: http://ant-design-pro.gitee.io
-
-## 2.0 Released Now! 🎉🎉🎉
-[Announcing Ant Design Pro 2.0.0](https://medium.com/ant-design/beautiful-and-powerful-ant-design-pro-2-0-release-51358da5af95)
-
-## Translation Recruitment :loudspeaker:
-
-We need your help: https://github.com/ant-design/ant-design-pro/issues/120
-
-## Features
-
-- :gem: **Neat Design**: Follow [Ant Design specification](http://ant.design/)
-- :triangular_ruler: **Common Templates**: Typical templates for enterprise applications
-- :rocket: **State of The Art Development**: Newest development stack of React/umi/dva/antd
-- :iphone: **Responsive**: Designed for variable screen sizes
-- :art: **Theming**: Customizable theme with simple config
-- :globe_with_meridians: **International**: Built-in i18n solution
-- :gear: **Best Practices**: Solid workflow to make your code healthy
-- :1234: **Mock development**: Easy to use mock development solution
-- :white_check_mark: **UI Test**: Fly safely with unit and e2e tests
-
-## Templates
-
+### 项目结构
 ```
-- Dashboard
-  - Analytic
-  - Monitor
-  - Workspace
-- Form
-  - Basic Form
-  - Step Form
-  - Advanced From
-- List
-  - Standard Table
-  - Standard List
-  - Card List
-  - Search List (Project/Applications/Article)
-- Profile
-  - Simple Profile
-  - Advanced Profile
-- Account
-  - Account Center
-  - Account Settings
-- Result
-  - Success
-  - Failed
-- Exception
-  - 403
-  - 404
-  - 500
-- User
-  - Login
-  - Register
-  - Register Result
+├─config                
+├─lib
+│  └─wxParse　　　
+├─pages
+│  ├─auth
+│  │  ├─login
+│  │  ├─register
+│  │  └─reset
+│  ├─brand
+│  ├─brandDetail
+│  ├─cart
+│  ├─catalog
+│  ├─category
+│  ├─comment
+│  ├─goods
+│  ├─hotGoods
+│  ├─index
+│  ├─logs
+│  ├─newGoods
+│  ├─pay
+│  ├─search
+│  ├─shopping
+│  │  ├─address
+│  │  ├─addressAdd
+│  │  └─checkout
+│  ├─topic
+│  ├─topicDetail
+│  └─ucenter
+│      ├─address
+│      ├─addressAdd
+│      ├─collect
+│      ├─coupon
+│      ├─feedback
+│      ├─footprint
+│      ├─index
+│      ├─order
+│      └─orderDetail
+├─static
+│  └─images
+└─utils
 ```
 
-## Usage
+## 交流
 
-### Use bash
-
-```bash
-$ git clone https://github.com/ant-design/ant-design-pro.git --depth=1
-$ cd ant-design-pro
-$ npm install
-$ npm start         # visit http://localhost:8000
-```
-
-### Use by docker
-
-```bash
-// dev 
-$ npm run docker:dev
-
-// build 
-$ npm run docker:build
-
-
-// production dev 
-$ npm run docker-prod:dev
-
-// production build 
-$ npm run docker-prod:build
-```
-
-More instructions at [documentation](http://pro.ant.design/docs/getting-started).
-
-## Browsers support
-
-Modern browsers and IE11.
-
-| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/opera/opera_48x48.png" alt="Opera" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Opera |
-| --------- | --------- | --------- | --------- | --------- |
-| IE11, Edge| last 2 versions| last 2 versions| last 2 versions| last 2 versions
-
-## Contributing
-
-Any type of contribution is welcome, here are some examples of how you may contribute to this project:
-
-- Use Ant Design Pro in your daily work.
-- Submit [issues](http://github.com/ant-design/ant-design-pro/issues) to report bugs or ask questions.
-- Propose [pull requests](http://github.com/ant-design/ant-design-pro/pulls) to improve our code.
+喜欢别忘了 Star，有问题可通过微信、公众号、QQ 群联系我，谢谢您的关注。
