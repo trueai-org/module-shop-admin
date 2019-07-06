@@ -1,6 +1,6 @@
 import {
     queryCountryAll, queryProvinceTree, queryWarehouseAll,
-    queryUserQuickSearch, queryUserAddresses
+    queryUserQuickSearch, queryUserAddresses, systemInfo
 } from '@/services/api';
 
 export default {
@@ -37,6 +37,12 @@ export default {
         *userAddresses({ payload }, { call, put }) {
             const { resolve, params } = payload;
             const response = yield call(queryUserAddresses, params);
+            !!resolve && resolve(response);
+        },
+
+        *info({ payload }, { call, put }) {
+            const { resolve } = payload;
+            const response = yield call(systemInfo);
             !!resolve && resolve(response);
         },
     },

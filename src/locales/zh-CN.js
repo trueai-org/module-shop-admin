@@ -277,8 +277,6 @@ export default {
   'menu.catalog': '商品目录',
   'menu.catalog.product': '商品',
   'menu.catalog.product.list': '列表',
-  // 'menu.catalog.product.add': '添加',
-  // 'menu.catalog.product.edit': '编辑',
   'menu.catalog.product.info': '信息',
 
   'menu.catalog.category': '商品分类',
@@ -299,20 +297,22 @@ export default {
   'menu.catalog.unit': '商品单位',
   'menu.catalog.unit.list': '列表',
 
-  'menu.system': '系统配置',
-  'menu.system.country': '国家',
-  'menu.system.country.list': '列表',
-  'menu.system.country.add': '添加',
-  'menu.system.country.edit': '编辑',
-  'menu.system.country.province': '省市区',
-  'menu.system.user': '用户',
-  'menu.system.user.list': '列表',
-  'menu.system.warehouse': '仓库',
-  'menu.system.warehouse.list': '列表',
+  'menu.configuration': '商城配置',
+  'menu.configuration.country': '国家',
+  'menu.configuration.country.list': '列表',
+  'menu.configuration.country.add': '添加',
+  'menu.configuration.country.edit': '编辑',
+  'menu.configuration.country.province': '省市区',
+  'menu.configuration.user': '用户',
+  'menu.configuration.user.list': '列表',
+  'menu.configuration.warehouse': '仓库',
+  'menu.configuration.warehouse.list': '列表',
 
-  'menu.system.freight-template': '运费模板',
-  'menu.system.freight-template.list': '列表',
-  'menu.system.freight-template.setting': '运费配置',
+  'menu.configuration.freight-template': '运费模板',
+  'menu.configuration.freight-template.list': '列表',
+  'menu.configuration.freight-template.setting': '运费配置',
+
+  'menu.configuration.setting': '高级设置',
 
   'menu.sale': '销售管理',
   'menu.sale.order': '订单',
@@ -322,8 +322,31 @@ export default {
   'menu.sale.order.detail': '详情',
   'menu.sale.order.shipment': '发货',
 
+  'menu.promotion': '活动管理',
+  'menu.promotion.discount': '折扣',
+
   'menu.sale.shipment': '已发货',
   'menu.sale.shipment.list': '发货记录',
+
+  'menu.content': '内容管理',
+  'menu.content.widget': '首页配置',
+  'menu.content.widget.list': '列表',
+  'menu.content.widget.widget-carousel': '轮播部件',
+  'menu.content.widget.widget-html': 'Html部件',
+  'menu.content.widget.widget-product': '商品部件',
+  'menu.content.widget.widget-category': '分类部件',
+  'menu.content.widget.widget-recently-viewed': '最近浏览部件',
+  'menu.content.widget.widget-simple-product': '简单商品部件',
+  'menu.content.widget.widget-spacebar': '空部件',
+
+  'menu.content.review': '评论管理',
+  'menu.content.review.list': '列表',
+  'menu.content.reply': '回复管理',
+  'menu.content.reply.list': '列表',
+
+  'menu.system': '系统',
+  'menu.system.info': '系统信息',
+  'menu.system.simple-data': '样本数据',
 
 
   'form.admin.comment.help': '管理员备注、仅内部使用',

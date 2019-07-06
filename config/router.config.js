@@ -122,7 +122,7 @@ export default [
       // 商品目录
       {
         name: 'catalog',
-        icon: 'inbox',
+        icon: 'gold',
         path: '/catalog',
         routes: [
           {
@@ -315,105 +315,271 @@ export default [
         ],
       },
 
-      // 系统
+      // 活动
       {
-        name: 'system',
-        icon: 'setting',
-        path: '/system',
+        name: 'promotion',
+        icon: 'tags',
+        path: '/promotion',
         routes: [
           {
-            path: '/system/country',
+            path: 'discount',
+            name: 'discount',
+            component: './Promotion/Discount/List',
+          }
+        ],
+      },
+
+      // 内容管理
+      {
+        name: 'content',
+        icon: 'profile',
+        path: '/content',
+        routes: [
+          {
+            path: 'widget',
+            name: 'widget',
+            hideChildrenInMenu: true,
+            routes: [
+              {
+                path: '/content/widget',
+                redirect: '/content/widget/list',
+              },
+              {
+                path: '/content/widget/list',
+                name: 'list',
+                component: './Content/Widget/List',
+              },
+
+              // 分类部件
+              {
+                path: '/content/widget/widget-category-create',
+                redirect: '/content/widget/widget-category',
+              },
+              {
+                path: '/content/widget/widget-category-edit/:id',
+                redirect: '/content/widget/widget-category?id=:id',
+              },
+              {
+                path: '/content/widget/widget-category',
+                name: 'widget-category',
+                component: './Content/Widget/WidgetCategory',
+              },
+
+              // html部件
+              {
+                path: '/content/widget/widget-html-create',
+                redirect: '/content/widget/widget-html',
+              },
+              {
+                path: '/content/widget/widget-html-edit/:id',
+                redirect: '/content/widget/widget-html?id=:id',
+              },
+              {
+                path: '/content/widget/widget-html',
+                name: 'widget-html',
+                component: './Content/Widget/WidgetHtml',
+              },
+
+              // 最近浏览部件
+              {
+                path: '/content/widget/widget-recently-viewed-create',
+                redirect: '/content/widget/widget-recently-viewed',
+              },
+              {
+                path: '/content/widget/widget-recently-viewed-edit/:id',
+                redirect: '/content/widget/widget-recently-viewed?id=:id',
+              },
+              {
+                path: '/content/widget/widget-recently-viewed',
+                name: 'widget-recently-viewed',
+                component: './Content/Widget/WidgetRecentlyViewed',
+              },
+
+              // 简单商品部件
+              {
+                path: '/content/widget/widget-simple-product-create',
+                redirect: '/content/widget/widget-simple-product',
+              },
+              {
+                path: '/content/widget/widget-simple-product-edit/:id',
+                redirect: '/content/widget/widget-simple-product?id=:id',
+              },
+              {
+                path: '/content/widget/widget-simple-product',
+                name: 'widget-simple-product',
+                component: './Content/Widget/WidgetSimpleProduct',
+              },
+
+              // 商品部件
+              {
+                path: '/content/widget/widget-product-create',
+                redirect: '/content/widget/widget-product',
+              },
+              {
+                path: '/content/widget/widget-product-edit/:id',
+                redirect: '/content/widget/widget-product?id=:id',
+              },
+              {
+                path: '/content/widget/widget-product',
+                name: 'widget-product',
+                component: './Content/Widget/WidgetProduct',
+              },
+
+              // 轮播部件
+              {
+                path: '/content/widget/widget-carousel-create',
+                redirect: '/content/widget/widget-carousel',
+              },
+              {
+                path: '/content/widget/widget-carousel-edit/:id',
+                redirect: '/content/widget/widget-carousel?id=:id',
+              },
+              {
+                path: '/content/widget/widget-carousel',
+                name: 'widget-carousel',
+                component: './Content/Widget/WidgetCarousel',
+              },
+
+            ],
+          },
+          {
+            path: '/content/review',
+            name: 'review',
+            component: './Content/Review/List',
+          },
+          {
+            path: '/content/reply',
+            name: 'reply',
+            component: './Content/Reply/List',
+          }
+        ],
+      },
+
+      // 商城配置
+      {
+        name: 'configuration',
+        icon: 'tool',
+        path: '/configuration',
+        routes: [
+          {
+            path: '/configuration/country',
             name: 'country',
             hideChildrenInMenu: true,
             routes: [
               {
-                path: '/system/country',
-                redirect: '/system/country/list',
+                path: '/configuration/country',
+                redirect: '/configuration/country/list',
               },
               {
-                path: '/system/country/list',
+                path: '/configuration/country/list',
                 name: 'list',
-                component: './System/Country/List',
+                component: './Configuration/Country/List',
               },
               {
-                path: '/system/country/add',
+                path: '/configuration/country/add',
                 name: 'add',
-                component: './System/Country/Add',
+                component: './Configuration/Country/Add',
               },
               {
-                path: '/system/country/edit',
+                path: '/configuration/country/edit',
                 name: 'edit',
-                component: './System/Country/Edit',
+                component: './Configuration/Country/Edit',
               },
               {
-                path: '/system/country/province',
+                path: '/configuration/country/province',
                 name: 'province',
-                component: './System/Country/Province',
+                component: './Configuration/Country/Province',
               },
             ],
           },
 
           //用户
           {
-            path: '/system/user',
+            path: '/configuration/user',
             name: 'user',
             hideChildrenInMenu: true,
             routes: [
               {
-                path: '/system/user',
-                redirect: '/system/user/list',
+                path: '/configuration/user',
+                redirect: '/configuration/user/list',
               },
               {
-                path: '/system/user/list',
+                path: '/configuration/user/list',
                 name: 'list',
-                component: './System/User/List',
+                component: './Configuration/User/List',
               },
             ],
           },
 
           //仓库
           {
-            path: '/system/warehouse',
+            path: '/configuration/warehouse',
             name: 'warehouse',
             hideChildrenInMenu: true,
             routes: [
               {
-                path: '/system/warehouse',
-                redirect: '/system/warehouse/list',
+                path: '/configuration/warehouse',
+                redirect: '/configuration/warehouse/list',
               },
               {
-                path: '/system/warehouse/list',
+                path: '/configuration/warehouse/list',
                 name: 'list',
-                component: './System/Warehouse/List',
+                component: './Configuration/Warehouse/List',
               },
             ],
           },
 
           //运费模板
           {
-            path: '/system/freight-template',
+            path: '/configuration/freight-template',
             name: 'freight-template',
             hideChildrenInMenu: true,
             routes: [
               {
-                path: '/system/freight-template',
-                redirect: '/system/freight-template/list',
+                path: '/configuration/freight-template',
+                redirect: '/configuration/freight-template/list',
               },
               {
-                path: '/system/freight-template/list',
+                path: '/configuration/freight-template/list',
                 name: 'list',
-                component: './System/FreightTemplate/List',
+                component: './Configuration/FreightTemplate/List',
               },
               {
-                path: '/system/freight-template/setting',
+                path: '/configuration/freight-template/setting',
                 name: 'setting',
-                component: './System/FreightTemplate/Setting',
+                component: './Configuration/FreightTemplate/Setting',
               },
             ],
           },
+          //高级设置
+          {
+            path: '/configuration/setting',
+            name: 'setting',
+            component: './Configuration/Setting/List',
+          }
         ],
       },
 
+      // 系统
+      {
+        name: 'system',
+        icon: 'deployment-unit',
+        path: '/system',
+        routes: [
+          // 系统信息
+          {
+            path: 'info',
+            name: 'info',
+            component: './System/Info',
+          },
+          {
+            path: 'simple-data',
+            name: 'simple-data',
+            component: './System/SimpleData',
+          }
+        ],
+      },
+      
       // 所有页面配置要放到404之前，否则会报404
       {
         component: '404',

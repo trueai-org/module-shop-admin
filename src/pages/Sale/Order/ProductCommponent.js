@@ -2,6 +2,7 @@ import React from 'react';
 import { Row, Col, Input, Button, Modal, Form, Avatar } from 'antd';
 import moment from 'moment';
 import StandardTable from '@/components/StandardTable';
+import { formatBool } from '@/utils/utils';
 
 @Form.create()
 class ProductCommponent extends React.Component {
@@ -28,6 +29,12 @@ class ProductCommponent extends React.Component {
             title: '价格',
             dataIndex: 'price',
             width: 120,
+        },
+        {
+            title: '是否发布',
+            dataIndex: 'isPublished',
+            width: 100,
+            render: (val) => formatBool(val)
         },
         {
             title: '图片',
