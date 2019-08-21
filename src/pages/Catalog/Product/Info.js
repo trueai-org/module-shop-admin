@@ -344,41 +344,41 @@ class ProductInfo extends PureComponent {
             style={
               this.state.optionSettingCurrent.displayType == 1
                 ? {
-                  backgroundColor: record.display || '',
-                }
+                    backgroundColor: record.display || '',
+                  }
                 : {}
             }
             // value={text}
             onClick={() => {
               this.state.optionSettingCurrent.displayType == 1
                 ? this.setState({ currentColor: record.display || '' }, () => {
-                  Modal.info({
-                    title: '选择颜色',
-                    content: (
-                      <SketchPicker
-                        color={this.state.currentColor || ''}
-                        onChange={color => {
-                          let olds = this.state.optionSettingCurrent.values;
-                          let obj = olds.find(c => c.value == record.value);
-                          if (obj) {
-                            let index = olds.indexOf(obj);
-                            let list = olds.slice();
-                            list.splice(index, 1);
-                            olds = list;
+                    Modal.info({
+                      title: '选择颜色',
+                      content: (
+                        <SketchPicker
+                          color={this.state.currentColor || ''}
+                          onChange={color => {
+                            let olds = this.state.optionSettingCurrent.values;
+                            let obj = olds.find(c => c.value == record.value);
+                            if (obj) {
+                              let index = olds.indexOf(obj);
+                              let list = olds.slice();
+                              list.splice(index, 1);
+                              olds = list;
 
-                            obj.display = color.hex;
-                            olds.push(obj);
-                          }
-                          this.setState({
-                            'optionSettingCurrent.values': olds,
-                          });
-                          this.setState({ currentColor: color.hex });
-                        }}
-                      />
-                    ),
-                    okText: '关闭',
-                  });
-                })
+                              obj.display = color.hex;
+                              olds.push(obj);
+                            }
+                            this.setState({
+                              'optionSettingCurrent.values': olds,
+                            });
+                            this.setState({ currentColor: color.hex });
+                          }}
+                        />
+                      ),
+                      okText: '关闭',
+                    });
+                  })
                 : {};
             }}
           />
@@ -982,11 +982,15 @@ class ProductInfo extends PureComponent {
         ...values,
       };
 
-      //富文本处理
-      //draftToHtml(convertToRaw(this.state.editorState.getCurrentContent()))
-      params.description = params.description.toHTML(); //draftToHtml(params.description);
-      // params.shortDescription = params.shortDescription.toHTML(); //draftToHtml(params.shortDescription);
-      params.specification = params.specification.toHTML(); //draftToHtml(params.specification);
+      // 富文本处理
+      if (params.description) {
+        //draftToHtml(convertToRaw(this.state.editorState.getCurrentContent()))
+        params.description = params.description.toHTML(); //draftToHtml(params.description);
+      }
+      if (params.description) {
+        // params.shortDescription = params.shortDescription.toHTML(); //draftToHtml(params.shortDescription);
+        params.specification = params.specification.toHTML(); //draftToHtml(params.specification);
+      }
 
       //特价时间处理
       if (params.specialPriceRangePicker && params.specialPriceRangePicker.length == 2) {
@@ -1878,11 +1882,11 @@ class ProductInfo extends PureComponent {
   };
 
   //https://www.yuque.com/braft-editor/be/gz44tn
-  myUploadFn = (param) => {
+  myUploadFn = param => {
     // console.log(param);
     const { dispatch } = this.props;
-    const fd = new FormData()
-    fd.append('file', param.file)
+    const fd = new FormData();
+    fd.append('file', param.file);
     new Promise(resolve => {
       dispatch({
         type: 'upload/uploadImage',
@@ -1906,16 +1910,16 @@ class ProductInfo extends PureComponent {
             // autoPlay: true, // 指定音视频是否自动播放
             // controls: true, // 指定音视频是否显示控制栏
             poster: res.data.url, // 指定视频播放器的封面
-          }
-        })
+          },
+        });
       } else {
         notification.error({ message: res.message });
         param.error({
-          msg: 'unable to upload.'
-        })
+          msg: 'unable to upload.',
+        });
       }
     });
-  }
+  };
 
   render() {
     const {
@@ -1978,7 +1982,7 @@ class ProductInfo extends PureComponent {
 
       'remove-styles',
       'fullscreen',
-      'clear'
+      'clear',
     ];
     const controlsEasy = [
       'bold',
@@ -2035,23 +2039,23 @@ class ProductInfo extends PureComponent {
         </Link>
       </Fragment>
     ) : (
-        <Fragment>
-          <Button
-            onClick={this.handleSubmit}
-            type="primary"
-            icon="save"
-            htmlType="submit"
-            loading={this.state.submitting}
-          >
-            保存
+      <Fragment>
+        <Button
+          onClick={this.handleSubmit}
+          type="primary"
+          icon="save"
+          htmlType="submit"
+          loading={this.state.submitting}
+        >
+          保存
         </Button>
-          <Link to="./list">
-            <Button>
-              <Icon type="rollback" />
-            </Button>
-          </Link>
-        </Fragment>
-      );
+        <Link to="./list">
+          <Button>
+            <Icon type="rollback" />
+          </Button>
+        </Link>
+      </Fragment>
+    );
 
     return (
       <PageHeaderWrapper title={this.state.id ? '编辑商品' : '新增商品'} action={rollback}>
@@ -2234,9 +2238,9 @@ class ProductInfo extends PureComponent {
                       initialValue:
                         this.state.current.specialPriceStart && this.state.current.specialPriceEnd
                           ? [
-                            moment(this.state.current.specialPriceStart, 'YYYY/MM/DD HH:mm:ss'),
-                            moment(this.state.current.specialPriceEnd, 'YYYY/MM/DD HH:mm:ss'),
-                          ]
+                              moment(this.state.current.specialPriceStart, 'YYYY/MM/DD HH:mm:ss'),
+                              moment(this.state.current.specialPriceEnd, 'YYYY/MM/DD HH:mm:ss'),
+                            ]
                           : [],
                     })(
                       <RangePicker
@@ -2254,18 +2258,18 @@ class ProductInfo extends PureComponent {
                       action={this.handleUploadMain}
                       listType="picture-card"
                       showUploadList={false}
-                    // onChange={this.handleChange}
-                    // onPreview={this.handlePreview}
+                      // onChange={this.handleChange}
+                      // onPreview={this.handlePreview}
                     >
                       <Spin spinning={this.state.uploadMainLoading}>
                         {this.state.current.mediaId ? (
                           <img height={102} src={this.state.current.mediaUrl} />
                         ) : (
-                            <div>
-                              <Icon type={this.state.uploadMainLoading ? 'loading' : 'plus'} />
-                              <div className="ant-upload-text">上传</div>
-                            </div>
-                          )}
+                          <div>
+                            <Icon type={this.state.uploadMainLoading ? 'loading' : 'plus'} />
+                            <div className="ant-upload-text">上传</div>
+                          </div>
+                        )}
                       </Spin>
                     </Upload>
                     {this.state.current.mediaId ? (
@@ -2290,7 +2294,7 @@ class ProductInfo extends PureComponent {
                       fileList={this.state.fileList}
                       onRemove={this.handleRemove}
                       onPreview={this.handlePreview}
-                    // onChange={this.handleUploadChange}
+                      // onChange={this.handleUploadChange}
                     >
                       {uploadButton}
                     </Upload>
@@ -2560,7 +2564,7 @@ class ProductInfo extends PureComponent {
                           loading={this.state.productStocksLoading}
                           dataSource={this.state.productStocks}
                           columns={this.columnsProductStock}
-                        // scroll={{ x: 360 }}
+                          // scroll={{ x: 360 }}
                         />
                       </Card>
                     ) : null}
@@ -2868,7 +2872,7 @@ class ProductInfo extends PureComponent {
                       columns={this.columnsHistory}
                       bordered
                       onChange={this.handleHistoryStandardTableChange}
-                    // scroll={{ x: 1500 }}
+                      // scroll={{ x: 1500 }}
                     />
                   </Card>
                 </TabPane>
@@ -2979,24 +2983,24 @@ class ProductInfo extends PureComponent {
         >
           {this.state.visibleOptionAdd
             ? this.state.productOptionData.map(c => {
-              return (
-                <Select
-                  onChange={v => {
-                    let obj = this.state.addOptionCombination.find(x => x.id == c.id);
-                    if (obj) {
-                      obj.value = v;
-                    }
-                  }}
-                  key={c.name}
-                  style={{ width: '60%', marginBottom: 10 }}
-                  placeholder={c.name}
-                >
-                  {c.values.map(x => {
-                    return <Option key={x.value}>{x.value}</Option>;
-                  })}
-                </Select>
-              );
-            })
+                return (
+                  <Select
+                    onChange={v => {
+                      let obj = this.state.addOptionCombination.find(x => x.id == c.id);
+                      if (obj) {
+                        obj.value = v;
+                      }
+                    }}
+                    key={c.name}
+                    style={{ width: '60%', marginBottom: 10 }}
+                    placeholder={c.name}
+                  >
+                    {c.values.map(x => {
+                      return <Option key={x.value}>{x.value}</Option>;
+                    })}
+                  </Select>
+                );
+              })
             : null}
         </Modal>
         <CopyCommponent
